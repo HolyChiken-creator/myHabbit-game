@@ -1345,23 +1345,26 @@
     const active=state.quests.filter(q=>q.status==='active').slice(0,5);
     const completedToday=Math.min(active.length,active.filter(q=>q.claimedBy?.includes(u.id)).length);
     const room=gameRoomStage(Number(state.family.level||1));
+    const roomHour=new Date().getHours();
+    const roomTimeClass=roomHour<7?'room-night':roomHour<12?'room-morning':roomHour<18?'room-day':'room-evening';
+    const roomGreeting=roomHour<7?'Тиха ніч':roomHour<12?'Доброго ранку':roomHour<18?'Добрий день':'Затишного вечора';
     const hearts=Math.max(1,Math.min(5,1+Math.floor(Number(u.streak||0)/7)));
     const nextXp=xpRequiredForLevel(u.level);
     const familyTarget=10000;
     const familyProgress=Math.min(100,Math.round((Number(state.family.xp||0)%familyTarget)/familyTarget*100));
     const questTiles=active.map((q,i)=>`<button class="game-task ${q.claimedBy?.includes(u.id)?'is-active':''}" data-quest="${q.id}"><span class="game-task-check">${q.claimedBy?.includes(u.id)?'✓':i+1}</span><span class="game-task-icon">${q.icon||'✨'}</span><strong>${escapeHtml(q.title)}</strong><small>+${q.rewardXp} XP · +${q.rewardCoins} 🪙</small></button>`).join('');
-    return shell(`<section class="game-room ${room.className}">
+    return shell(`<section class="game-room ${room.className} ${roomTimeClass}">
       <div class="game-room-art" aria-hidden="true">
         <div class="room-wall-glow"></div><div class="room-window-clean"><i></i><b></b></div>
         <div class="room-curtain room-curtain-left"></div><div class="room-curtain room-curtain-right"></div>
-        <div class="room-shelf-clean shelf-clean-one"><span>🪴</span><span>📚</span><span>🕯️</span></div>
-        <div class="room-shelf-clean shelf-clean-two"><span>🌿</span><span>🖼️</span></div>
-        <div class="room-chair-clean"><span>🧣</span></div><div class="room-fireplace-clean"><i>🔥</i></div>
-        <div class="room-rug-clean"></div><div class="room-table-clean"><span>📖</span></div><div class="room-cat-clean">🐈</div>
+        <div class="room-shelf-clean shelf-clean-one"><span class="decor plant"></span><span class="decor books"></span><span class="decor candle"></span></div>
+        <div class="room-shelf-clean shelf-clean-two"><span class="decor vine"></span><span class="decor frame"></span></div>
+        <div class="room-chair-clean"><span class="chair-blanket"></span></div><div class="room-fireplace-clean"><i><b></b><b></b><b></b></i></div>
+        <div class="room-rug-clean"></div><div class="room-table-clean"><span class="room-book"></span></div><div class="room-cat-clean"><i></i><b></b></div>
       </div><div class="game-room-shade" aria-hidden="true"></div>
-      <header class="game-room-header"><div class="game-room-copy"><span>Твій дім росте<br>разом із тобою</span><strong>${room.name}</strong></div>
+      <header class="game-room-header"><div class="game-room-copy"><small class="room-greeting">${roomGreeting}, ${escapeHtml(u.name)}</small><span>Твій дім росте<br>разом із тобою</span><strong>${room.name}</strong></div>
       <div class="game-stats"><span class="level-stat"><b>${u.level}</b><i>${format(u.xp)} / ${format(nextXp)} XP</i></span><span>🪙 <b>${format(u.coins)}</b></span><span>💎 <b>${format(Math.floor(Number(u.coins||0)/35))}</b></span><span>👨‍👩‍👧‍👦 <b>${state.users.length}</b></span></div></header>
-      <button class="game-teddy-hotspot" data-action="open-guide" aria-label="Відкрити Тедика"><span class="teddy-ear left"></span><span class="teddy-ear right"></span><span class="teddy-head"><i>•ᴥ•</i></span><span class="teddy-body">☕</span><em>Тедик поруч</em></button>
+      <button class="game-teddy-hotspot" data-action="open-guide" aria-label="Відкрити Тедика"><span class="teddy-ear left"></span><span class="teddy-ear right"></span><span class="teddy-head"><i class="teddy-eye left"></i><i class="teddy-eye right"></i><b class="teddy-muzzle"><u></u></b></span><span class="teddy-body"><i class="teddy-cup"></i></span><em>Тедик поруч</em></button>
       <div class="game-room-progress"><div><strong>Наступна зміна кімнати</strong><small>${room.next}</small></div><div class="progress"><i style="width:${room.pct}%"></i></div></div>
       <div class="game-task-panel"><div class="game-tasks-title"><div><strong>Сьогоднішні справи</strong><small>Маленькі кроки змінюють дім</small></div><span>${completedToday}/${active.length}</span></div><div class="game-task-strip">${questTiles||'<div class="game-empty-task">Справи на сьогодні вже завершені ✨</div>'}</div></div>
     </section>
