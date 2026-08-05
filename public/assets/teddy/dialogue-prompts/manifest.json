@@ -1,0 +1,188 @@
+{
+  "pack": "PACK 06 — TEDDY DIALOGUE BUBBLES & GUIDED PROMPTS",
+  "version": "1.0.0",
+  "basePath": "/assets/teddy/dialogue-prompts",
+  "localization": "No text is baked into production assets.",
+  "items": [
+    {
+      "id": "speech_left",
+      "type": "speech",
+      "tail": "left",
+      "label": "Standard speech — left tail",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/speech_left.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/speech_left.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/speech_left.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/speech_left.svg"
+    },
+    {
+      "id": "speech_right",
+      "type": "speech",
+      "tail": "right",
+      "label": "Standard speech — right tail",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/speech_right.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/speech_right.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/speech_right.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/speech_right.svg"
+    },
+    {
+      "id": "speech_top",
+      "type": "speech",
+      "tail": "top",
+      "label": "Standard speech — top tail",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/speech_top.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/speech_top.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/speech_top.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/speech_top.svg"
+    },
+    {
+      "id": "speech_bottom",
+      "type": "speech",
+      "tail": "bottom",
+      "label": "Standard speech — bottom tail",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/speech_bottom.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/speech_bottom.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/speech_bottom.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/speech_bottom.svg"
+    },
+    {
+      "id": "thought_left",
+      "type": "thought",
+      "tail": "left",
+      "label": "Thought bubble — left",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/thought_left.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/thought_left.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/thought_left.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/thought_left.svg"
+    },
+    {
+      "id": "thought_right",
+      "type": "thought",
+      "tail": "right",
+      "label": "Thought bubble — right",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/thought_right.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/thought_right.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/thought_right.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/thought_right.svg"
+    },
+    {
+      "id": "tip_card",
+      "type": "card",
+      "tail": "none",
+      "label": "Helpful tip card",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/tip_card.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/tip_card.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/tip_card.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/tip_card.svg"
+    },
+    {
+      "id": "success_card",
+      "type": "card",
+      "tail": "none",
+      "label": "Success prompt",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/success_card.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/success_card.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/success_card.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/success_card.svg"
+    },
+    {
+      "id": "warning_card",
+      "type": "card",
+      "tail": "none",
+      "label": "Soft warning prompt",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/warning_card.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/warning_card.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/warning_card.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/warning_card.svg"
+    },
+    {
+      "id": "error_card",
+      "type": "card",
+      "tail": "none",
+      "label": "Soft error prompt",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/error_card.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/error_card.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/error_card.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/error_card.svg"
+    },
+    {
+      "id": "offline_card",
+      "type": "card",
+      "tail": "none",
+      "label": "Offline prompt",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/offline_card.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/offline_card.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/offline_card.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/offline_card.svg"
+    },
+    {
+      "id": "dark_toast",
+      "type": "toast",
+      "tail": "none",
+      "label": "Dark toast",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/dark_toast.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/dark_toast.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/dark_toast.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/dark_toast.svg"
+    },
+    {
+      "id": "mini_tooltip_left",
+      "type": "mini",
+      "tail": "left",
+      "label": "Mini tooltip — left",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/mini_tooltip_left.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/mini_tooltip_left.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/mini_tooltip_left.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/mini_tooltip_left.svg"
+    },
+    {
+      "id": "mini_tooltip_right",
+      "type": "mini",
+      "tail": "right",
+      "label": "Mini tooltip — right",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/mini_tooltip_right.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/mini_tooltip_right.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/mini_tooltip_right.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/mini_tooltip_right.svg"
+    },
+    {
+      "id": "onboarding_step",
+      "type": "onboarding",
+      "tail": "bottom",
+      "label": "Onboarding step",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/onboarding_step.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/onboarding_step.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/onboarding_step.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/onboarding_step.svg"
+    },
+    {
+      "id": "quest_prompt",
+      "type": "banner",
+      "tail": "left",
+      "label": "Quest prompt banner",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/quest_prompt.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/quest_prompt.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/quest_prompt.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/quest_prompt.svg"
+    },
+    {
+      "id": "reward_prompt",
+      "type": "banner",
+      "tail": "right",
+      "label": "Reward prompt banner",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/reward_prompt.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/reward_prompt.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/reward_prompt.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/reward_prompt.svg"
+    },
+    {
+      "id": "confirmation_prompt",
+      "type": "confirm",
+      "tail": "bottom",
+      "label": "Confirmation prompt",
+      "png1024": "/assets/teddy/dialogue-prompts/png/1024/confirmation_prompt.png",
+      "png512": "/assets/teddy/dialogue-prompts/png/512/confirmation_prompt.png",
+      "png256": "/assets/teddy/dialogue-prompts/png/256/confirmation_prompt.png",
+      "svg": "/assets/teddy/dialogue-prompts/svg/confirmation_prompt.svg"
+    }
+  ]
+}
