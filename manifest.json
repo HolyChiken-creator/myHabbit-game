@@ -1,5 +1,30 @@
 {
-  "pack": "07",
-  "stage": "2/2",
-  "count": 10
+  "pack": "PACK-08A",
+  "type": "update-only",
+  "asset_count": 19,
+  "format": "PNG RGBA",
+  "canvas": "512x512",
+  "path": "public/assets/pack-08A/",
+  "source_note": "Assets exported as individual transparent PNG files from the generated PACK-08A artwork.",
+  "files": [
+    "01_cozy_sofa_beige.png",
+    "02_cozy_sofa_sage.png",
+    "03_cozy_sofa_terracotta.png",
+    "04_armchair_beige.png",
+    "05_armchair_green.png",
+    "06_armchair_boucle.png",
+    "07_bed_natural.png",
+    "08_bed_soft.png",
+    "09_nightstand_wood.png",
+    "10_nightstand_white.png",
+    "11_coffee_table_round.png",
+    "12_coffee_table_rect.png",
+    "13_coffee_table_oval.png",
+    "14_ottoman_pouf_beige.png",
+    "15_ottoman_pouf_green.png",
+    "16_bookshelf_tall.png",
+    "17_bookshelf_low.png",
+    "18_bean_bag_cream.png",
+    "19_bean_bag_green.png"
+  ]
 }
