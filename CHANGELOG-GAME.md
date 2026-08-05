@@ -1,10 +1,18 @@
-# 12.0.1 — PR deploy fix
+# 12.0.2 — Clean Room Foundation
+
+- Removed the concept screenshot from the live home screen.
+- Added a clean layered room scene without baked-in buttons or text.
+- Rebuilt Teddy as an interactive foreground companion.
+- Reorganized stats, room progress and daily quests into a coherent game HUD.
+- Improved desktop and mobile responsive layout.
+
+# 12.0.2 — PR deploy fix
 
 - Виправлено пошкоджений loader `app.js` у `public/index.html`.
 - Додано fallback при помилці завантаження застосунку.
-- Оновлено cache-busting і Service Worker cache до 12.0.1.
+- Оновлено cache-busting і Service Worker cache до 12.0.2.
 
-# myHabbit-game 12.0.1
+# myHabbit-game 12.0.2
 
 - Новий ігровий домашній екран у стилі затишної кімнати.
 - Тедик став центральним живим компаньйоном.
