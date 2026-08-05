@@ -1,4 +1,4 @@
-# 12.0.3 — Premium Room Polish
+# 12.0.4 — Premium Room Polish
 
 - Кімната автоматично змінює атмосферу залежно від часу доби.
 - Тедик отримав повноцінне обличчя, чашку, idle-анімацію та доступний focus-стан.
@@ -29,3 +29,9 @@
 - Додана репутація родини та відображення прогресу кімнати.
 - Повністю збережено існуючу логіку сімей, синхронізації, квестів, магазину, колекцій, admin/owner функцій.
 - Проєкт перейменовано для окремого GitHub/Cloudflare середовища: `myHabbit-game` / `myhabbit-game`.
+
+## 12.0.4 — Mobile-first room rebuild
+- Rebuilt the home room layout for narrow phones instead of shrinking the desktop canvas.
+- Separated the scene and daily tasks vertically to prevent overlays and clipped controls.
+- Added safe-area spacing, compact scrollable stats, one-column mobile task cards, bottom-sheet modals, and landscape handling.
+- Improved mobile layouts for quests, grids, profile, shop, achievements, and toast placement.
