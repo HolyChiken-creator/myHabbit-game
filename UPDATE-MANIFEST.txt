@@ -1,0 +1,13 @@
+myHabbit-game 12.0.1 update-only
+
+CHANGELOG-GAME.md
+PR-DEPLOY-12.0.1.md
+RELEASE-CHECKLIST.md
+VERSION
+package.json
+public/VERSION.txt
+public/index.html
+public/manifest.webmanifest
+public/styles.css
+public/sw.js
+scripts/release-audit.mjs

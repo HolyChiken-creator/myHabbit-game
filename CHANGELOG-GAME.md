@@ -1,4 +1,10 @@
-# myHabbit-game 12.0.0
+# 12.0.1 — PR deploy fix
+
+- Виправлено пошкоджений loader `app.js` у `public/index.html`.
+- Додано fallback при помилці завантаження застосунку.
+- Оновлено cache-busting і Service Worker cache до 12.0.1.
+
+# myHabbit-game 12.0.1
 
 - Новий ігровий домашній екран у стилі затишної кімнати.
 - Тедик став центральним живим компаньйоном.
