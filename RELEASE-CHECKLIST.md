@@ -1,4 +1,4 @@
-# myHabbit-game 12.0.0 — release checklist
+# myHabbit-game 12.0.1 — release checklist
 
 ## Completed automatically
 - `src/worker.js` syntax check passed.
@@ -7,7 +7,7 @@
 - All JSON content and manifest files parse successfully.
 - Required PWA files, icons, room artwork and Cloudflare configuration are present.
 - Product name changed to `myHabbit-game`; Worker name changed to `myhabbit-game`.
-- Cache and public version synchronized to `12.0.0`.
+- Cache and public version synchronized to `12.0.1`.
 - Four room stages are included: levels 1, 5, 20 and 50.
 - Existing patch-21 backend and family/game state logic were retained.
 
