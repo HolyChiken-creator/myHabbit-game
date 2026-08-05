@@ -12,7 +12,7 @@
   const OFFLINE_STORE = 'library';
   const CONTENT_CACHE = 'myHabbitContentLibraryV1';
   const CONTENT_VERSION = '1.0.0';
-  const APP_VERSION = '11.3.3-maintenance-splash-schedule';
+  const APP_VERSION = '12.0.7';
   const PROJECT_ORIGIN_ID = 'mh-oh-2026-7f3c91';
   const PROJECT_CREATOR_REF = 'OH-WWG-2026';
   const ACCOUNTS = 'myHabbitAccountsV1';

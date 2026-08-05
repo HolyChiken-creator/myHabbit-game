@@ -1069,3 +1069,77 @@ body{background:radial-gradient(circle at 20% 0,#fff8ef 0,#ead4bd 44%,#c69a72 10
   .game-teddy-hotspot:hover,.game-teddy-hotspot:active{transform:translateX(-50%) scale(.53)!important}
   .game-room-progress{bottom:8px!important;padding:6px 9px!important}
 }
+
+/* 12.0.7 — visual QA pass: original-concept composition + overlap-safe mobile layout */
+@media (max-width:700px){
+  :root{--scene-h:430px;--screen-pad:10px}
+  .app-layout:has(.game-room) .main{padding:var(--screen-pad) var(--screen-pad) calc(92px + env(safe-area-inset-bottom))!important;background:#f5eee7}
+  .game-room{display:block!important;position:relative!important;padding:0!important;border-radius:26px!important;overflow:visible!important;background:transparent!important}
+  .game-room-art,.game-room-shade{position:absolute!important;inset:0 0 auto 0!important;height:var(--scene-h)!important;border-radius:26px!important;overflow:hidden!important}
+  .game-room-art{background:linear-gradient(180deg,#dcb68e 0 64%,#81553a 64% 100%)!important}
+  .game-room-art:before{inset:0 0 35%!important;background:linear-gradient(115deg,rgba(255,249,226,.38),transparent 45%),linear-gradient(180deg,#ecd8bd,#c99b73)!important;border-bottom:7px solid rgba(91,55,36,.2)!important}
+  .game-room-art:after{height:38%!important;bottom:-3%!important;background:repeating-linear-gradient(96deg,#7b4c32 0 52px,#68402c 53px 56px)!important}
+  .game-room-shade{background:linear-gradient(180deg,rgba(36,20,13,.16),rgba(36,20,13,.02) 52%,rgba(36,20,13,.45))!important}
+
+  .game-room-header{position:absolute!important;z-index:8!important;top:14px!important;left:14px!important;right:14px!important;display:block!important}
+  .game-room-copy{max-width:70%!important}
+  .game-room-copy small{font-size:10px!important;letter-spacing:.07em!important;margin-bottom:5px!important}
+  .game-room-copy span{font-size:clamp(23px,6.8vw,29px)!important;line-height:1.02!important}
+  .game-room-copy strong{font-size:10px!important;margin-top:7px!important;padding:5px 9px!important}
+
+  .game-stats{position:absolute!important;top:15px!important;left:auto!important;right:14px!important;width:96px!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important}
+  .game-stats>span{min-width:0!important;min-height:35px!important;padding:5px 6px!important;border-radius:11px!important;justify-content:center!important;font-size:10px!important;background:rgba(255,250,243,.94)!important;color:#4b3024!important;box-shadow:0 5px 14px rgba(39,20,11,.17)!important}
+  .game-stats .level-stat{grid-column:1/-1!important;display:grid!important;grid-template-columns:30px 1fr!important;text-align:left!important}
+  .game-stats .level-stat b{width:30px!important;height:30px!important;border-radius:9px!important}
+  .game-stats .level-stat i{font-size:9px!important;line-height:1.15!important;white-space:normal!important}
+  .game-stats>span:nth-child(4){display:none!important}
+
+  .room-window-clean{display:block!important;left:4%!important;top:126px!important;width:33%!important;height:150px!important;border-width:8px!important;border-radius:70px 70px 10px 10px!important}
+  .room-curtain{display:block!important;top:112px!important;width:14%!important;height:185px!important}
+  .room-curtain-left{left:-4%!important}.room-curtain-right{left:28%!important}
+  .room-chair-clean{display:block!important;left:-14%!important;bottom:auto!important;top:252px!important;transform:scale(.48)!important;transform-origin:left bottom!important}
+  .room-fireplace-clean{display:block!important;right:-13%!important;bottom:auto!important;top:248px!important;transform:scale(.47)!important;transform-origin:right bottom!important}
+  .room-rug-clean{display:block!important;left:50%!important;bottom:auto!important;top:324px!important;width:60%!important;height:76px!important;transform:translateX(-50%)!important}
+  .room-table-clean{display:block!important;right:7%!important;bottom:auto!important;top:320px!important;transform:scale(.43)!important;transform-origin:right bottom!important}
+  .room-cat-clean{display:block!important;left:14%!important;bottom:auto!important;top:335px!important;transform:scale(.72)!important;transform-origin:left bottom!important}
+  .room-shelf-clean{display:none!important}
+
+  .game-teddy-hotspot{z-index:6!important;left:50%!important;top:172px!important;bottom:auto!important;width:170px!important;height:190px!important;transform:translateX(-50%) scale(.72)!important;transform-origin:center bottom!important}
+  .game-teddy-hotspot:hover,.game-teddy-hotspot:active{transform:translateX(-50%) scale(.72)!important}
+  .game-teddy-hotspot em{display:block!important;bottom:-5px!important;font-size:10px!important;padding:5px 8px!important;white-space:nowrap!important}
+
+  .game-room-progress{position:absolute!important;z-index:9!important;top:366px!important;left:14px!important;right:14px!important;bottom:auto!important;padding:8px 10px!important;border-radius:14px!important;background:rgba(255,250,243,.96)!important}
+  .game-room-progress>div:first-child{gap:7px!important}.game-room-progress strong,.game-room-progress small{font-size:9px!important}.game-room-progress .progress{height:6px!important;margin-top:6px!important}
+
+  .game-task-panel{position:relative!important;margin:calc(var(--scene-h) + 10px) 0 0!important;padding:13px!important;border-radius:21px!important;background:#fffaf5!important;box-shadow:0 10px 28px rgba(70,43,28,.11)!important}
+  .game-tasks-title{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-bottom:10px!important}
+  .game-tasks-title>div{min-width:0!important}.game-tasks-title strong{font-size:15px!important}.game-tasks-title small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .game-task-strip{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  .game-task{grid-template-columns:34px minmax(0,1fr) 30px!important;grid-template-areas:'check title icon' 'check reward icon'!important;min-height:66px!important;width:100%!important;padding:10px!important}
+  .game-task-check{grid-area:check!important}.game-task-icon{grid-area:icon!important;justify-self:end!important}.game-task strong{grid-area:title!important;min-width:0!important}.game-task small{grid-area:reward!important}
+
+  .game-feature-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;overflow:visible!important;gap:9px!important;margin:10px 0 0!important;padding:0!important}
+  .game-feature-grid button{min-width:0!important;min-height:106px!important;padding:12px 9px!important;border-radius:18px!important}
+  .game-feature-grid button:last-child:nth-child(odd){grid-column:1/-1!important;min-height:92px!important}
+  .game-family-reputation{margin:10px 0 0!important;padding:14px!important}
+}
+
+@media (max-width:390px){
+  :root{--scene-h:410px;--screen-pad:7px}
+  .game-room-copy{max-width:67%!important}.game-room-copy span{font-size:22px!important}
+  .game-stats{right:10px!important;width:91px!important}.game-room-header{left:11px!important;right:11px!important}
+  .room-window-clean{top:121px!important;height:140px!important}.room-curtain{top:108px!important;height:171px!important}
+  .game-teddy-hotspot{top:164px!important;transform:translateX(-50%) scale(.66)!important}.game-teddy-hotspot:hover,.game-teddy-hotspot:active{transform:translateX(-50%) scale(.66)!important}
+  .room-chair-clean{top:239px!important}.room-fireplace-clean{top:236px!important}.room-rug-clean{top:310px!important}.room-table-clean{top:306px!important}.room-cat-clean{top:320px!important}
+  .game-room-progress{top:347px!important;left:10px!important;right:10px!important}
+}
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:900px){
+  :root{--scene-h:330px}
+  .game-room-copy{max-width:50%!important}.game-room-copy span{font-size:20px!important}
+  .game-stats{width:190px!important;grid-template-columns:1.5fr 1fr 1fr!important}.game-stats .level-stat{grid-column:auto!important}.game-stats>span:nth-child(4){display:none!important}
+  .room-window-clean{top:100px!important;height:120px!important;width:25%!important}.room-curtain{top:91px!important;height:145px!important;width:11%!important}.room-curtain-right{left:22%!important}
+  .game-teddy-hotspot{top:114px!important;transform:translateX(-50%) scale(.57)!important}.game-teddy-hotspot:hover,.game-teddy-hotspot:active{transform:translateX(-50%) scale(.57)!important}
+  .room-chair-clean{top:187px!important;transform:scale(.4)!important}.room-fireplace-clean{top:183px!important;transform:scale(.39)!important}.room-rug-clean{top:246px!important}.room-table-clean{top:239px!important;transform:scale(.36)!important}.room-cat-clean{top:250px!important;transform:scale(.58)!important}
+  .game-room-progress{top:278px!important}
+}

@@ -1,4 +1,4 @@
-const APP_VERSION = '11.3.3-maintenance-splash-schedule';
+const APP_VERSION = '12.0.7';
 const DEPLOY_MARKER = 'myhabbit-11-3-2-2026-08-02';
 const DEFAULT_OWNER_PANEL_SECRET = 'TedyK-Owner-9472!';
 const JSON_HEADERS = {
