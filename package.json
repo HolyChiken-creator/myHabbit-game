@@ -1,6 +1,6 @@
 {
   "name": "myhabbit-game",
-  "version": "12.0.4",
+  "version": "12.0.5",
   "private": true,
   "description": "myHabbit-game family habit RPG PWA on Cloudflare Workers",
   "scripts": {
