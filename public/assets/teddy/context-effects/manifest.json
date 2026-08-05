@@ -1,0 +1,199 @@
+{
+  "pack": "PACK 05 — TEDDY CONTEXT EFFECTS & UI BADGES",
+  "version": "1.0.0",
+  "basePath": "/assets/teddy/context-effects",
+  "items": [
+    {
+      "id": "task_complete",
+      "label": "Task complete",
+      "png256": "/assets/teddy/context-effects/png/256/task_complete.png",
+      "png128": "/assets/teddy/context-effects/png/128/task_complete.png",
+      "png64": "/assets/teddy/context-effects/png/64/task_complete.png",
+      "svg": "/assets/teddy/context-effects/svg/task_complete.svg"
+    },
+    {
+      "id": "xp_gained",
+      "label": "XP gained",
+      "png256": "/assets/teddy/context-effects/png/256/xp_gained.png",
+      "png128": "/assets/teddy/context-effects/png/128/xp_gained.png",
+      "png64": "/assets/teddy/context-effects/png/64/xp_gained.png",
+      "svg": "/assets/teddy/context-effects/svg/xp_gained.svg"
+    },
+    {
+      "id": "coins_gained",
+      "label": "Coins gained",
+      "png256": "/assets/teddy/context-effects/png/256/coins_gained.png",
+      "png128": "/assets/teddy/context-effects/png/128/coins_gained.png",
+      "png64": "/assets/teddy/context-effects/png/64/coins_gained.png",
+      "svg": "/assets/teddy/context-effects/svg/coins_gained.svg"
+    },
+    {
+      "id": "achievement",
+      "label": "Achievement",
+      "png256": "/assets/teddy/context-effects/png/256/achievement.png",
+      "png128": "/assets/teddy/context-effects/png/128/achievement.png",
+      "png64": "/assets/teddy/context-effects/png/64/achievement.png",
+      "svg": "/assets/teddy/context-effects/svg/achievement.svg"
+    },
+    {
+      "id": "level_up",
+      "label": "Level up",
+      "png256": "/assets/teddy/context-effects/png/256/level_up.png",
+      "png128": "/assets/teddy/context-effects/png/128/level_up.png",
+      "png64": "/assets/teddy/context-effects/png/64/level_up.png",
+      "svg": "/assets/teddy/context-effects/svg/level_up.svg"
+    },
+    {
+      "id": "error_soft",
+      "label": "Soft error",
+      "png256": "/assets/teddy/context-effects/png/256/error_soft.png",
+      "png128": "/assets/teddy/context-effects/png/128/error_soft.png",
+      "png64": "/assets/teddy/context-effects/png/64/error_soft.png",
+      "svg": "/assets/teddy/context-effects/svg/error_soft.svg"
+    },
+    {
+      "id": "empty_state",
+      "label": "Empty state",
+      "png256": "/assets/teddy/context-effects/png/256/empty_state.png",
+      "png128": "/assets/teddy/context-effects/png/128/empty_state.png",
+      "png64": "/assets/teddy/context-effects/png/64/empty_state.png",
+      "svg": "/assets/teddy/context-effects/svg/empty_state.svg"
+    },
+    {
+      "id": "offline",
+      "label": "Offline",
+      "png256": "/assets/teddy/context-effects/png/256/offline.png",
+      "png128": "/assets/teddy/context-effects/png/128/offline.png",
+      "png64": "/assets/teddy/context-effects/png/64/offline.png",
+      "svg": "/assets/teddy/context-effects/svg/offline.svg"
+    },
+    {
+      "id": "syncing",
+      "label": "Syncing",
+      "png256": "/assets/teddy/context-effects/png/256/syncing.png",
+      "png128": "/assets/teddy/context-effects/png/128/syncing.png",
+      "png64": "/assets/teddy/context-effects/png/64/syncing.png",
+      "svg": "/assets/teddy/context-effects/svg/syncing.svg"
+    },
+    {
+      "id": "waiting",
+      "label": "Waiting",
+      "png256": "/assets/teddy/context-effects/png/256/waiting.png",
+      "png128": "/assets/teddy/context-effects/png/128/waiting.png",
+      "png64": "/assets/teddy/context-effects/png/64/waiting.png",
+      "svg": "/assets/teddy/context-effects/svg/waiting.svg"
+    },
+    {
+      "id": "shop_open",
+      "label": "Shop open",
+      "png256": "/assets/teddy/context-effects/png/256/shop_open.png",
+      "png128": "/assets/teddy/context-effects/png/128/shop_open.png",
+      "png64": "/assets/teddy/context-effects/png/64/shop_open.png",
+      "svg": "/assets/teddy/context-effects/svg/shop_open.svg"
+    },
+    {
+      "id": "shop_closed",
+      "label": "Shop closed",
+      "png256": "/assets/teddy/context-effects/png/256/shop_closed.png",
+      "png128": "/assets/teddy/context-effects/png/128/shop_closed.png",
+      "png64": "/assets/teddy/context-effects/png/64/shop_closed.png",
+      "svg": "/assets/teddy/context-effects/svg/shop_closed.svg"
+    },
+    {
+      "id": "gift",
+      "label": "Gift",
+      "png256": "/assets/teddy/context-effects/png/256/gift.png",
+      "png128": "/assets/teddy/context-effects/png/128/gift.png",
+      "png64": "/assets/teddy/context-effects/png/64/gift.png",
+      "svg": "/assets/teddy/context-effects/svg/gift.svg"
+    },
+    {
+      "id": "roulette",
+      "label": "Roulette",
+      "png256": "/assets/teddy/context-effects/png/256/roulette.png",
+      "png128": "/assets/teddy/context-effects/png/128/roulette.png",
+      "png64": "/assets/teddy/context-effects/png/64/roulette.png",
+      "svg": "/assets/teddy/context-effects/svg/roulette.svg"
+    },
+    {
+      "id": "rare_item",
+      "label": "Rare item",
+      "png256": "/assets/teddy/context-effects/png/256/rare_item.png",
+      "png128": "/assets/teddy/context-effects/png/128/rare_item.png",
+      "png64": "/assets/teddy/context-effects/png/64/rare_item.png",
+      "svg": "/assets/teddy/context-effects/svg/rare_item.svg"
+    },
+    {
+      "id": "family_invite",
+      "label": "Family invite",
+      "png256": "/assets/teddy/context-effects/png/256/family_invite.png",
+      "png128": "/assets/teddy/context-effects/png/128/family_invite.png",
+      "png64": "/assets/teddy/context-effects/png/64/family_invite.png",
+      "svg": "/assets/teddy/context-effects/svg/family_invite.svg"
+    },
+    {
+      "id": "daily_streak",
+      "label": "Daily streak",
+      "png256": "/assets/teddy/context-effects/png/256/daily_streak.png",
+      "png128": "/assets/teddy/context-effects/png/128/daily_streak.png",
+      "png64": "/assets/teddy/context-effects/png/64/daily_streak.png",
+      "svg": "/assets/teddy/context-effects/svg/daily_streak.svg"
+    },
+    {
+      "id": "reminder",
+      "label": "Reminder",
+      "png256": "/assets/teddy/context-effects/png/256/reminder.png",
+      "png128": "/assets/teddy/context-effects/png/128/reminder.png",
+      "png64": "/assets/teddy/context-effects/png/64/reminder.png",
+      "svg": "/assets/teddy/context-effects/svg/reminder.svg"
+    },
+    {
+      "id": "saved",
+      "label": "Saved",
+      "png256": "/assets/teddy/context-effects/png/256/saved.png",
+      "png128": "/assets/teddy/context-effects/png/128/saved.png",
+      "png64": "/assets/teddy/context-effects/png/64/saved.png",
+      "svg": "/assets/teddy/context-effects/svg/saved.svg"
+    },
+    {
+      "id": "warning_soft",
+      "label": "Warning",
+      "png256": "/assets/teddy/context-effects/png/256/warning_soft.png",
+      "png128": "/assets/teddy/context-effects/png/128/warning_soft.png",
+      "png64": "/assets/teddy/context-effects/png/64/warning_soft.png",
+      "svg": "/assets/teddy/context-effects/svg/warning_soft.svg"
+    },
+    {
+      "id": "sparkles",
+      "label": "Sparkles",
+      "png256": "/assets/teddy/context-effects/png/256/sparkles.png",
+      "png128": "/assets/teddy/context-effects/png/128/sparkles.png",
+      "png64": "/assets/teddy/context-effects/png/64/sparkles.png",
+      "svg": "/assets/teddy/context-effects/svg/sparkles.svg"
+    },
+    {
+      "id": "heart",
+      "label": "Heart",
+      "png256": "/assets/teddy/context-effects/png/256/heart.png",
+      "png128": "/assets/teddy/context-effects/png/128/heart.png",
+      "png64": "/assets/teddy/context-effects/png/64/heart.png",
+      "svg": "/assets/teddy/context-effects/svg/heart.svg"
+    },
+    {
+      "id": "confetti",
+      "label": "Confetti",
+      "png256": "/assets/teddy/context-effects/png/256/confetti.png",
+      "png128": "/assets/teddy/context-effects/png/128/confetti.png",
+      "png64": "/assets/teddy/context-effects/png/64/confetti.png",
+      "svg": "/assets/teddy/context-effects/svg/confetti.svg"
+    },
+    {
+      "id": "sleep",
+      "label": "Sleep",
+      "png256": "/assets/teddy/context-effects/png/256/sleep.png",
+      "png128": "/assets/teddy/context-effects/png/128/sleep.png",
+      "png64": "/assets/teddy/context-effects/png/64/sleep.png",
+      "svg": "/assets/teddy/context-effects/svg/sleep.svg"
+    }
+  ]
+}
