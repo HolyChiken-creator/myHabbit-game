@@ -1070,7 +1070,7 @@ body{background:radial-gradient(circle at 20% 0,#fff8ef 0,#ead4bd 44%,#c69a72 10
   .game-room-progress{bottom:8px!important;padding:6px 9px!important}
 }
 
-/* 12.0.8 — visual QA pass: original-concept composition + overlap-safe mobile layout */
+/* 12.0.9 — visual QA pass: original-concept composition + overlap-safe mobile layout */
 @media (max-width:700px){
   :root{--scene-h:430px;--screen-pad:10px}
   .app-layout:has(.game-room) .main{padding:var(--screen-pad) var(--screen-pad) calc(92px + env(safe-area-inset-bottom))!important;background:#f5eee7}
@@ -1145,7 +1145,7 @@ body{background:radial-gradient(circle at 20% 0,#fff8ef 0,#ead4bd 44%,#c69a72 10
 }
 
 
-/* 12.0.8 — structural mobile rebuild: scene and content are separate flow blocks */
+/* 12.0.9 — structural mobile rebuild: scene and content are separate flow blocks */
 .game-room-scene{position:relative;min-height:760px;overflow:hidden;border-radius:inherit;isolation:isolate}
 .game-room>.game-task-panel{z-index:4}
 
