@@ -1,0 +1,20 @@
+/* myHabbit PACK 03 — Teddy micro-animations */
+.teddy-micro-animation {
+  display: block;
+  width: min(42vw, 320px);
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.teddy-micro-animation--small { width: min(24vw, 160px); }
+.teddy-micro-animation--large { width: min(60vw, 440px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .teddy-micro-animation {
+    animation: none !important;
+  }
+}

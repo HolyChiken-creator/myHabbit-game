@@ -1,0 +1,16 @@
+myHabbit PACK 03 — UPDATE-ONLY OVERLAY
+
+1. Open the extracted current myHabbit project folder.
+2. Copy ALL items from this archive root:
+   - public
+   - docs
+   - UPDATE-MANIFEST-PACK-03.txt
+   - APPLY-OVER-PROJECT-ROOT.txt
+3. Paste them directly into the myHabbit project root, beside package.json, src and wrangler files.
+4. Confirm folder merge/replacement when Windows asks.
+
+Do NOT copy the ZIP file itself into public.
+Do NOT create an additional PACK-03 folder inside the project.
+
+Main installed path:
+public/assets/teddy/micro-animations/
