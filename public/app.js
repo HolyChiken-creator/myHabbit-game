@@ -12,7 +12,7 @@
   const OFFLINE_STORE = 'library';
   const CONTENT_CACHE = 'myHabbitContentLibraryV1';
   const CONTENT_VERSION = '1.0.0';
-  const APP_VERSION = '12.0.7';
+  const APP_VERSION = '12.0.8';
   const PROJECT_ORIGIN_ID = 'mh-oh-2026-7f3c91';
   const PROJECT_CREATOR_REF = 'OH-WWG-2026';
   const ACCOUNTS = 'myHabbitAccountsV1';
@@ -1354,6 +1354,7 @@
     const familyProgress=Math.min(100,Math.round((Number(state.family.xp||0)%familyTarget)/familyTarget*100));
     const questTiles=active.map((q,i)=>`<button class="game-task ${q.claimedBy?.includes(u.id)?'is-active':''}" data-quest="${q.id}"><span class="game-task-check">${q.claimedBy?.includes(u.id)?'✓':i+1}</span><span class="game-task-icon">${q.icon||'✨'}</span><strong>${escapeHtml(q.title)}</strong><small>+${q.rewardXp} XP · +${q.rewardCoins} 🪙</small></button>`).join('');
     return shell(`<section class="game-room ${room.className} ${roomTimeClass}">
+      <div class="game-room-scene">
       <div class="game-room-art" aria-hidden="true">
         <div class="room-wall-glow"></div><div class="room-window-clean"><i></i><b></b></div>
         <div class="room-curtain room-curtain-left"></div><div class="room-curtain room-curtain-right"></div>
@@ -1366,6 +1367,7 @@
       <div class="game-stats"><span class="level-stat"><b>${u.level}</b><i>${format(u.xp)} / ${format(nextXp)} XP</i></span><span>🪙 <b>${format(u.coins)}</b></span><span>💎 <b>${format(Math.floor(Number(u.coins||0)/35))}</b></span><span>👨‍👩‍👧‍👦 <b>${state.users.length}</b></span></div></header>
       <button class="game-teddy-hotspot" data-action="open-guide" aria-label="Відкрити Тедика"><span class="teddy-ear left"></span><span class="teddy-ear right"></span><span class="teddy-head"><i class="teddy-eye left"></i><i class="teddy-eye right"></i><b class="teddy-muzzle"><u></u></b></span><span class="teddy-body"><i class="teddy-cup"></i></span><em>Тедик поруч</em></button>
       <div class="game-room-progress"><div><strong>Наступна зміна кімнати</strong><small>${room.next}</small></div><div class="progress"><i style="width:${room.pct}%"></i></div></div>
+      </div>
       <div class="game-task-panel"><div class="game-tasks-title"><div><strong>Сьогоднішні справи</strong><small>Маленькі кроки змінюють дім</small></div><span>${completedToday}/${active.length}</span></div><div class="game-task-strip">${questTiles||'<div class="game-empty-task">Справи на сьогодні вже завершені ✨</div>'}</div></div>
     </section>
     <section class="game-feature-grid">
