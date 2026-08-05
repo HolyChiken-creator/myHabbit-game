@@ -1,0 +1,59 @@
+{
+  "pack": "PACK-07",
+  "stage": "1/2",
+  "name": "Cozy Props — Core Set",
+  "assetPath": "/assets/pack-07-cozy-props/",
+  "format": "PNG RGBA",
+  "canvas": "512x512",
+  "transparentBackground": true,
+  "assets": [
+    {
+      "id": "plant-fern",
+      "file": "public/assets/pack-07-cozy-props/plant-fern.png"
+    },
+    {
+      "id": "plant-succulent",
+      "file": "public/assets/pack-07-cozy-props/plant-succulent.png"
+    },
+    {
+      "id": "books-stack",
+      "file": "public/assets/pack-07-cozy-props/books-stack.png"
+    },
+    {
+      "id": "mug-heart",
+      "file": "public/assets/pack-07-cozy-props/mug-heart.png"
+    },
+    {
+      "id": "lamp-table",
+      "file": "public/assets/pack-07-cozy-props/lamp-table.png"
+    },
+    {
+      "id": "candle-cozy",
+      "file": "public/assets/pack-07-cozy-props/candle-cozy.png"
+    },
+    {
+      "id": "pillow-heart",
+      "file": "public/assets/pack-07-cozy-props/pillow-heart.png"
+    },
+    {
+      "id": "frame-landscape",
+      "file": "public/assets/pack-07-cozy-props/frame-landscape.png"
+    },
+    {
+      "id": "shelf-mini",
+      "file": "public/assets/pack-07-cozy-props/shelf-mini.png"
+    },
+    {
+      "id": "lights-fairy",
+      "file": "public/assets/pack-07-cozy-props/lights-fairy.png"
+    },
+    {
+      "id": "table-side",
+      "file": "public/assets/pack-07-cozy-props/table-side.png"
+    },
+    {
+      "id": "basket-woven",
+      "file": "public/assets/pack-07-cozy-props/basket-woven.png"
+    }
+  ]
+}

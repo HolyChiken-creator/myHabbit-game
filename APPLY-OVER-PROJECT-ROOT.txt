@@ -1,1 +1,4 @@
-Copy the contents of this archive over the myHabbit project root. Merge public/ and docs/.
+PACK-07 STAGE 1/2
+
+Розпакуйте архів у корінь актуального проєкту myHabbit із заміною/додаванням файлів.
+Нові ресурси з'являться у public/assets/pack-07-cozy-props/.
