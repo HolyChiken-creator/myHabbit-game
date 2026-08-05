@@ -1,0 +1,4 @@
+/* myHabbit PACK 04 — Teddy reaction states */
+.teddy-reaction{display:block;width:min(72vw,320px);height:auto;object-fit:contain;pointer-events:none;user-select:none}
+.teddy-reaction--small{width:96px}.teddy-reaction--medium{width:192px}.teddy-reaction--large{width:320px}
+@media (prefers-reduced-motion: reduce){.teddy-reaction{animation:none!important}}
