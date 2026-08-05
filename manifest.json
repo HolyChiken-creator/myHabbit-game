@@ -1,27 +1,4 @@
 {
-  "pack": "PACK-08B",
-  "type": "update-only",
-  "name": "Bedroom & Storage Furniture",
-  "asset_count": 16,
-  "format": "PNG RGBA",
-  "canvas": "512x512",
-  "path": "public/assets/pack-08B/",
-  "files": [
-    "01_wardrobe_double_wood.png",
-    "02_wardrobe_double_white.png",
-    "03_dresser_wood.png",
-    "04_dresser_sage.png",
-    "05_vanity_table.png",
-    "06_floor_mirror.png",
-    "07_bedroom_bench.png",
-    "08_storage_chest.png",
-    "09_laundry_basket.png",
-    "10_shoe_rack.png",
-    "11_wall_shelf.png",
-    "12_coat_rack.png",
-    "13_bedside_lamp.png",
-    "14_room_divider.png",
-    "15_storage_cabinet.png",
-    "16_pegboard_organizer.png"
-  ]
+  "pack": "08C",
+  "count": 16
 }
