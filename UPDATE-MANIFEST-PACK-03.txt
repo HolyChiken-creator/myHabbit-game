@@ -1,0 +1,14 @@
+PACK 03 — TEDDY MICRO-ANIMATION FRAMES
+
+ADD:
+public/assets/teddy/teddy-animations.css
+public/assets/teddy/micro-animations/animated/*
+public/assets/teddy/micro-animations/frames/*
+public/assets/teddy/micro-animations/spritesheets/*
+public/assets/teddy/micro-animations/preview/*
+public/assets/teddy/micro-animations/manifest.json
+docs/PACK-03-INSTALL.md
+docs/PACK-03-QA.md
+
+INSTALL:
+Copy/merge the archive contents into the root of the current myHabbit project.

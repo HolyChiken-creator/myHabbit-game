@@ -1,0 +1,35 @@
+{
+  "pack": "pack_00_style_lock",
+  "version": "1.0.0",
+  "colors": {
+    "cream": "#F5E8CE",
+    "warm_beige": "#DDBA7A",
+    "caramel": "#C98732",
+    "honey": "#E9AC3D",
+    "wood": "#6B3517",
+    "olive": "#68752D",
+    "forest": "#2F4B28",
+    "grape": "#4C2D4F",
+    "night_blue": "#28395E",
+    "fire_orange": "#D96A19",
+    "heart_red": "#D94B45",
+    "gem_purple": "#8B49C9"
+  },
+  "lighting": {
+    "key_direction": "upper_left",
+    "day_temperature_k": 5200,
+    "evening_temperature_k": 2900
+  },
+  "shape": {
+    "radius_small": 12,
+    "radius_medium": 20,
+    "radius_large": 32,
+    "outline_px": 2
+  },
+  "rules": [
+    "no_generated_text_in_final_assets",
+    "rounded_soft_silhouettes",
+    "warm_cinematic_light",
+    "consistent_teddy_proportions"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "update": "NEW-PACKS-09B-10A",
+  "type": "update-only",
+  "packs": {
+    "PACK-09B": {
+      "count": 19,
+      "path": "public/assets/pack-09B/",
+      "format": "PNG RGBA 512x512"
+    },
+    "PACK-10A": {
+      "count": 12,
+      "path": "public/assets/pack-10A-ui/",
+      "format": "PNG RGBA 1024x512"
+    }
+  },
+  "total_assets": 31
+}

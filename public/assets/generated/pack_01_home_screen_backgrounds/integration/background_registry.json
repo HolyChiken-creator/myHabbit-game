@@ -1,0 +1,82 @@
+{
+  "level_1": {
+    "portrait": "webp/portrait/home_level_001_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_001_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_001_day_v01_desktop.webp"
+  },
+  "level_5": {
+    "portrait": "webp/portrait/home_level_005_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_005_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_005_day_v01_desktop.webp"
+  },
+  "level_10": {
+    "portrait": "webp/portrait/home_level_010_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_010_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_010_day_v01_desktop.webp"
+  },
+  "level_20": {
+    "portrait": "webp/portrait/home_level_020_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_020_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_020_day_v01_desktop.webp"
+  },
+  "level_30": {
+    "portrait": "webp/portrait/home_level_030_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_030_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_030_day_v01_desktop.webp"
+  },
+  "level_50": {
+    "portrait": "webp/portrait/home_level_050_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_050_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_050_day_v01_desktop.webp"
+  },
+  "level_100": {
+    "portrait": "webp/portrait/home_level_100_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_level_100_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_level_100_day_v01_desktop.webp"
+  },
+  "day": {
+    "portrait": "webp/portrait/home_time_day_v01_portrait.webp",
+    "tablet": "webp/tablet/home_time_day_v01_tablet.webp",
+    "desktop": "webp/desktop/home_time_day_v01_desktop.webp"
+  },
+  "evening": {
+    "portrait": "webp/portrait/home_time_evening_v01_portrait.webp",
+    "tablet": "webp/tablet/home_time_evening_v01_tablet.webp",
+    "desktop": "webp/desktop/home_time_evening_v01_desktop.webp"
+  },
+  "night": {
+    "portrait": "webp/portrait/home_time_night_v01_portrait.webp",
+    "tablet": "webp/tablet/home_time_night_v01_tablet.webp",
+    "desktop": "webp/desktop/home_time_night_v01_desktop.webp"
+  },
+  "rain": {
+    "portrait": "webp/portrait/home_weather_rain_v01_portrait.webp",
+    "tablet": "webp/tablet/home_weather_rain_v01_tablet.webp",
+    "desktop": "webp/desktop/home_weather_rain_v01_desktop.webp"
+  },
+  "snow": {
+    "portrait": "webp/portrait/home_weather_snow_v01_portrait.webp",
+    "tablet": "webp/tablet/home_weather_snow_v01_tablet.webp",
+    "desktop": "webp/desktop/home_weather_snow_v01_desktop.webp"
+  },
+  "spring": {
+    "portrait": "webp/portrait/home_season_spring_v01_portrait.webp",
+    "tablet": "webp/tablet/home_season_spring_v01_tablet.webp",
+    "desktop": "webp/desktop/home_season_spring_v01_desktop.webp"
+  },
+  "summer": {
+    "portrait": "webp/portrait/home_season_summer_v01_portrait.webp",
+    "tablet": "webp/tablet/home_season_summer_v01_tablet.webp",
+    "desktop": "webp/desktop/home_season_summer_v01_desktop.webp"
+  },
+  "autumn": {
+    "portrait": "webp/portrait/home_season_autumn_v01_portrait.webp",
+    "tablet": "webp/tablet/home_season_autumn_v01_tablet.webp",
+    "desktop": "webp/desktop/home_season_autumn_v01_desktop.webp"
+  },
+  "winter": {
+    "portrait": "webp/portrait/home_season_winter_v01_portrait.webp",
+    "tablet": "webp/tablet/home_season_winter_v01_tablet.webp",
+    "desktop": "webp/desktop/home_season_winter_v01_desktop.webp"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "pack": "PACK 04 — TEDDY UI REACTION STATES",
+  "version": "1.0.0",
+  "base": "PACK 02 Teddy",
+  "path": "/assets/teddy/reaction-states/",
+  "states": [
+    {
+      "id": "task_complete",
+      "label_uk": "Завдання виконано",
+      "png_1024": "png/1024/teddy_task_complete.png",
+      "png_512": "png/512/teddy_task_complete.png",
+      "png_256": "png/256/teddy_task_complete.png",
+      "webp_512": "webp/512/teddy_task_complete.webp",
+      "recommended_use": "Завдання виконано"
+    },
+    {
+      "id": "xp_gained",
+      "label_uk": "Отримано XP",
+      "png_1024": "png/1024/teddy_xp_gained.png",
+      "png_512": "png/512/teddy_xp_gained.png",
+      "png_256": "png/256/teddy_xp_gained.png",
+      "webp_512": "webp/512/teddy_xp_gained.webp",
+      "recommended_use": "Отримано XP"
+    },
+    {
+      "id": "coins_gained",
+      "label_uk": "Отримано монети",
+      "png_1024": "png/1024/teddy_coins_gained.png",
+      "png_512": "png/512/teddy_coins_gained.png",
+      "png_256": "png/256/teddy_coins_gained.png",
+      "webp_512": "webp/512/teddy_coins_gained.webp",
+      "recommended_use": "Отримано монети"
+    },
+    {
+      "id": "achievement_unlocked",
+      "label_uk": "Нове досягнення",
+      "png_1024": "png/1024/teddy_achievement_unlocked.png",
+      "png_512": "png/512/teddy_achievement_unlocked.png",
+      "png_256": "png/256/teddy_achievement_unlocked.png",
+      "webp_512": "webp/512/teddy_achievement_unlocked.webp",
+      "recommended_use": "Нове досягнення"
+    },
+    {
+      "id": "level_up",
+      "label_uk": "Новий рівень",
+      "png_1024": "png/1024/teddy_level_up.png",
+      "png_512": "png/512/teddy_level_up.png",
+      "png_256": "png/256/teddy_level_up.png",
+      "webp_512": "webp/512/teddy_level_up.webp",
+      "recommended_use": "Новий рівень"
+    },
+    {
+      "id": "error_soft",
+      "label_uk": "Помилка",
+      "png_1024": "png/1024/teddy_error_soft.png",
+      "png_512": "png/512/teddy_error_soft.png",
+      "png_256": "png/256/teddy_error_soft.png",
+      "webp_512": "webp/512/teddy_error_soft.webp",
+      "recommended_use": "Помилка"
+    },
+    {
+      "id": "empty_state",
+      "label_uk": "Поки порожньо",
+      "png_1024": "png/1024/teddy_empty_state.png",
+      "png_512": "png/512/teddy_empty_state.png",
+      "png_256": "png/256/teddy_empty_state.png",
+      "webp_512": "webp/512/teddy_empty_state.webp",
+      "recommended_use": "Поки порожньо"
+    },
+    {
+      "id": "offline",
+      "label_uk": "Немає інтернету",
+      "png_1024": "png/1024/teddy_offline.png",
+      "png_512": "png/512/teddy_offline.png",
+      "png_256": "png/256/teddy_offline.png",
+      "webp_512": "webp/512/teddy_offline.webp",
+      "recommended_use": "Немає інтернету"
+    },
+    {
+      "id": "syncing",
+      "label_uk": "Синхронізація",
+      "png_1024": "png/1024/teddy_syncing.png",
+      "png_512": "png/512/teddy_syncing.png",
+      "png_256": "png/256/teddy_syncing.png",
+      "webp_512": "webp/512/teddy_syncing.webp",
+      "recommended_use": "Синхронізація"
+    },
+    {
+      "id": "awaiting_confirmation",
+      "label_uk": "Очікування підтвердження",
+      "png_1024": "png/1024/teddy_awaiting_confirmation.png",
+      "png_512": "png/512/teddy_awaiting_confirmation.png",
+      "png_256": "png/256/teddy_awaiting_confirmation.png",
+      "webp_512": "webp/512/teddy_awaiting_confirmation.webp",
+      "recommended_use": "Очікування підтвердження"
+    },
+    {
+      "id": "shop_open",
+      "label_uk": "Магазин відкритий",
+      "png_1024": "png/1024/teddy_shop_open.png",
+      "png_512": "png/512/teddy_shop_open.png",
+      "png_256": "png/256/teddy_shop_open.png",
+      "webp_512": "webp/512/teddy_shop_open.webp",
+      "recommended_use": "Магазин відкритий"
+    },
+    {
+      "id": "shop_closed",
+      "label_uk": "Магазин закритий",
+      "png_1024": "png/1024/teddy_shop_closed.png",
+      "png_512": "png/512/teddy_shop_closed.png",
+      "png_256": "png/256/teddy_shop_closed.png",
+      "webp_512": "webp/512/teddy_shop_closed.webp",
+      "recommended_use": "Магазин закритий"
+    },
+    {
+      "id": "gift_received",
+      "label_uk": "Подарунок",
+      "png_1024": "png/1024/teddy_gift_received.png",
+      "png_512": "png/512/teddy_gift_received.png",
+      "png_256": "png/256/teddy_gift_received.png",
+      "webp_512": "webp/512/teddy_gift_received.webp",
+      "recommended_use": "Подарунок"
+    },
+    {
+      "id": "roulette",
+      "label_uk": "Рулетка",
+      "png_1024": "png/1024/teddy_roulette.png",
+      "png_512": "png/512/teddy_roulette.png",
+      "png_256": "png/256/teddy_roulette.png",
+      "webp_512": "webp/512/teddy_roulette.webp",
+      "recommended_use": "Рулетка"
+    },
+    {
+      "id": "rare_item",
+      "label_uk": "Рідкісний предмет",
+      "png_1024": "png/1024/teddy_rare_item.png",
+      "png_512": "png/512/teddy_rare_item.png",
+      "png_256": "png/256/teddy_rare_item.png",
+      "webp_512": "webp/512/teddy_rare_item.webp",
+      "recommended_use": "Рідкісний предмет"
+    },
+    {
+      "id": "family_invite",
+      "label_uk": "Сімейне запрошення",
+      "png_1024": "png/1024/teddy_family_invite.png",
+      "png_512": "png/512/teddy_family_invite.png",
+      "png_256": "png/256/teddy_family_invite.png",
+      "webp_512": "webp/512/teddy_family_invite.webp",
+      "recommended_use": "Сімейне запрошення"
+    },
+    {
+      "id": "daily_streak",
+      "label_uk": "Серія днів",
+      "png_1024": "png/1024/teddy_daily_streak.png",
+      "png_512": "png/512/teddy_daily_streak.png",
+      "png_256": "png/256/teddy_daily_streak.png",
+      "webp_512": "webp/512/teddy_daily_streak.webp",
+      "recommended_use": "Серія днів"
+    },
+    {
+      "id": "reminder",
+      "label_uk": "Нагадування",
+      "png_1024": "png/1024/teddy_reminder.png",
+      "png_512": "png/512/teddy_reminder.png",
+      "png_256": "png/256/teddy_reminder.png",
+      "webp_512": "webp/512/teddy_reminder.webp",
+      "recommended_use": "Нагадування"
+    },
+    {
+      "id": "saved",
+      "label_uk": "Успішно збережено",
+      "png_1024": "png/1024/teddy_saved.png",
+      "png_512": "png/512/teddy_saved.png",
+      "png_256": "png/256/teddy_saved.png",
+      "webp_512": "webp/512/teddy_saved.webp",
+      "recommended_use": "Успішно збережено"
+    },
+    {
+      "id": "warning_soft",
+      "label_uk": "М’яке попередження",
+      "png_1024": "png/1024/teddy_warning_soft.png",
+      "png_512": "png/512/teddy_warning_soft.png",
+      "png_256": "png/256/teddy_warning_soft.png",
+      "webp_512": "webp/512/teddy_warning_soft.webp",
+      "recommended_use": "М’яке попередження"
+    }
+  ]
+}

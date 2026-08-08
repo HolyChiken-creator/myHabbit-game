@@ -1,0 +1,8 @@
+:root {
+  --mh-cream:#F5E8CE; --mh-warm-beige:#DDBA7A; --mh-caramel:#C98732;
+  --mh-honey:#E9AC3D; --mh-wood:#6B3517; --mh-olive:#68752D;
+  --mh-forest:#2F4B28; --mh-grape:#4C2D4F; --mh-night-blue:#28395E;
+  --mh-fire-orange:#D96A19; --mh-heart:#D94B45; --mh-gem:#8B49C9;
+  --mh-radius-sm:12px; --mh-radius-md:20px; --mh-radius-lg:32px;
+  --mh-shadow-soft:0 10px 30px rgba(64,39,20,.18);
+}

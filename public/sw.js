@@ -1,8 +1,8 @@
-const CACHE = 'myhabbit-game-12.0.1';
-const META_CACHE = 'myhabbit-game-12.0.1';
+const CACHE = 'myhabbit-game-12.1.0';
+const META_CACHE = 'myhabbit-game-12.1.0';
 const CORE = [
-  '/', '/index.html', '/styles.css?v=12.0.1', '/app.js?v=12.0.1',
-  '/manifest.webmanifest?v=12.0.1', '/assets/myhabbit-brand.webp?v=10.1.8', '/assets/welcome-family-clean.webp', '/assets/game/room-1.webp', '/assets/game/room-5.webp', '/assets/game/room-20.webp', '/assets/game/room-50.webp', '/assets/maintenance-splash.webp?v=12.0.1',
+  '/', '/index.html', '/styles.css?v=12.1.0', '/app.js?v=12.1.0',
+  '/manifest.webmanifest?v=12.1.0', '/assets/myhabbit-brand.webp?v=10.1.8', '/assets/welcome-family-clean.webp', '/assets/game/room-1.webp', '/assets/game/room-5.webp', '/assets/game/room-20.webp', '/assets/game/room-50.webp', '/assets/maintenance-splash.webp?v=12.1.0',
   '/icons/icon-192.png', '/icons/icon-512.png'
 ];
 async function broadcast(message){const clients=await self.clients.matchAll({includeUncontrolled:true,type:'window'});clients.forEach(c=>c.postMessage(message));}

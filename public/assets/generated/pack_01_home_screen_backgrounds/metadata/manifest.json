@@ -1,0 +1,582 @@
+{
+  "pack": "PACK 01 — HOME SCREEN BACKGROUNDS",
+  "version": "1.0.0",
+  "assets": [
+    {
+      "id": "home_level_001_day_v01",
+      "category": "home_background",
+      "state": "level_1",
+      "variant": "day",
+      "master_file": "master/home_level_001_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_001_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_001_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_001_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 108472,
+        "tablet": 110748,
+        "desktop": 93056
+      }
+    },
+    {
+      "id": "home_level_005_day_v01",
+      "category": "home_background",
+      "state": "level_5",
+      "variant": "day",
+      "master_file": "master/home_level_005_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_005_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_005_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_005_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 108646,
+        "tablet": 111220,
+        "desktop": 96330
+      }
+    },
+    {
+      "id": "home_level_010_day_v01",
+      "category": "home_background",
+      "state": "level_10",
+      "variant": "day",
+      "master_file": "master/home_level_010_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_010_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_010_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_010_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 109042,
+        "tablet": 111556,
+        "desktop": 96808
+      }
+    },
+    {
+      "id": "home_level_020_day_v01",
+      "category": "home_background",
+      "state": "level_20",
+      "variant": "day",
+      "master_file": "master/home_level_020_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_020_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_020_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_020_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 110092,
+        "tablet": 113458,
+        "desktop": 96038
+      }
+    },
+    {
+      "id": "home_level_030_day_v01",
+      "category": "home_background",
+      "state": "level_30",
+      "variant": "day",
+      "master_file": "master/home_level_030_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_030_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_030_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_030_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 111176,
+        "tablet": 114072,
+        "desktop": 96768
+      }
+    },
+    {
+      "id": "home_level_050_day_v01",
+      "category": "home_background",
+      "state": "level_50",
+      "variant": "day",
+      "master_file": "master/home_level_050_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_050_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_050_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_050_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 112408,
+        "tablet": 116316,
+        "desktop": 99604
+      }
+    },
+    {
+      "id": "home_level_100_day_v01",
+      "category": "home_background",
+      "state": "level_100",
+      "variant": "day",
+      "master_file": "master/home_level_100_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_level_100_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_level_100_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_level_100_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 116540,
+        "tablet": 125288,
+        "desktop": 103648
+      }
+    },
+    {
+      "id": "home_time_day_v01",
+      "category": "home_background",
+      "state": "day",
+      "variant": "day",
+      "master_file": "master/home_time_day_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_time_day_v01_portrait.webp",
+        "tablet": "webp/tablet/home_time_day_v01_tablet.webp",
+        "desktop": "webp/desktop/home_time_day_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 110314,
+        "tablet": 113250,
+        "desktop": 97766
+      }
+    },
+    {
+      "id": "home_time_evening_v01",
+      "category": "home_background",
+      "state": "evening",
+      "variant": "evening",
+      "master_file": "master/home_time_evening_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_time_evening_v01_portrait.webp",
+        "tablet": "webp/tablet/home_time_evening_v01_tablet.webp",
+        "desktop": "webp/desktop/home_time_evening_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 94142,
+        "tablet": 98920,
+        "desktop": 83530
+      }
+    },
+    {
+      "id": "home_time_night_v01",
+      "category": "home_background",
+      "state": "night",
+      "variant": "night",
+      "master_file": "master/home_time_night_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_time_night_v01_portrait.webp",
+        "tablet": "webp/tablet/home_time_night_v01_tablet.webp",
+        "desktop": "webp/desktop/home_time_night_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 61788,
+        "tablet": 63720,
+        "desktop": 54322
+      }
+    },
+    {
+      "id": "home_weather_rain_v01",
+      "category": "home_background",
+      "state": "rain",
+      "variant": "rain",
+      "master_file": "master/home_weather_rain_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_weather_rain_v01_portrait.webp",
+        "tablet": "webp/tablet/home_weather_rain_v01_tablet.webp",
+        "desktop": "webp/desktop/home_weather_rain_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 99094,
+        "tablet": 105010,
+        "desktop": 88248
+      }
+    },
+    {
+      "id": "home_weather_snow_v01",
+      "category": "home_background",
+      "state": "snow",
+      "variant": "snow",
+      "master_file": "master/home_weather_snow_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_weather_snow_v01_portrait.webp",
+        "tablet": "webp/tablet/home_weather_snow_v01_tablet.webp",
+        "desktop": "webp/desktop/home_weather_snow_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 101234,
+        "tablet": 105878,
+        "desktop": 92864
+      }
+    },
+    {
+      "id": "home_season_spring_v01",
+      "category": "home_background",
+      "state": "spring",
+      "variant": "spring",
+      "master_file": "master/home_season_spring_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_season_spring_v01_portrait.webp",
+        "tablet": "webp/tablet/home_season_spring_v01_tablet.webp",
+        "desktop": "webp/desktop/home_season_spring_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 109262,
+        "tablet": 112272,
+        "desktop": 96474
+      }
+    },
+    {
+      "id": "home_season_summer_v01",
+      "category": "home_background",
+      "state": "summer",
+      "variant": "summer",
+      "master_file": "master/home_season_summer_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_season_summer_v01_portrait.webp",
+        "tablet": "webp/tablet/home_season_summer_v01_tablet.webp",
+        "desktop": "webp/desktop/home_season_summer_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 115882,
+        "tablet": 123650,
+        "desktop": 105556
+      }
+    },
+    {
+      "id": "home_season_autumn_v01",
+      "category": "home_background",
+      "state": "autumn",
+      "variant": "autumn",
+      "master_file": "master/home_season_autumn_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_season_autumn_v01_portrait.webp",
+        "tablet": "webp/tablet/home_season_autumn_v01_tablet.webp",
+        "desktop": "webp/desktop/home_season_autumn_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 110014,
+        "tablet": 113170,
+        "desktop": 95746
+      }
+    },
+    {
+      "id": "home_season_winter_v01",
+      "category": "home_background",
+      "state": "winter",
+      "variant": "winter",
+      "master_file": "master/home_season_winter_v01.png",
+      "responsive_files": {
+        "portrait": "webp/portrait/home_season_winter_v01_portrait.webp",
+        "tablet": "webp/tablet/home_season_winter_v01_tablet.webp",
+        "desktop": "webp/desktop/home_season_winter_v01_desktop.webp"
+      },
+      "width": 1024,
+      "height": 1024,
+      "transparent": false,
+      "safe_zones": {
+        "top": 0.12,
+        "bottom": 0.16,
+        "left": 0.08,
+        "right": 0.08,
+        "center_character_zone": [
+          0.34,
+          0.42,
+          0.66,
+          0.92
+        ]
+      },
+      "recommended_usage": "home_screen_background",
+      "background_size": "cover",
+      "background_position": "center",
+      "replaces_existing_asset": null,
+      "approx_bytes": {
+        "portrait": 102956,
+        "tablet": 108176,
+        "desktop": 89126
+      }
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+Розпакуйте архів у корінь актуального myHabbit-проєкту.
+Нові файли додадуться у public/assets/pack-09B/ та public/assets/pack-10A-ui/.

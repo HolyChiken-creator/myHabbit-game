@@ -1,0 +1,5 @@
+PACK 04 — TEDDY UI REACTION STATES
+ADD public/assets/teddy/reaction-states/
+ADD docs/PACK-04-INSTALL.md
+ADD docs/PACK-04-QA.md
+No existing source files are overwritten.
