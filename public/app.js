@@ -790,7 +790,8 @@
   function queueAchievementToast(achievement){
     if(!achievement)return;
     const item={...achievement,title:achievement.title||'Нове досягнення',rarity:achievement.rarity||'Звичайна',rewardXp:Number(achievement.rewardXp||0)};
-    CozyEvents.emit('achievement',item);
+    achievementToastQueue.push(item);
+    processAchievementToastQueue();
   }
   function dismissAchievementToast(card,done){
     if(!card||card.dataset.closing==='1')return;card.dataset.closing='1';card.classList.add('achievement-toast-out');
@@ -1342,7 +1343,7 @@
   }
   function dashboard(){
     const u=currentUser();
-    const active=state.quests.filter(q=>q.status==='active').slice(0,5);
+    const active=state.quests.filter(q=>q.status==='active'&&questVisibleToUser(q,u)).slice(0,5);
     const completedToday=Math.min(active.length,active.filter(q=>q.claimedBy?.includes(u.id)).length);
     const room=gameRoomStage(Number(state.family.level||1));
     const roomHour=new Date().getHours();
@@ -1380,6 +1381,18 @@
     <section class="game-family-reputation"><div><span>🏡</span><div><strong>Репутація родини</strong><small>${format(state.family.xp||0)} / ${format(familyTarget)}</small></div></div><div class="progress"><i style="width:${familyProgress}%"></i></div><b>${'♥'.repeat(hearts)}${'♡'.repeat(5-hearts)}</b></section>`,``,` `);
   }
 
+  function questVisibleToUser(q,u=currentUser()){
+    if(!q||!u)return false;
+    if(q.source==='user')return q.ownerId===u.id;
+    return true;
+  }
+
+  function rewardVisibleToUser(item,u=currentUser()){
+    if(!item||!u)return false;
+    if(item.source==='user')return item.ownerId===u.id;
+    return true;
+  }
+
   function questCard(q){
     const user=currentUser(); const joined=q.claimedBy.includes(user.id); const full=q.claimedBy.length>=q.participants;
     const type={personal:'Особистий',coop:'Спільний',pair:'Тільки вдвох',limited:'Лімітований'}[q.type]; const difficulty={easy:'Легка',normal:'Середня',hard:'Складна'}[q.difficulty||'normal'];
@@ -1388,8 +1401,8 @@
 
   function questsScreen(){
     ensureDailyQuests();
-    const active=state.quests.filter(q=>q.status==='active');
-    return shell(`<div class="section-head"><div><h2>25 завдань на сьогодні</h2><small class="meta">Побутові повторювані справи та щоденні новинки · доступно кожному учаснику</small></div>${isAdmin()?'<button class="btn primary" data-action="new-quest">+ Власне завдання</button>':''}</div><div class="quest-filter-block"><div class="tabs quest-type-tabs">${['all:Усі','personal:Особисті','coop:Спільні','pair:Для двох','limited:Лімітовані'].map((x,i)=>{const [k,l]=x.split(':');return `<button class="${i===0?'active':''}" data-filter="${k}">${l}</button>`}).join('')}</div><div class="tabs difficulty-tabs">${['all:Будь-яка складність','easy:Легкі','normal:Середні','hard:Складні'].map((x,i)=>{const [k,l]=x.split(':');return `<button class="${i===0?'active':''}" data-difficulty-filter="${k}">${l}</button>`}).join('')}</div></div><div class="daily-quest-summary"><span>🔁 ${active.filter(q=>q.recurring).length} повторюваних</span><span>✨ ${active.filter(q=>!q.recurring).length} нових</span><span>✓ ${active.length}/25 доступно</span></div><div class="quest-list" id="questList">${active.map(questCard).join('')}</div>`,`Квести`,`Щодня формується збалансований набір із 25 справ для кожного учасника.`);
+    const active=state.quests.filter(q=>q.status==='active'&&questVisibleToUser(q));
+    return shell(`<div class="section-head"><div><h2>25 завдань на сьогодні</h2><small class="meta">Побутові повторювані справи та твої власні RPG-завдання</small></div><button class="btn primary" data-action="new-quest">+ Моє завдання</button></div><div class="quest-filter-block"><div class="tabs quest-type-tabs">${['all:Усі','personal:Особисті','coop:Спільні','pair:Для двох','limited:Лімітовані'].map((x,i)=>{const [k,l]=x.split(':');return `<button class="${i===0?'active':''}" data-filter="${k}">${l}</button>`}).join('')}</div><div class="tabs difficulty-tabs">${['all:Будь-яка складність','easy:Легкі','normal:Середні','hard:Складні'].map((x,i)=>{const [k,l]=x.split(':');return `<button class="${i===0?'active':''}" data-difficulty-filter="${k}">${l}</button>`}).join('')}</div></div><div class="daily-quest-summary"><span>🔁 ${active.filter(q=>q.recurring).length} повторюваних</span><span>✨ ${active.filter(q=>!q.recurring).length} нових</span><span>✓ ${active.length}/25 доступно</span></div><div class="quest-list" id="questList">${active.map(questCard).join('')}</div>`,`Квести`,`Щодня формується збалансований набір із 25 справ для кожного учасника.`);
   }
 
 
@@ -1507,19 +1520,20 @@
   function shopScreen(){
     // Backward-compatible shop data: old local profiles may not yet contain
     // cosmeticsCatalog, stickerBoxes or stickerCollections.
-    const realItems=Array.isArray(state.shop)?state.shop.filter(x=>x&&typeof x==='object').map(x=>({...x,stock:Number(x.stock||0),price:Number(x.price||0)})):[];
+    const shopUser=currentUser();
+    const realItems=Array.isArray(state.shop)?state.shop.filter(x=>x&&typeof x==='object'&&rewardVisibleToUser(x,shopUser)).map(x=>({...x,stock:Number(x.stock||0),price:Number(x.price||0)})):[];
     const cosmeticsCatalog=Array.isArray(state.cosmeticsCatalog)?state.cosmeticsCatalog:[];
     const stickerBoxes=Array.isArray(state.stickerBoxes)?state.stickerBoxes:[];
     const stickerCollections=Array.isArray(state.stickerCollections)?state.stickerCollections:[];
     realItems.sort((a,b)=>Number(b?.source==='admin')-Number(a?.source==='admin'));
     const shopIsOpen=realItems.some(item=>Number(item?.stock||0)>0);
     const shopStatus=`<div class="shop-neon-status ${shopIsOpen?'is-open':'is-closed'}" role="status" aria-label="Магазин ${shopIsOpen?'відкритий':'закритий'}"><span class="neon-wire" aria-hidden="true"></span><span class="neon-sign">${shopIsOpen?'OPEN':'CLOSED'}</span><small>${shopIsOpen?'Є доступні товари':'Усі товари закінчилися'}</small></div>`;
-    const real=realItems.map(i=>{const resourceUrl=cleanResourceUrl(i.resourceUrl);return `<article class="shop-card admin-product-card ${i.stock<=0?'sold-out':''}"><div class="shop-top"><span class="shop-icon">${i.icon||'✨'}</span><span class="stock ${i.stock>0?'':'out'}">${i.stock>0?`Залишилось: ${i.stock}`:'Закінчилось'}</span></div>${i.source==='admin'?'<span class="admin-product-badge">Від адміністратора</span>':''}<h3>${escapeHtml(i.title)}</h3><p>${escapeHtml(i.description||'Реальна сімейна винагорода')}</p>${resourceUrl?`<a class="shop-reference-link" href="${resourceUrl.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">↗ Подивитися, що мається на увазі</a>`:''}${i.type==='collective'?`<div class="progress"><i style="width:${Math.min(100,(i.fund||0)/i.price*100)}%"></i></div><small>${format(i.fund||0)} / ${format(i.price)} 🪙</small>`:`<div class="price">${format(i.price)} 🪙</div>`}<button class="btn ${i.type==='collective'?'soft':'primary'}" data-shop="${i.id}" ${i.stock<=0?'disabled':''}>${i.type==='collective'?'Зробити внесок':'Придбати'}</button></article>`}).join('');
+    const real=realItems.map(i=>{const resourceUrl=cleanResourceUrl(i.resourceUrl);return `<article class="shop-card admin-product-card ${i.stock<=0?'sold-out':''}"><div class="shop-top"><span class="shop-icon">${i.icon||'✨'}</span><span class="stock ${i.stock>0?'':'out'}">${i.stock>0?`Залишилось: ${i.stock}`:'Закінчилось'}</span></div>${i.source==='admin'?'<span class="admin-product-badge">Від адміністратора</span>':i.source==='user'?'<span class="admin-product-badge">Моя нагорода</span>':''}<h3>${escapeHtml(i.title)}</h3><p>${escapeHtml(i.description||'Реальна сімейна винагорода')}</p>${resourceUrl?`<a class="shop-reference-link" href="${resourceUrl.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">↗ Подивитися, що мається на увазі</a>`:''}${i.type==='collective'?`<div class="progress"><i style="width:${Math.min(100,(i.fund||0)/i.price*100)}%"></i></div><small>${format(i.fund||0)} / ${format(i.price)} 🪙</small>`:`<div class="price">${format(i.price)} 🪙</div>`}<button class="btn ${i.type==='collective'?'soft':'primary'}" data-shop="${i.id}" ${i.stock<=0?'disabled':''}>${i.type==='collective'?'Зробити внесок':'Придбати'}</button></article>`}).join('');
     const cosmeticKinds=[['all','Усе'],['stickerPack','Стікерпаки'],['frame','Рамки'],['animatedFrame','Анімовані рамки'],['nicknameEffect','Світні імена'],['profileEffect','Ефекти'],['badge','Значки'],['theme','Теми']];
     const cosmetics=cosmeticsCatalog.filter(Boolean).map(item=>{try{return `<div class="cosmetic-filter-item" data-kind="${escapeHtml(item.kind||'other')}">${cosmeticShopCard(item)}</div>`}catch(e){console.warn('Cosmetic card skipped',e);return ''}}).join('');
     const filters=cosmeticKinds.map(([id,label])=>`<button class="cosmetic-filter ${id==='all'?'active':''}" data-cosmetic-filter="${id}">${label}</button>`).join('');
     const boxes=stickerBoxes.filter(Boolean).map(b=>{const c=stickerCollections.find(x=>x&&x.id===b.collectionId);if(!c)return '';const season=seasonInfo(c.season);return `<article class="shop-card box-card ${season.active?'':'locked'}"><div class="box-visual">📦</div><span class="rarity">${season.active?'Активний бокс':'Сезон закритий'}</span><h3>${b.title}</h3><p>${c.title} · 1 випадковий стікер<br><small>${season.label}</small></p><div class="shop-bottom"><span class="price">${format(b.price)} 🪙</span><button class="btn primary small" data-open-box="${b.id}" ${season.active?'':'disabled'}>Відкрити</button></div></article>`}).join('');
-    return shell(`${shopStatus}<section class="real-shop-hero"><div><span class="eyebrow">Головний розділ</span><h2>Товари для життя</h2><p>Реальні подарунки, дозволи, покупки та сімейні цілі. Товари адміністратора завжди показуються першими.</p></div>${isAdmin()?'<button class="btn primary" data-action="new-shop">+ Додати товар</button>':''}</section><div class="shop-grid real-shop-grid">${real||'<div class="shop-empty-state"><span>🥲</span><h3>Ми вже готуємо нові подарунки</h3><p>Зазирни трохи пізніше ❤️</p></div>'}</div><details class="shop-fold"><summary><span><strong>Косметика профілю</strong><small>Рамки, теми, ефекти та стікерпакети</small></span><b>Відкрити</b></summary><div class="cosmetic-filters">${filters}</div><div class="shop-grid cosmetics-shop-grid">${cosmetics}</div></details><details class="shop-fold"><summary><span><strong>Стікер-бокси</strong><small>Колекційні випадкові стікери</small></span><b>Відкрити</b></summary><div class="shop-grid">${boxes}</div></details>`,`Магазин`,`Спочатку реальні товари для життя, нижче — косметика та колекції.`);
+    return shell(`${shopStatus}<section class="real-shop-hero"><div><span class="eyebrow">Головний розділ</span><h2>Товари для життя</h2><p>Реальні подарунки, дозволи, покупки та сімейні цілі. Товари адміністратора завжди показуються першими.</p></div><button class="btn primary" data-action="new-shop">+ Моя нагорода</button></section><div class="shop-grid real-shop-grid">${real||'<div class="shop-empty-state"><span>🥲</span><h3>Ми вже готуємо нові подарунки</h3><p>Зазирни трохи пізніше ❤️</p></div>'}</div><details class="shop-fold"><summary><span><strong>Косметика профілю</strong><small>Рамки, теми, ефекти та стікерпакети</small></span><b>Відкрити</b></summary><div class="cosmetic-filters">${filters}</div><div class="shop-grid cosmetics-shop-grid">${cosmetics}</div></details><details class="shop-fold"><summary><span><strong>Стікер-бокси</strong><small>Колекційні випадкові стікери</small></span><b>Відкрити</b></summary><div class="shop-grid">${boxes}</div></details>`,`Магазин`,`Спочатку реальні товари для життя, нижче — косметика та колекції.`);
   }
   function customShopScreen(){
     const real=(state.shop||[]).map(i=>{const resourceUrl=cleanResourceUrl(i.resourceUrl);return `<article class="shop-card admin-product-card"><div class="shop-top"><span class="shop-icon">${i.icon}</span><span class="stock ${i.stock?'':'out'}">${i.stock?`Залишок ${i.stock}`:'Немає'}</span></div><h3>${i.title}</h3><p>${i.description}</p>${resourceUrl?`<a class="shop-reference-link" href="${resourceUrl.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">↗ Подивитися приклад</a>`:''}${i.type==='collective'?`<div class="progress"><i style="width:${Math.min(100,(i.fund||0)/i.price*100)}%"></i></div><small>${format(i.fund||0)} / ${format(i.price)} 🪙</small>`:`<div class="price">${format(i.price)} 🪙</div>`}<button class="btn ${i.type==='collective'?'soft':'primary'}" data-shop="${i.id}" ${i.stock<=0?'disabled':''}>${i.type==='collective'?'Зробити внесок':'Придбати'}</button></article>`}).join('');
@@ -1825,9 +1839,7 @@
     };
     const stateOf=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||'{}')}catch{return {}}};
     const write=value=>localStorage.setItem(storageKey(),JSON.stringify({...stateOf(),...value}));
-    let tour=null,stepIndex=0,tipTimer=0,achievementTimer=0;
-    const companionAchievementQueue=[];
-    let companionAchievementBusy=false;
+    let tour=null,stepIndex=0,tipTimer=0;
     const memberSteps=[
       {route:'dashboard',selector:'[data-route="dashboard"]',title:'Твій затишний простір',text:'Тут зібрано прогрес, серію та найважливіше на сьогодні.'},
       {route:'quests',selector:'[data-route="quests"]',title:'Щоденні квести',text:'Виконуй звички й отримуй XP та монетки. Починай з маленьких кроків.'},
@@ -1918,22 +1930,8 @@
       const tip=dailyTips[Math.abs([...day].reduce((a,c)=>a+c.charCodeAt(0),0))%dailyTips.length];
       showBubble('Порада дня 🌱',tip,'<button data-cozy-action="close">Дякую</button>');
     }
-    function finishAchievementAnnouncement(){
-      clearTimeout(achievementTimer);closeBubble();companionAchievementBusy=false;
-      setTimeout(processAchievementAnnouncements,220);
-    }
-    function processAchievementAnnouncements(){
-      if(companionAchievementBusy||!companionAchievementQueue.length||stateOf().muted)return;
-      companionAchievementBusy=true;
-      const a=companionAchievementQueue.shift();
-      const reward=Number(a?.rewardXp||0)>0?` · +${format(a.rewardXp)} XP`:'';
-      const description=a?.description?` ${a.description}`:'';
-      showBubble(`Нове досягнення! ${a?.icon&&!String(a.icon).startsWith('/')?a.icon:'🏆'}`,`${a?.title||'Ти зробив важливий крок.'}${reward}.${description}`,'<button class="primary" data-cozy-action="achievement-next">Чудово</button>');
-      clearTimeout(achievementTimer);achievementTimer=setTimeout(finishAchievementAnnouncement,8500);
-    }
-    function announceAchievement(a){
-      companionAchievementQueue.push(a||{});processAchievementAnnouncements();
-    }
+    // Achievement celebrations are handled by the compact top-right toast queue.
+    // Teddy stays responsive and only opens on explicit user actions.
     function contextualMessage(){ return; }
     function afterRender(){
       if(!auth||['landing','auth'].includes(route)){document.getElementById('cozyCompanionRoot')?.remove();return;}
@@ -1941,7 +1939,6 @@
       // Teddy is intentionally silent on render. Tours and daily tips are manual only.
       // Achievement and level celebrations remain event-driven and never replay on navigation.
     }
-    CozyEvents.on('achievement',a=>announceAchievement(a));
     CozyEvents.on('levelup',d=>showBubble('Новий рівень! ⭐',`Тепер у тебе ${d.level} рівень. Я пишаюся тобою!`,'<button data-cozy-action="close">Далі</button>'));
     return {afterRender,startTour,showDailyTip,emit:CozyEvents.emit};
   })();
@@ -1997,7 +1994,7 @@
     document.querySelectorAll('[data-transfer-admin]').forEach(el=>el.addEventListener('click',()=>transferFamilyAdminRights(el.dataset.transferAdmin)));
     document.querySelectorAll('[data-stock]').forEach(el=>el.addEventListener('click',()=>{const i=state.shop.find(x=>x.id===el.dataset.stock);if(i){i.stock=Math.max(0,i.stock+Number(el.dataset.delta));save();render();}}));
     document.getElementById('shopImportFile')?.addEventListener('change',importShopFile);
-    document.querySelectorAll('[data-filter],[data-difficulty-filter]').forEach(el=>el.addEventListener('click',()=>{const group=el.hasAttribute('data-filter')?'[data-filter]':'[data-difficulty-filter]';document.querySelectorAll(group).forEach(x=>x.classList.remove('active'));el.classList.add('active');const type=document.querySelector('[data-filter].active')?.dataset.filter||'all',difficulty=document.querySelector('[data-difficulty-filter].active')?.dataset.difficultyFilter||'all';document.getElementById('questList').innerHTML=state.quests.filter(q=>q.status==='active'&&(type==='all'||q.type===type)&&(difficulty==='all'||(q.difficulty||'normal')===difficulty)).map(questCard).join('');bind();}));
+    document.querySelectorAll('[data-filter],[data-difficulty-filter]').forEach(el=>el.addEventListener('click',()=>{const group=el.hasAttribute('data-filter')?'[data-filter]':'[data-difficulty-filter]';document.querySelectorAll(group).forEach(x=>x.classList.remove('active'));el.classList.add('active');const type=document.querySelector('[data-filter].active')?.dataset.filter||'all',difficulty=document.querySelector('[data-difficulty-filter].active')?.dataset.difficultyFilter||'all';document.getElementById('questList').innerHTML=state.quests.filter(q=>q.status==='active'&&questVisibleToUser(q)&&(type==='all'||q.type===type)&&(difficulty==='all'||(q.difficulty||'normal')===difficulty)).map(questCard).join('');bind();}));
     document.querySelectorAll('[data-auth-tab]').forEach(el=>el.addEventListener('click',()=>{authMode=el.dataset.authTab;document.querySelectorAll('[data-auth-tab]').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.getElementById('authForm').innerHTML=authForm(authMode);bind();}));
     const authImportFile=document.getElementById('accountImportFile'); if(authImportFile&&!authImportFile.dataset.bound){authImportFile.dataset.bound='1';authImportFile.addEventListener('change',e=>importAccountFile(e.target.files?.[0]));}
   }
@@ -2332,10 +2329,20 @@
   }
 
   function saveQuest(){
-    const title=document.getElementById('qTitle').value.trim();if(!title)return showToast('Вкажіть назву');const type=document.getElementById('qType').value;state.quests.unshift({id:crypto.randomUUID(),title,icon:{home:'🧹',care:'🎁',health:'🏋️',growth:'📚',finance:'💰'}[document.getElementById('qSkill').value],description:document.getElementById('qDesc').value.trim()||'Сімейне завдання',type,participants:type==='pair'||type==='coop'?2:1,claimedBy:[],rewardCoins:Number(document.getElementById('qCoins').value)||50,rewardXp:Number(document.getElementById('qXp').value)||50,skill:document.getElementById('qSkill').value,skillXp:15,difficulty:document.getElementById('qDifficulty')?.value||'normal',source:'admin',status:'active',limited:type==='limited',stock:type==='limited'?1:null});save();document.querySelector('.modal-backdrop').remove();render();showToast('Квест створено');
+    const u=currentUser();
+    const title=document.getElementById('qTitle').value.trim();if(!title)return showToast('Вкажіть назву');
+    const requestedType=document.getElementById('qType').value;
+    const type=isAdmin()?requestedType:'personal';
+    state.quests.unshift({id:crypto.randomUUID(),title,icon:{home:'🧹',care:'🎁',health:'🏋️',growth:'📚',finance:'💰'}[document.getElementById('qSkill').value],description:document.getElementById('qDesc').value.trim()||'Моє RPG-завдання',type,participants:type==='pair'||type==='coop'?2:1,claimedBy:[],rewardCoins:Number(document.getElementById('qCoins').value)||50,rewardXp:Number(document.getElementById('qXp').value)||50,skill:document.getElementById('qSkill').value,skillXp:15,difficulty:document.getElementById('qDifficulty')?.value||'normal',source:isAdmin()?'admin':'user',ownerId:isAdmin()?null:u?.id,status:'active',limited:type==='limited',stock:type==='limited'?1:null});
+    save();document.querySelector('.modal-backdrop').remove();render();showToast(isAdmin()?'Квест створено':'Твоє RPG-завдання створено');
   }
   function saveShop(){
-    const title=document.getElementById('sTitle').value.trim();if(!title)return showToast('Вкажіть назву');const rawUrl=document.getElementById('sResourceUrl')?.value||'',resourceUrl=cleanResourceUrl(rawUrl);if(rawUrl.trim()&&!resourceUrl)return showToast('Посилання має починатися з http:// або https://');state.shop.unshift({id:crypto.randomUUID(),title,icon:(document.getElementById('sIcon')?.value||'✨').trim()||'✨',description:document.getElementById('sDesc').value.trim()||'Нова реальна можливість',price:Number(document.getElementById('sPrice').value)||1000,stock:Number(document.getElementById('sStock').value)||1,durationDays:Math.max(1,Math.min(30,Number(document.getElementById('sDurationDays')?.value||7))),type:document.getElementById('sType').value,fund:0,resourceUrl,source:'admin'});save();document.querySelector('.modal-backdrop').remove();render();showToast('Можливість додано');
+    const u=currentUser();
+    const title=document.getElementById('sTitle').value.trim();if(!title)return showToast('Вкажіть назву');const rawUrl=document.getElementById('sResourceUrl')?.value||'',resourceUrl=cleanResourceUrl(rawUrl);if(rawUrl.trim()&&!resourceUrl)return showToast('Посилання має починатися з http:// або https://');
+    const requestedType=document.getElementById('sType').value;
+    const type=isAdmin()?requestedType:'personal';
+    state.shop.unshift({id:crypto.randomUUID(),title,icon:(document.getElementById('sIcon')?.value||'✨').trim()||'✨',description:document.getElementById('sDesc').value.trim()||'Моя реальна нагорода',price:Number(document.getElementById('sPrice').value)||1000,stock:Number(document.getElementById('sStock').value)||1,durationDays:Math.max(1,Math.min(30,Number(document.getElementById('sDurationDays')?.value||7))),type,fund:0,resourceUrl,source:isAdmin()?'admin':'user',ownerId:isAdmin()?null:u?.id});
+    save();document.querySelector('.modal-backdrop').remove();render();showToast(isAdmin()?'Можливість додано':'Твою нагороду додано');
   }
 
 
