@@ -93,3 +93,8 @@ assert.match(fixedController,/if\(window\.PointerEvent\)/);
 assert.match(fixedController,/document\.addEventListener\('pointerup',registerTripleEnd/);
 assert.match(fixedController,/document\.addEventListener\('touchend',registerTripleEnd/);
 assert.match(fixedController,/use exactly one input event family/);
+
+const secretApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
+assert.match(secretApp,/release-label site-version-trigger/);
+const secretController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
+assert.match(secretController,/\.room-master-teddy,\.site-version-trigger/);

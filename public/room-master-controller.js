@@ -139,14 +139,14 @@
   let tripleStart=null;
 
   function registerTripleStart(ev){
-    const target=ev?.target?.closest?.('.room-master-teddy');
+    const target=ev?.target?.closest?.('.room-master-teddy,.site-version-trigger');
     if(!target)return;
     triplePointerId=ev.pointerId ?? null;
     tripleStart={x:ev.clientX ?? ev.touches?.[0]?.clientX ?? 0,y:ev.clientY ?? ev.touches?.[0]?.clientY ?? 0,time:Date.now()};
   }
 
   function registerTripleEnd(ev){
-    const target=ev?.target?.closest?.('.room-master-teddy');
+    const target=ev?.target?.closest?.('.room-master-teddy,.site-version-trigger');
     if(!target)return;
 
     const now=Date.now();
@@ -168,8 +168,10 @@
       tapTimes=[];
       ev?.preventDefault?.();
       ev?.stopPropagation?.();
-      toggleEditor();
-      navigator.vibrate?.(35);
+      if(room()){
+        toggleEditor();
+        navigator.vibrate?.(35);
+      }
     }
   }
 

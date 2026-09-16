@@ -88,3 +88,12 @@
 }
 
 .renovation-room.room-master-enabled:not(.room-master-editing)>.room-companion.room-master-teddy{pointer-events:none!important;touch-action:auto!important}
+
+/* 12.21.5 — second hidden room-editor trigger */
+.site-version-trigger{
+  cursor:pointer;
+  -webkit-user-select:none;
+  user-select:none;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
