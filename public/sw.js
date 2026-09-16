@@ -1,4 +1,4 @@
-const VERSION='12.3.0',CACHE='myhabbit-game-'+VERSION;
+const VERSION='12.3.1',CACHE='myhabbit-game-'+VERSION;
 const CORE=['/index.html','/boot.js?v='+VERSION,'/app.js?v='+VERSION,'/game-rules.js','/game-content.js','/styles.css?v='+VERSION,'/home.css?v='+VERSION,'/room.svg','/manifest.webmanifest?v='+VERSION,'/icons/icon-192.png','/icons/icon-512.png'];
 async function broadcast(data){for(const c of await self.clients.matchAll({type:'window',includeUncontrolled:true}))c.postMessage(data);}
 async function cacheCore(){

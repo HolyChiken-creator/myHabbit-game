@@ -1367,6 +1367,11 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
   async function startMatch3(){const result=await runGameAction('match3-start');if(!result?.session)return;match3Runtime={...result.session,day:localDay()};safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:match3Runtime});render();}
 
 
+  async function restartMatch3(){
+    const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;
+    rt.busy=true;
+    try{await startMatch3();}finally{if(match3Runtime===rt)rt.busy=false;}
+  }
   function match3Piece(value){
     const shapes=[
       '<path d="M19 53C6 22 36 10 64 12c4 28-8 52-32 49Z"/><path d="M19 64 53 27" fill="none" stroke="#d6ffb1" stroke-width="5" stroke-linecap="round"/>',
@@ -1395,7 +1400,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     const cfg=match3Runtime?.cfg||match3Config(p.level),rt=match3Runtime;
     const bossLabel=cfg.boss==='grand'?tr('Великий бос','Grand boss'):cfg.boss==='boss'?tr('Бос-рівень','Boss level'):cfg.boss==='mini'?tr('Складний рівень','Challenge level'):'';
     const board=rt?'<div class="match3-board" style="--m3-size:'+cfg.size+'">'+match3Tiles(rt.board,rt.selected)+'</div>':'<div class="match3-ready"><div class="m3-preview">'+[0,2,1,3,4].map(match3Piece).join('')+'</div><span class="m3-kicker">'+tr('МАЛЕНЬКА ПРИГОДА','A LITTLE ADVENTURE')+'</span><h2>'+tr('Час для магії','Make a little magic')+'</h2><p>'+tr('Збирай однакові фішки та створюй каскади.','Match colorful pieces and create cascades.')+'</p><button class="btn primary m3-play" data-action="start-match3" '+(left<=0?'disabled':'')+'>'+tr(left>0?'Грати':'На сьогодні досить',left>0?'Let’s play':'Daily limit reached')+'</button></div>';
-    return shell('<section class="m3-world"><div class="m3-ribbon"><span>myHabbit · '+tr('Затишні комбінації','Cozy matches')+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+'</div></div><footer class="m3-footer"><span>'+tr('Обмінюй сусідні фішки • збирай від 3 однакових','Swap adjacent pieces • match 3 or more')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Маленька перерва, яскраві перемоги','A little break, colorful wins'));
+    return shell('<section class="m3-world"><div class="m3-ribbon"><span>myHabbit · '+tr('Затишні комбінації','Cozy matches')+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+'</div></div><footer class="m3-footer">'+(rt?'<button class="btn soft m3-restart" data-action="restart-match3" '+(rt.busy||rt.won?'disabled':'')+'>'+tr('Почати рівень заново','Restart level')+'</button>':'')+'<span>'+tr('Клацни фішку, потім сусідню • обмін має скласти ряд із 3 однакових','Click a piece, then a neighbor • the swap must make a row of 3')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Маленька перерва, яскраві перемоги','A little break, colorful wins'));
   }
 
   async function tryMatch3Swap(a,b){
@@ -1406,21 +1411,31 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     const board=document.querySelector('.match3-board'),first=board?.querySelector('[data-m3-tile="'+a+'"]'),second=board?.querySelector('[data-m3-tile="'+b+'"]');
     board?.classList.add('m3-animating');
     if(first&&second){const p=first.getBoundingClientRect(),q=second.getBoundingClientRect(),dx=q.left-p.left,dy=q.top-p.top;const opts={duration:180,easing:'ease-in-out',iterations:1};await Promise.all([m3Animate(first.querySelector('svg'),[{transform:'translate(0,0)'},{transform:'translate('+dx+'px,'+dy+'px)'}],{...opts,direction:valid?'normal':'alternate',iterations:valid?1:2}),m3Animate(second.querySelector('svg'),[{transform:'translate(0,0)'},{transform:'translate('+(-dx)+'px,'+(-dy)+'px)'}],{...opts,direction:valid?'normal':'alternate',iterations:valid?1:2})]);}
-    if(!valid){rt.busy=false;board?.classList.remove('m3-animating');showToast(tr('Спробуй іншу пару','Try another pair'));return false;}
+    if(!valid){rt.busy=false;rt.selected=a;updateMatch3Selection();board?.classList.remove('m3-animating');showToast(tr('Обмін має утворити ряд із 3 однакових фішок. Обери іншого сусіда виділеної фішки.','The swap must make a row of 3 matching pieces. Choose another neighbor of the selected piece.'));return false;}
     // Persist the resolved move before visual playback; interruption cannot lose it.
     Object.assign(rt,candidate,{busy:true,selected:null});safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:{...rt,busy:false}});
     await animateMatch3(board,frames,size);if(match3Runtime!==rt)return true;rt.busy=false;
     playCozySound('coin','full');
     if(rt.score>=rt.cfg.goal){rt.won=true;finishMatch3();}else if(rt.moves<=0){showToast(tr('Ходи закінчилися. Можна повторити це поле.','No moves left. You can retry this board.'));localStorage.removeItem(match3SaveKey());match3Runtime=null;render();}else render();return true;
   }
-  async function clickMatch3(index){const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;if(rt.selected==null){rt.selected=index;render();return;}const a=rt.selected;if(a===index){rt.selected=null;render();return;}if(!await tryMatch3Swap(a,index)&&match3Runtime===rt){rt.selected=index;render();}}
+  function updateMatch3Selection(){
+    document.querySelectorAll('[data-m3-tile]').forEach(tile=>{const selected=Number(tile.dataset.m3Tile)===match3Runtime?.selected;tile.classList.toggle('selected',selected);tile.setAttribute('aria-pressed',String(selected));});
+  }
+  async function clickMatch3(index){
+    const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;
+    const a=rt.selected,size=rt.cfg.size;
+    if(a==null||a===index||Math.abs(Math.floor(a/size)-Math.floor(index/size))+Math.abs(a%size-index%size)!==1){rt.selected=a===index?null:index;updateMatch3Selection();return;}
+    await tryMatch3Swap(a,index);
+  }
   function bindMatch3Controls(){
     const board=document.querySelector('.match3-board');if(!board||board.dataset.gestureBound)return;board.dataset.gestureBound='1';
     let gesture=null,suppressClickUntil=0;const threshold=18;
-    board.addEventListener('pointerdown',e=>{const tile=e.target.closest('[data-m3-tile]');if(!tile||!match3Runtime||match3Runtime.busy)return;gesture={index:Number(tile.dataset.m3Tile),x:e.clientX,y:e.clientY,id:e.pointerId};tile.setPointerCapture?.(e.pointerId);});
-    board.addEventListener('pointermove',e=>{if(!gesture||gesture.id!==e.pointerId)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;if(Math.max(Math.abs(dx),Math.abs(dy))>=threshold)e.preventDefault();},{passive:false});
-    board.addEventListener('pointerup',e=>{if(!gesture||gesture.id!==e.pointerId)return;const g=gesture;gesture=null;const dx=e.clientX-g.x,dy=e.clientY-g.y;if(Math.max(Math.abs(dx),Math.abs(dy))<threshold)return;const size=match3Runtime?.cfg?.size||0,row=Math.floor(g.index/size),col=g.index%size;let nr=row,nc=col;if(Math.abs(dx)>Math.abs(dy))nc+=dx>0?1:-1;else nr+=dy>0?1:-1;if(nr<0||nc<0||nr>=size||nc>=size)return;suppressClickUntil=Date.now()+400;tryMatch3Swap(g.index,m3Index(nr,nc,size));e.preventDefault();});
+    board.addEventListener('pointerdown',e=>{const tile=e.target.closest('[data-m3-tile]');if(!tile||!match3Runtime||match3Runtime.busy||match3Runtime.won||e.button!==0||e.isPrimary===false||gesture)return;suppressClickUntil=0;gesture={index:Number(tile.dataset.m3Tile),x:e.clientX,y:e.clientY,id:e.pointerId,threshold:e.pointerType==='mouse'?Math.max(24,tile.getBoundingClientRect().width*.45):threshold};tile.setPointerCapture?.(e.pointerId);});
+    board.addEventListener('pointermove',e=>{if(!gesture||gesture.id!==e.pointerId)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;if(Math.max(Math.abs(dx),Math.abs(dy))>=gesture.threshold)e.preventDefault();},{passive:false});
+    board.addEventListener('pointerup',e=>{if(!gesture||gesture.id!==e.pointerId)return;const g=gesture;gesture=null;const dx=e.clientX-g.x,dy=e.clientY-g.y;if(Math.max(Math.abs(dx),Math.abs(dy))<g.threshold)return;suppressClickUntil=Date.now()+400;e.preventDefault();const size=match3Runtime?.cfg?.size||0,row=Math.floor(g.index/size),col=g.index%size;let nr=row,nc=col;if(Math.abs(dx)>Math.abs(dy))nc+=dx>0?1:-1;else nr+=dy>0?1:-1;if(nr<0||nc<0||nr>=size||nc>=size)return;suppressClickUntil=Date.now()+400;tryMatch3Swap(g.index,m3Index(nr,nc,size));e.preventDefault();});
     board.addEventListener('pointercancel',()=>{gesture=null;});
+    board.addEventListener('lostpointercapture',()=>{gesture=null;});
+    board.addEventListener('dragstart',e=>e.preventDefault());
     board.addEventListener('click',e=>{const tile=e.target.closest('[data-m3-tile]');if(!tile)return;if(Date.now()<suppressClickUntil){e.preventDefault();return;}clickMatch3(Number(tile.dataset.m3Tile));});
   }
   async function finishMatch3(){const rt=match3Runtime;if(!rt)return;rt.busy=true;const result=await runGameAction('match3-finish',{moves:rt.moveLog});if(result){match3Runtime=null;localStorage.removeItem(match3SaveKey());render();}else {rt.busy=false;rt.won=false;showToast('Перемогу збережено для синхронізації');}}
@@ -1942,6 +1957,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     if(name==='contribute-family-style') contributeFamilyStyle();
     if(name==='apply-family-theme') applyFamilyTheme(el?.dataset.theme);
     if(name==='start-match3') startMatch3();
+    if(name==='restart-match3') restartMatch3();
     if(name==='exchange-dust')exchangeStickerDust(el?.dataset.collectionId);
     if(name==='sync-now')pushLocalStateNow().then(()=>flushGameActions()).then(()=>pullRemoteAndRender({force:true}));
     if(name==='send-profile-gift') sendProfileGift();
@@ -2292,7 +2308,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.0',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.1',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,
