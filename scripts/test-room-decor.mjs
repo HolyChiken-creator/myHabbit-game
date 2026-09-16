@@ -60,6 +60,17 @@ assert.match(appSource,/class=\"room-live-studio\"/);
 assert.match(appSource,/data-action=\"room-decor-preview\"/);
 assert.match(appSource,/data-action=\"room-decor-confirm\"/);
 assert.match(appSource,/Зараз це лише примірка/);
+assert.match(appSource,/roomStudioScrollState/);
+assert.match(appSource,/captureRoomStudioScroll/);
+assert.match(appSource,/restoreRoomStudioScroll/);
+assert.match(appSource,/Гортай стилі пальцем/);
+assert.match(appSource,/cozyHaptic\('light'\)/);
 assert.doesNotMatch(appSource,/function roomDecorModal\(/);
 
-console.log('PASS: 15-zone persistent Teddy room + sequential tiers + live no-charge preview before purchase.');
+const homeCss=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
+assert.match(homeCss,/12\.8\.0 — corrected Teddy Room perspective/);
+assert.match(homeCss,/scroll-snap-type:x mandatory/);
+assert.match(homeCss,/touch-action:pan-x/);
+assert.match(homeCss,/clip-path:polygon\(9% 0,91% 0,100% 100%,0 100%\)/);
+
+console.log('PASS: 15-zone persistent Teddy room + corrected perspective + tactile scroll-safe live preview.');

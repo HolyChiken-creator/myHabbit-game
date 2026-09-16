@@ -1319,7 +1319,20 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   let roomStudioOpen=false;
   let roomStudioSlot='seat';
   let roomPreviewItemId='';
+  let roomStudioScrollState={tabs:0,styles:0,studio:0};
   function roomPreviewItem(){return ROOM_DECOR_CATALOG.find(item=>item.id===roomPreviewItemId)||null;}
+  function captureRoomStudioScroll(){
+    const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles');
+    roomStudioScrollState={tabs:tabs?.scrollLeft||0,styles:styles?.scrollLeft||0,studio:studio?.scrollTop||0};
+  }
+  function restoreRoomStudioScroll({resetStyles=false,resetStudio=false}={}){
+    requestAnimationFrame(()=>{
+      const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles');
+      if(tabs)tabs.scrollLeft=roomStudioScrollState.tabs||0;
+      if(styles)styles.scrollLeft=resetStyles?0:(roomStudioScrollState.styles||0);
+      if(studio)studio.scrollTop=resetStudio?0:(roomStudioScrollState.studio||0);
+    });
+  }
   function roomPreviewUser(u){
     const item=roomPreviewItem();
     if(!u||!roomStudioOpen||!item)return u;
@@ -1327,18 +1340,29 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   }
   function focusRoomStudio(slot=''){
     const u=currentUser();if(!u)return;
+    const wasOpen=roomStudioOpen;
+    if(wasOpen)captureRoomStudioScroll();
     const valid=ROOM_DECOR_SLOT_NAMES[slot]?slot:'';
+    const nextSlot=valid||roomStudioSlot||roomNextUpgrades(u)[0]?.slot||'seat';
+    const changedSlot=Boolean(wasOpen&&nextSlot!==roomStudioSlot);
     roomStudioOpen=true;
-    roomStudioSlot=valid||roomStudioSlot||roomNextUpgrades(u)[0]?.slot||'seat';
+    roomStudioSlot=nextSlot;
     roomPreviewItemId='';
+    cozyHaptic('light');
     render();
-    requestAnimationFrame(()=>document.querySelector('.room-live-studio')?.scrollIntoView({behavior:'smooth',block:'center'}));
+    restoreRoomStudioScroll({resetStyles:changedSlot,resetStudio:changedSlot});
+    if(!wasOpen)requestAnimationFrame(()=>document.querySelector('.room-live-studio')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
   }
   function previewRoomDecor(itemId){
     const item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!item)return;
-    roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId=item.id;render();
+    captureRoomStudioScroll();
+    roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId=item.id;
+    cozyHaptic('light');
+    render();
+    restoreRoomStudioScroll();
   }
-  function closeRoomStudio(){roomStudioOpen=false;roomPreviewItemId='';render();}
+  function cancelRoomDecorPreview(){captureRoomStudioScroll();roomPreviewItemId='';cozyHaptic('light');render();restoreRoomStudioScroll();}
+  function closeRoomStudio(){roomStudioOpen=false;roomPreviewItemId='';cozyHaptic('light');render();}
   const ROOM_ASSET='/assets/generated/pack_00_style_lock/webp/';
   function roomDecorItem(u,slot){return ROOM_DECOR_CATALOG.find(item=>item.id===u?.roomDecor?.[slot])||ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&item.price===0);}
   function roomDecorTheme(u,slot){return roomDecorItem(u,slot)?.theme||'basic';}
@@ -1432,15 +1456,18 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     return `<aside class="room-live-studio" aria-label="${tr('Жива майстерня кімнати','Live room studio')}">
       <div class="room-live-head"><div><span>${tr('Жива майстерня','Live studio')}</span><strong>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
       <div class="room-live-tabs">${tabs}</div>
+      <div class="room-live-swipe-hint" aria-hidden="true">↔ ${tr('Гортай стилі пальцем','Swipe styles')}</div>
       <div class="room-live-styles">${cards}</div>
       ${confirm}
     </aside>`;
   }
   async function chooseRoomDecor(itemId){
     const u=currentUser(),item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!u||!item)return;
+    captureRoomStudioScroll();
     const owned=u.roomDecorOwned?.includes(item.id);
+    cozyHaptic('medium');
     const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});
-    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();}
+    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();}
   }
 
 
@@ -2118,7 +2145,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(name==='room-decor')focusRoomStudio(roomStudioSlot);
     if(name==='room-decor-slot')focusRoomStudio(el?.dataset.slot||'');
     if(name==='room-decor-preview')previewRoomDecor(el?.dataset.itemId);
-    if(name==='room-decor-cancel-preview'){roomPreviewItemId='';render();}
+    if(name==='room-decor-cancel-preview')cancelRoomDecorPreview();
     if(name==='room-decor-confirm')chooseRoomDecor(el?.dataset.itemId);
     if(name==='room-decor-close')closeRoomStudio();
     if(name==='contribute-family-style') contributeFamilyStyle();
@@ -2477,7 +2504,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.7.0',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.8.0',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,

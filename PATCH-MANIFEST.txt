@@ -1,38 +1,22 @@
-myHabbit 12.7.0 update over 12.6.0
+myHabbit 12.8.0 update over 12.7.0
 
-Primary changes:
-- Replaced the blocking Teddy Room decoration modal with a non-blocking live studio.
-- Desktop studio sits beside the room; mobile/tablet studio sits below it so Teddy remains visible.
-- Tapping any room style previews it instantly in the real Teddy Room.
-- Preview is temporary: it never spends crystals and never mutates the saved room state.
-- Explicit Buy & Equip / Equip confirmation is required before saving a style.
-- Revert Preview restores the currently equipped room immediately.
-- Closing the studio discards any temporary preview.
-- Locked higher tiers can still be previewed, but purchase remains blocked until the previous tier is unlocked.
-- Owned styles can be previewed and re-equipped without another charge.
-- Added a visible Live Preview badge inside the room.
-
-Files changed/added:
-- CHANGELOG.md
-- UPDATE-12.7.0.md
-- VERSION
-- VERSION.txt
-- package.json
-- game-content.js
-- PATCH-MANIFEST.txt
-- public/VERSION.txt
+Changed files:
 - public/app.js
-- public/boot.js
-- public/game-content.js
 - public/home.css
+- public/boot.js
 - public/index.html
 - public/manifest.webmanifest
 - public/sw.js
+- public/game-content.js
+- public/VERSION.txt
+- game-content.js
+- home.css
+- VERSION
+- VERSION.txt
+- package.json
 - scripts/test-room-decor.mjs
+- CHANGELOG.md
+- UPDATE-12.8.0.md
+- PATCH-MANIFEST.txt
 
-Validation completed:
-- npm run check
-- npm run validate
-- npm run audit
-- npm test
-- room test verifies live preview controls are present and the old blocking room modal is removed
+No files need to be deleted for this update.

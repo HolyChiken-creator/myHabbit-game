@@ -1,3 +1,12 @@
+# 12.8.0 — Teddy Room geometry & touch UX
+
+- Rebuilt the starter room perspective so the back wall, ceiling, floor, balcony and staircase share one coherent vanishing geometry.
+- Reduced the oversized/skewed staircase and aligned doors, window, fireplace, furniture zones and Teddy to the same room plane.
+- Made the live decor studio vertically scrollable on touch devices and the style/category rails momentum-scrollable with scroll snapping.
+- Preserved the horizontal scroll position after live previews so trying an item no longer jumps the carousel back to the start.
+- Enlarged touch targets, added press feedback and light/medium haptics for preview and purchase actions.
+- Added an explicit swipe hint on touch layouts while keeping the studio outside the room so Teddy remains visible.
+
 # 12.7.0 — Live Teddy Room studio
 
 - Replaced the blocking room-decoration modal with a live side/bottom studio.

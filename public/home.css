@@ -215,3 +215,82 @@
   .room-live-preview-badge{top:auto;bottom:8px;max-width:68%;white-space:nowrap}
   .room-live-preview-badge small{overflow:hidden;text-overflow:ellipsis}
 }
+
+/* 12.8.0 — corrected Teddy Room perspective + tactile, scroll-safe live studio. */
+.renovation-room{
+  height:500px!important;min-height:500px!important;perspective:none;transform-style:flat;
+  background:linear-gradient(180deg,#d9d0c8 0 64%,#ad927a 64% 100%);
+  box-shadow:0 24px 58px #49342624,inset 0 0 0 1px #fff9
+}
+.renovation-room:before,.renovation-room:after{top:11%;bottom:36%;width:10%;z-index:2;opacity:1;clip-path:none;box-shadow:none}
+.renovation-room:before{left:0;background:linear-gradient(90deg,#c7b9ab,#dfd5cb);clip-path:polygon(0 0,100% 0,100% 100%,0 86%)}
+.renovation-room:after{right:0;background:linear-gradient(90deg,#dfd5cb,#c6b8aa);clip-path:polygon(0 0,100% 0,100% 86%,0 100%)}
+.renovation-room .room-ceiling-layer{left:0;right:0;top:0;height:12%;clip-path:polygon(0 0,100% 0,91% 100%,9% 100%);border-bottom:0;background:linear-gradient(180deg,#eee8e2,#d9cfc5);box-shadow:inset 0 -1px #b8aa9d66}
+.renovation-room .room-back-wall,.renovation-room .room-wall-layer{left:9%;right:9%;top:11%;bottom:36%;border:0;background:linear-gradient(180deg,#e9e2da,#d7ccc1);box-shadow:inset 0 -16px 25px #725a4110}
+.renovation-room .room-side-wall{top:11%;bottom:36%;width:10%}.renovation-room .room-side-wall.left{left:0;clip-path:polygon(0 0,100% 0,100% 100%,0 86%)}.renovation-room .room-side-wall.right{right:0;clip-path:polygon(0 0,100% 0,100% 86%,0 100%)}
+.renovation-room .room-floor-layer{
+  left:0;right:0;bottom:0;height:37%;transform:none;transform-origin:center;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%);
+  background:repeating-linear-gradient(0deg,#795a431f 0 2px,transparent 2px 53px),repeating-linear-gradient(90deg,#73523b20 0 2px,transparent 2px 82px),linear-gradient(180deg,#c8b49f,#a98668);
+  box-shadow:inset 0 18px 24px #59463516
+}
+.renovation-room .room-floor-layer:after{background:linear-gradient(103deg,transparent 0 42%,#fff2 43% 47%,transparent 48% 100%);opacity:.45}
+.renovation-room .room-upper-landing{left:36%;right:9%;top:11%;height:11%;border-bottom:10px solid #7b4c2f;box-shadow:0 7px 10px #38251a25}
+.renovation-room .room-upper-landing:after{left:0;right:0;bottom:-1px;height:7px}
+.renovation-room .room-upper-rail{left:1%;right:1%;bottom:7px;height:31px;border-top:4px solid #75462e;border-bottom:4px solid #98603c;background:repeating-linear-gradient(90deg,transparent 0 28px,#75462e 28px 33px,transparent 33px 58px)}
+.renovation-room .room-staircase{
+  left:12%;top:12%;width:27%;height:47%;transform:none;transform-origin:center;border:0;border-radius:0;
+  clip-path:polygon(0 100%,25% 100%,100% 0,75% 0);
+  background:repeating-linear-gradient(154deg,#6f442d 0 7px,#b17a50 7px 19px,#865638 19px 24px);
+  box-shadow:none;filter:drop-shadow(8px 11px 8px #36231935)
+}
+.renovation-room .room-staircase:before,.renovation-room .room-staircase:after{content:"";position:absolute;top:0;bottom:0;width:6px;background:#69402b;box-shadow:0 0 0 2px #a66e48aa}.renovation-room .room-staircase:before{left:20%}.renovation-room .room-staircase:after{right:20%}.renovation-room .room-staircase i{display:none}
+.renovation-room .room-door{right:13%;top:25%;width:8.5%;height:26%;z-index:7}
+.renovation-room .room-window-frame{left:6%;top:29%;width:82px;height:122px;z-index:9}
+.renovation-room .room-window-glow{left:1%;top:24%;width:23%;height:43%;z-index:7}
+.renovation-room .room-curtains{left:2.5%;top:25%;width:136px;height:154px;z-index:10}
+.renovation-room .room-fireplace-shell{right:5%;bottom:35%;z-index:10}
+.renovation-room .room-storage-prop{right:20%;bottom:35%}.renovation-room .room-wallart-prop{right:36%;top:28%}
+.renovation-room .room-rug-shape{left:33%;bottom:1%;width:41%;height:19%;transform:perspective(420px) rotateX(64deg)}
+.renovation-room .room-seat-prop{left:18%;bottom:5%}.renovation-room .room-companion{left:50%;bottom:4px;width:205px}.renovation-room .room-table-shape{left:57%;bottom:6%}.renovation-room .room-plant-prop{right:14%;bottom:8%}.renovation-room .room-collection-prop{right:2%;bottom:5%}.renovation-room .room-lamp-prop{left:14%;bottom:22%}
+.renovation-room .room-label{left:16px;top:16px;max-width:248px;padding:10px 12px}.renovation-room .room-stage-badge{right:16px;top:16px}
+.hotspot-walls{left:48%;top:27%}.hotspot-floor{left:36%;bottom:15%}.hotspot-window{left:6%;top:51%}.hotspot-fireplace{right:4%;top:50%}.hotspot-seat{left:24%;bottom:26%}.hotspot-storage{right:27%;top:46%}.hotspot-table{left:58%;bottom:23%}.hotspot-plant{right:15%;bottom:24%}
+
+/* Live studio: keep the room visible, but make the controls actually scroll and feel touch-native. */
+.room-live-layout.is-editing{grid-template-columns:minmax(0,1fr) minmax(320px,360px)}
+.room-live-studio{top:76px;max-height:500px;min-height:0;overflow:hidden;grid-template-rows:auto auto auto minmax(0,1fr) auto;touch-action:pan-y}
+.room-live-head{position:relative;z-index:5}.room-live-close{width:42px;height:42px;border-radius:13px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.room-live-tabs{min-width:0;scroll-snap-type:x proximity;scroll-padding-inline:8px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.room-live-tabs button{min-height:42px;padding:9px 12px;scroll-snap-align:start;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.room-live-swipe-hint{display:none;font-size:10px;color:#8c745f;text-align:center;font-weight:800;letter-spacing:.01em}
+.room-live-styles{min-height:0;scrollbar-width:thin;scrollbar-color:#b99f86 transparent;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.room-live-style{min-height:88px;padding:11px;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation}
+.room-live-style:active,.room-live-tabs button:active,.room-live-close:active{transform:scale(.97)}
+.room-live-confirm-actions .btn{min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+@media(max-width:1100px){
+  .room-live-layout.is-editing{grid-template-columns:minmax(0,1fr)}
+  .room-live-studio{position:relative;top:auto;max-height:min(60svh,540px);overflow-y:auto;overflow-x:hidden;grid-template-rows:auto auto auto auto auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+  .room-live-tabs{touch-action:pan-x}.room-live-styles{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(168px,42vw);overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scroll-snap-type:x mandatory;scroll-padding-inline:4px;padding:2px 4px 9px}
+  .room-live-style{scroll-snap-align:start;scroll-snap-stop:always}
+  .room-live-swipe-hint{display:block}
+  .room-live-confirm,.room-live-hint{position:sticky;bottom:0;z-index:6;box-shadow:0 -9px 22px #4c322014}
+}
+@media(max-width:700px){
+  .renovation-room{height:370px!important;min-height:370px!important}
+  .renovation-room .room-ceiling-layer{height:10%}.renovation-room .room-back-wall,.renovation-room .room-wall-layer{left:5%;right:5%;top:9%;bottom:38%}.renovation-room:before,.renovation-room:after,.renovation-room .room-side-wall{width:5%;top:9%;bottom:38%}
+  .renovation-room .room-floor-layer{height:39%;clip-path:polygon(5% 0,95% 0,100% 100%,0 100%)}
+  .renovation-room .room-upper-landing{left:39%;right:5%;top:9%;height:10%}.renovation-room .room-upper-rail{height:25px;background:repeating-linear-gradient(90deg,transparent 0 20px,#75462e 20px 24px,transparent 24px 42px)}
+  .renovation-room .room-staircase{left:9%;top:10%;width:32%;height:43%}
+  .renovation-room .room-window-frame{left:3%;top:31%;width:56px;height:84px;border-width:6px}.renovation-room .room-window-glow{left:0;top:27%;width:24%;height:38%}.renovation-room .room-curtains{left:-1%;top:29%;width:99px;height:106px}
+  .renovation-room .room-door{right:8%;top:25%;width:10%;height:27%;border-width:5px}.renovation-room .room-fireplace-shell{right:1%;bottom:36%;transform:scale(.64);transform-origin:bottom right}
+  .renovation-room .room-storage-prop{right:13%;bottom:35%;transform:scale(.65);transform-origin:bottom right}.renovation-room .room-wallart-prop{right:28%;top:27%;transform:scale(.6)}
+  .renovation-room .room-seat-prop{left:6%;bottom:3%;transform:scale(.64);transform-origin:bottom left}.renovation-room .room-seat-prop.tier-2{left:3%}.renovation-room .room-seat-prop.tier-3{left:0;transform:scale(.69)}
+  .renovation-room .room-companion{width:142px;left:52%;bottom:0}.renovation-room .room-table-shape{left:61%;bottom:3%;width:122px}.renovation-room .room-rug-shape{left:29%;width:50%}.renovation-room .room-plant-prop{right:7%;bottom:4%;transform:scale(.61)}.renovation-room .room-lamp-prop{left:9%;bottom:18%;width:58px;height:82px}
+  .renovation-room .room-label{left:7px;top:7px;max-width:170px;padding:7px 8px}.renovation-room .room-stage-badge{right:7px;top:7px}
+  .hotspot-walls{left:47%;top:21%}.hotspot-window{left:3%;top:52%}.hotspot-fireplace{right:1%;top:51%}.hotspot-storage{right:17%;top:43%}.hotspot-seat{left:13%;bottom:24%}.hotspot-floor{left:34%;bottom:12%}.hotspot-table{left:62%;bottom:18%}.hotspot-plant{right:8%;bottom:19%}
+  .room-live-studio{max-height:min(58svh,500px);padding:11px;border-radius:19px}.room-live-tabs button{min-height:44px;font-size:10px}.room-live-styles{grid-auto-columns:minmax(164px,76vw)}.room-live-style{min-height:86px}.room-live-confirm-actions .btn{min-height:48px;font-size:11px}
+}
+@media(max-width:420px){
+  .renovation-room{height:345px!important;min-height:345px!important}.renovation-room .room-staircase{left:7%;width:34%;height:40%}.renovation-room .room-companion{width:128px;left:54%}.renovation-room .room-live-preview-badge{max-width:60%}
+  .room-live-studio{max-height:min(56svh,470px)}.room-live-styles{grid-auto-columns:82vw}.room-live-close{width:44px;height:44px}.room-live-tabs button{padding:10px 13px}
+}
