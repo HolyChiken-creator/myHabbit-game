@@ -1288,12 +1288,21 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     return {name:'Перша кімната',className:'stage-1',next:'До затишної кімнати',pct:Math.min(99,(level/5)*100)};
   }
   function tr(uk,en){return appLanguage==='en'?en:uk;}
+const BEAR_RIG = {"canvas": [1254, 1254], "coordinates": "pixels; left/right mean viewer side; pivots are global", "parts": [{"name": "leg-left", "file": "leg-left.webp", "x": 405, "y": 889, "width": 201, "height": 267, "pivot": [525, 954], "z": 0}, {"name": "leg-right", "file": "leg-right.webp", "x": 632, "y": 888, "width": 187, "height": 267, "pivot": [710, 954], "z": 0}, {"name": "torso", "file": "torso.webp", "x": 417, "y": 583, "width": 418, "height": 365, "pivot": [625, 925], "z": 1}, {"name": "arm-left", "file": "arm-left.webp", "x": 297, "y": 593, "width": 225, "height": 319, "pivot": [465, 650], "z": 2}, {"name": "arm-right", "file": "arm-right.webp", "x": 730, "y": 592, "width": 210, "height": 313, "pivot": [787, 650], "z": 2}, {"name": "head-closed", "file": "head-closed.webp", "x": 295, "y": 118, "width": 665, "height": 505, "pivot": [625, 596], "z": 4}, {"name": "head", "file": "head.webp", "x": 295, "y": 118, "width": 665, "height": 505, "pivot": [625, 596], "z": 4}]};
+function bearRigMarkup(base = '/assets/bear-rig/v1/') {
+ const image = p => `<image href="${base}${p.file}" x="${p.x}" y="${p.y}" width="${p.width}" height="${p.height}" preserveAspectRatio="none"/>`;
+ const part = p => `<g class="bear-part bear-${p.name}" style="transform-origin:${p.pivot[0]}px ${p.pivot[1]}px">${image(p)}</g>`;
+ const head = BEAR_RIG.parts.find(p=>p.name==='head');
+ const closed = BEAR_RIG.parts.find(p=>p.name==='head-closed');
+ return `<svg class="bear-rig" viewBox="180 60 900 1150" aria-hidden="true"><g class="bear-body">${BEAR_RIG.parts.filter(p=>!p.name.startsWith('head')).map(part).join('')}<g class="bear-head" style="transform-origin:${head.pivot[0]}px ${head.pivot[1]}px"><g class="bear-eyes-open">${image(head)}</g><g class="bear-eyes-closed">${image(closed)}</g></g></g></svg>`;
+}
+
   function roomCompanion(next,completed,total){
     const done=completed>0&&completed===total;
     const mode=done?'celebrate':!next?'rest':({reading:'read',mind:'read',growth:'read',sport:'move',health:'move',home:'tidy',finance:'plan',care:'care',family:'care',relationship:'care',creativity:'create'}[next.skill||next.category]||'plan');
     const moods={read:['📖','Пізнаємо щось нове?','Let’s learn something new!'],move:['🏃','Трохи руху разом?','Let’s get moving!'],tidy:['🧹','Зробімо дім затишнішим','Let’s make home cozy'],plan:['📝','Один маленький крок','One small step'],care:['💛','Подаруймо трохи тепла','Let’s share some kindness'],create:['🎨','Час для натхнення','Time to create'],rest:['☕','Відпочинок теж важливий','Rest matters too'],celebrate:['✨','Ми впоралися!','We did it!']};
     const [prop,uk,en]=moods[mode];
-    return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div><svg viewBox="0 0 220 240" aria-hidden="true"><ellipse cx="110" cy="224" rx="78" ry="10" fill="#69411c25"/><g class="teddy-body"><ellipse cx="110" cy="155" rx="57" ry="62" fill="#bd8756"/><ellipse cx="110" cy="160" rx="35" ry="42" fill="#e8c591"/><g class="teddy-arm left"><ellipse cx="52" cy="156" rx="20" ry="39" fill="#bd8756"/></g><g class="teddy-arm right"><ellipse cx="168" cy="156" rx="20" ry="39" fill="#bd8756"/></g><ellipse cx="72" cy="214" rx="29" ry="18" fill="#ad7648"/><ellipse cx="148" cy="214" rx="29" ry="18" fill="#ad7648"/><g class="teddy-head"><circle cx="53" cy="48" r="25" fill="#ad7648"/><circle cx="167" cy="48" r="25" fill="#ad7648"/><circle cx="53" cy="48" r="15" fill="#e8c591"/><circle cx="167" cy="48" r="15" fill="#e8c591"/><ellipse cx="110" cy="87" rx="69" ry="62" fill="#d6a56c"/><ellipse cx="110" cy="107" rx="33" ry="25" fill="#f2d6a8"/><g class="teddy-eyes" fill="#392a23"><circle cx="85" cy="84" r="5"/><circle cx="135" cy="84" r="5"/></g><path d="M100 101q10-8 20 0-2 10-10 10t-10-10" fill="#563d2d"/><path d="M110 111v6m0 0q-8 8-15 0m15 0q8 8 15 0" stroke="#694a36" stroke-width="3" fill="none" stroke-linecap="round"/></g><path d="M75 132q35 14 70 0l-7 20H82z" fill="#778971"/></g></svg><span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
+    return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
   }
   function dashboard(){
     const u=currentUser(),today=state.quests.filter(q=>q.dailyDay===localDay()),completed=today.filter(q=>questStatus(state,u,q).done).length;
@@ -1762,7 +1771,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     function ensureRoot(){
       if(document.getElementById('cozyCompanionRoot'))return;
       appendMarkup(document.body,`<div id="cozyCompanionRoot" class="cozy-companion-root" aria-live="polite">
-        <button class="cozy-bear-button" type="button" aria-label="Відкрити Тедика"><span>${familyHomeStage().teddy}</span><i></i></button>
+        <button class="cozy-bear-button" type="button" aria-label="Відкрити Тедика"><span><img src="/assets/bear-rig/v1/head.webp" alt="" width="52" height="52"></span><i></i></button>
         <div class="cozy-bubble" hidden><button class="cozy-bubble-close" aria-label="Закрити">×</button><small>Тедик</small><strong></strong><p></p><div class="cozy-bubble-actions"></div></div>
       </div>`);
       const root=document.getElementById('cozyCompanionRoot');
@@ -2308,7 +2317,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.1',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.2',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,
