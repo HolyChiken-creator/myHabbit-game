@@ -1,15 +1,15 @@
-myHabbit 12.12.0 — step zero home collection
+myHabbit 12.13.0 — step one cozy collection
 
 Apply this ZIP over the project root.
 
 Added:
-- public/assets/step zero home collection/README.md
-- public/assets/step zero home collection/manifest.json
-- public/assets/step zero home collection/вікно_занедбане.png
-- public/assets/step zero home collection/крісло_занедбане.png
-- public/assets/step zero home collection/столик_занедбаний.png
-- public/assets/step zero home collection/книжкова_шафа_занедбана.png
-- public/assets/step zero home collection/камін_занедбаний.png
-- public/assets/step zero home collection/килим_занедбаний.png
-- public/assets/step zero home collection/рослина_занедбана.png
-- docs/updates/12.12.0-step-zero-home-collection.md
+- public/assets/step one cozy collection/README.md
+- public/assets/step one cozy collection/manifest.json
+- public/assets/step one cozy collection/вікно_затишне.png
+- public/assets/step one cozy collection/крісло_затишне.png
+- public/assets/step one cozy collection/столик_затишний.png
+- public/assets/step one cozy collection/книжкова_шафа_затишна.png
+- public/assets/step one cozy collection/камін_затишний.png
+- public/assets/step one cozy collection/килим_затишний.png
+- public/assets/step one cozy collection/рослина_затишна.png
+- docs/updates/12.13.0-step-one-cozy-collection.md

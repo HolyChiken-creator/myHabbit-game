@@ -1,0 +1,15 @@
+{
+  "collectionId": "step-one-cozy-collection",
+  "title": "step one cozy collection",
+  "description": "Cozy upgraded room assets for Teddy Room.",
+  "version": "12.13.0",
+  "items": [
+    {"id": "window-cozy", "title": "Вікно затишне", "file": "вікно_затишне.png", "role": "window"},
+    {"id": "armchair-cozy", "title": "Крісло затишне", "file": "крісло_затишне.png", "role": "armchair"},
+    {"id": "table-cozy", "title": "Столик затишний", "file": "столик_затишний.png", "role": "table"},
+    {"id": "bookshelf-cozy", "title": "Книжкова шафа затишна", "file": "книжкова_шафа_затишна.png", "role": "bookshelf"},
+    {"id": "fireplace-cozy", "title": "Камін затишний", "file": "камін_затишний.png", "role": "fireplace"},
+    {"id": "rug-cozy", "title": "Килим затишний", "file": "килим_затишний.png", "role": "rug"},
+    {"id": "plant-cozy", "title": "Рослина затишна", "file": "рослина_затишна.png", "role": "plant"}
+  ]
+}
