@@ -1,0 +1,76 @@
+
+/* Teddy Room Master Controller 1.0 */
+.renovation-room.room-master-enabled{position:relative!important;overflow:hidden!important;isolation:isolate}
+.renovation-room.room-master-enabled>.room-master-layer{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-bg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none
+}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-object{
+  position:absolute;height:auto;object-fit:contain;transform-origin:center bottom;
+  filter:drop-shadow(0 7px 10px rgba(44,28,18,.18));pointer-events:none;user-select:none;-webkit-user-drag:none
+}
+.renovation-room.room-master-enabled>.room-atmosphere,
+.renovation-room.room-master-enabled>.room-ceiling-layer,
+.renovation-room.room-master-enabled>.room-back-wall,
+.renovation-room.room-master-enabled>.room-side-wall,
+.renovation-room.room-master-enabled>.room-wall-layer,
+.renovation-room.room-master-enabled>.room-floor-layer,
+.renovation-room.room-master-enabled>.room-window-frame,
+.renovation-room.room-master-enabled>.room-curtains,
+.renovation-room.room-master-enabled>.room-window-glow,
+.renovation-room.room-master-enabled>.room-fireplace-shell,
+.renovation-room.room-master-enabled>.room-wallart-prop,
+.renovation-room.room-master-enabled>.room-rug-shape,
+.renovation-room.room-master-enabled>.room-storage-prop,
+.renovation-room.room-master-enabled>.room-seat-prop,
+.renovation-room.room-master-enabled>.room-plant-prop,
+.renovation-room.room-master-enabled>.room-collection-prop,
+.renovation-room.room-master-enabled>.room-lamp-prop,
+.renovation-room.room-master-enabled>.room-corner-prop,
+.renovation-room.room-master-enabled>.room-table-shape{display:none!important}
+
+.renovation-room.room-master-enabled>.room-companion.room-master-teddy{
+  position:absolute!important;margin:0!important;right:auto!important;bottom:auto!important;height:auto!important;
+  z-index:20!important;transform:none!important;pointer-events:auto!important;touch-action:manipulation
+}
+.renovation-room.room-master-enabled>.room-companion.room-master-teddy .companion-caption{display:none!important}
+.renovation-room.room-master-enabled.room-master-editing>.room-master-layer>.room-master-object{
+  pointer-events:auto!important;touch-action:none!important;outline:1px dashed transparent;border-radius:10px
+}
+.renovation-room.room-master-enabled.room-master-editing>.room-master-layer>.room-master-object.is-selected,
+.renovation-room.room-master-enabled.room-master-editing>.room-companion.is-selected{
+  outline:2px dashed rgba(84,131,72,.85);outline-offset:4px
+}
+.renovation-room.room-master-enabled.room-master-editing>.room-companion.room-master-teddy{
+  touch-action:none!important
+}
+
+.room-master-editor{
+  position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:99999;
+  max-height:min(58svh,560px);overflow:auto;padding:13px;border:1px solid rgba(117,84,62,.20);
+  border-radius:22px;background:rgba(255,249,242,.88);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  box-shadow:0 16px 45px rgba(45,30,20,.24);color:#49352c
+}
+.room-master-editor-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.room-master-editor-head>div{display:grid}.room-master-editor-head small{font-size:9px;letter-spacing:.12em;color:#8b7464;font-weight:900}
+.room-master-editor-head strong{font-size:16px}.room-master-editor-head button{width:38px;height:38px;border:0;border-radius:12px;background:#fff8f0;font-size:23px;color:#604a3c}
+.room-master-levels{display:flex;gap:7px;overflow-x:auto;padding:0 0 9px;scrollbar-width:none}
+.room-master-levels button,.room-master-actions button,.room-master-nudge button{
+  border:1px solid #dfcfbf;background:#fffaf4;color:#5d493d;border-radius:12px;min-height:40px;padding:8px 11px;font-weight:800
+}
+.room-master-levels button{white-space:nowrap}.room-master-levels button.active{background:#5c4436;color:#fff;border-color:#5c4436}
+.room-master-select-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px}
+.room-master-select-row label{font-size:10px;color:#806c5f;font-weight:800}
+.room-master-select-row select{display:block;width:100%;margin-top:4px;padding:9px 8px;border:1px solid #dfcfbf;border-radius:11px;background:#fff;color:#4d3a30;font-weight:700}
+.room-master-range{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;font-size:11px;font-weight:800}
+.room-master-range input{width:100%}.room-master-range span{min-width:42px;text-align:right}
+.room-master-nudge{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:9px 0}
+.room-master-nudge button{font-size:18px;padding:4px}
+.room-master-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.room-master-actions button{font-size:10px;min-width:0}
+.room-master-editor p{font-size:10px;line-height:1.4;color:#806e62;margin:9px 1px 0}
+.room-master-toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);z-index:100000;padding:9px 13px;border-radius:999px;background:#443329;color:#fff;font-size:12px;opacity:0;transition:.18s;pointer-events:none}
+.room-master-toast.on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:800px){
+  .room-master-editor{left:auto;right:18px;width:380px;bottom:18px}
+}

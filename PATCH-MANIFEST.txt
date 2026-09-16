@@ -1,15 +1,19 @@
-myHabbit 12.15.0 — step three hi-tech collection
+myHabbit 12.18.0 — Teddy Room Master Controller
 
-Apply this ZIP over the project root.
+Apply over the current project root.
+
+Changed:
+- public/index.html
+- public/boot.js
+- public/sw.js
+- package.json
+- VERSION
+- VERSION.txt
 
 Added:
-- public/assets/step three hi-tech collection/README.md
-- public/assets/step three hi-tech collection/manifest.json
-- public/assets/step three hi-tech collection/вікно_хайтек.png
-- public/assets/step three hi-tech collection/крісло_хайтек.png
-- public/assets/step three hi-tech collection/столик_хайтек.png
-- public/assets/step three hi-tech collection/книжкова_шафа_хайтек.png
-- public/assets/step three hi-tech collection/камін_хайтек.png
-- public/assets/step three hi-tech collection/килим_хайтек.png
-- public/assets/step three hi-tech collection/рослина_хайтек.png
-- docs/updates/12.15.0-step-three-hi-tech-collection.md
+- public/room-master.config.js
+- public/room-master-controller.js
+- public/room-master.css
+- UPDATE-12.18.0.md
+
+The controller uses the room level collections/backgrounds that are already present in public/assets.
