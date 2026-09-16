@@ -1,6 +1,6 @@
 import { normalizeGame, applyGameAction, num, GAME_VERSION, evaluateGameAchievements, ROOM_DECOR_CATALOG } from '../public/game-rules.js';
 const APP_VERSION = GAME_VERSION;
-const DEPLOY_MARKER = 'myhabbit-12-1-0';
+const DEPLOY_MARKER = 'myhabbit-12-20-0';
 const JSON_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
   'cache-control': 'no-store'

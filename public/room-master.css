@@ -74,4 +74,17 @@
 @media(min-width:800px){
   .room-master-editor{left:auto;right:18px;width:380px;bottom:18px}
 }
-\n\n/* 12.19.0 rendering hardening */\n.renovation-room.room-master-enabled:before,.renovation-room.room-master-enabled:after{display:none!important;content:none!important}\n.renovation-room.room-master-enabled>.room-master-layer{z-index:2!important;background:transparent!important}\n.renovation-room.room-master-enabled>.room-master-layer>.room-master-bg{z-index:0!important;object-fit:cover!important}\n.renovation-room.room-master-enabled>.room-master-layer>.room-master-object.asset-load-error{display:none!important}\n.renovation-room.room-master-enabled>.room-companion.room-master-teddy .companion-prop{display:none!important}\n.renovation-room.room-master-enabled>.room-companion.room-master-teddy{z-index:30!important}\n@media(max-width:760px){\n  .renovation-room.room-master-enabled{height:auto!important;min-height:0!important;aspect-ratio:4/3!important}\n}\n
+
+
+/* 12.19.0 rendering hardening */
+.renovation-room.room-master-enabled:before,.renovation-room.room-master-enabled:after{display:none!important;content:none!important}
+.renovation-room.room-master-enabled>.room-master-layer{z-index:2!important;background:transparent!important}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-bg{z-index:0!important;object-fit:cover!important}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-object.asset-load-error{display:none!important}
+.renovation-room.room-master-enabled>.room-companion.room-master-teddy .companion-prop{display:none!important}
+.renovation-room.room-master-enabled>.room-companion.room-master-teddy{z-index:30!important}
+@media(max-width:760px){
+  .renovation-room.room-master-enabled{height:auto!important;min-height:0!important;aspect-ratio:4/3!important}
+}
+
+.renovation-room.room-master-enabled:not(.room-master-editing)>.room-companion.room-master-teddy{pointer-events:none!important;touch-action:auto!important}

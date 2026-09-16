@@ -1,18 +1,32 @@
-myHabbit 12.19.0 — Teddy Room render fix
+myHabbit 12.20.0 — Room Shop Progression
 
-Apply over 12.18.0 project root.
+Apply over 12.19.0.
 
-Fixes:
-- Safari broken-image question-mark placeholders
-- room background not painting correctly
-- stale Level 1 furniture showing while room is at another stage
-- Teddy activity prop covering Teddy
-- oversized transparent padding in furniture source PNGs
-- mobile `Ремонтувати` / progress width conflict
-- service-worker room asset preload fragility
+Changed:
+- public/app.js
+- public/game-rules.js
+- game-rules.js
+- public/game-content.js
+- game-content.js
+- public/home.css
+- public/room-master.config.js
+- public/room-master-controller.js
+- public/room-master.css
+- public/index.html
+- public/boot.js
+- public/sw.js
+- src/worker.js
+- worker.js
+- package.json
+- VERSION / VERSION.txt / public/VERSION.txt
 
-New runtime assets:
-- public/assets/room-master/level-1/*
-- public/assets/room-master/level-2/*
-- public/assets/room-master/level-3/*
-- public/assets/room-master/level-4/*
+Added:
+- public/assets/room-master/level-0/background.webp
+- public/assets/room-master/level-0/window.webp
+- public/assets/room-master/level-0/armchair.webp
+- public/assets/room-master/level-0/table.webp
+- public/assets/room-master/level-0/bookshelf.webp
+- public/assets/room-master/level-0/fireplace.webp
+- public/assets/room-master/level-0/rug.webp
+- public/assets/room-master/level-0/plant.webp
+- UPDATE-12.20.0.md

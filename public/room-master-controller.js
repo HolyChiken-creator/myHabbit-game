@@ -15,8 +15,8 @@
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function defaultState(){
     return {
-      activeLevel:1,
-      sources:Object.fromEntries(SLOTS.map(s=>[s,1])),
+      activeLevel:0,
+      sources:Object.fromEntries(SLOTS.map(s=>[s,0])),
       layouts:clone(CFG.defaults)
     };
   }
@@ -26,7 +26,7 @@
       const parsed=raw?JSON.parse(raw):null;
       const d=defaultState();
       if(!parsed)return d;
-      d.activeLevel=Math.min(4,Math.max(1,Number(parsed.activeLevel)||1));
+      d.activeLevel=Math.min(4,Math.max(0,Number(parsed.activeLevel)||0));
       d.sources={...d.sources,...(parsed.sources||{})};
       d.layouts={...d.layouts,...(parsed.layouts||{})};
       return d;
@@ -39,14 +39,17 @@
   function room(){return document.querySelector('.renovation-room');}
   function currentLayout(){
     const n=String(state.activeLevel);
-    if(!state.layouts[n])state.layouts[n]=clone(CFG.defaults[n]||CFG.defaults[1]);
+    if(!state.layouts[n])state.layouts[n]=clone(CFG.defaults[n]||CFG.defaults[0]);
     return state.layouts[n];
   }
 
   function inferStage(el){
-    const m=[1,2,3,4].find(n=>el.classList.contains('renovation-stage-'+n));
-    return m||1;
+    const raw=Number(el?.dataset?.roomThemeLevel);
+    if(Number.isFinite(raw))return Math.min(4,Math.max(0,Math.trunc(raw)));
+    const m=[0,1,2,3,4].find(n=>el?.classList?.contains('room-theme-level-'+n));
+    return Number.isFinite(m)?m:0;
   }
+  function isAdminRoom(el){return el?.dataset?.roomAdmin==='true';}
 
   function ensureStateForRoom(el){
     if(!localStorage.getItem(CFG.storageKey)){
@@ -80,7 +83,7 @@
     if(companion){
       companion.classList.add('room-master-teddy');
       companion.dataset.roomMasterObject='teddy';
-      bindTripleTap(companion);
+      if(isAdminRoom(el))bindTripleTap(companion);
     }
 
     bindObjectEvents(el);
@@ -90,16 +93,16 @@
   function render(){
     const el=room(); if(!el)return;
     const runtimeLevel=String(inferStage(el));
-    const lvl=editorOpen?String(state.activeLevel):runtimeLevel;
-    const level=CFG.levels[lvl]||CFG.levels[1];
-    const layout=(state.layouts[lvl]||(state.layouts[lvl]=clone(CFG.defaults[lvl]||CFG.defaults[1])));
+    const lvl=editorOpen&&isAdminRoom(el)?String(state.activeLevel):runtimeLevel;
+    const level=CFG.levels[lvl]||CFG.levels[0];
+    const layout=(state.layouts[lvl]||(state.layouts[lvl]=clone(CFG.defaults[lvl]||CFG.defaults[0])));
     const bg=el.querySelector('[data-room-master-bg]');
     if(bg){bg.onerror=()=>{bg.classList.add('asset-load-error');};bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=level.background;}
 
     SLOTS.forEach(slot=>{
       const img=el.querySelector(`[data-room-master-object="${slot}"]`);
       if(!img)return;
-      const sourceLevel=editorOpen?String(state.sources[slot]||lvl):lvl;
+      const sourceLevel=editorOpen&&isAdminRoom(el)?String(state.sources[slot]??lvl):lvl;
       const src=CFG.levels[sourceLevel]?.assets?.[slot]||level.assets[slot];
       img.onerror=()=>{img.classList.add('asset-load-error');};
       img.onload=()=>img.classList.remove('asset-load-error');
@@ -190,6 +193,7 @@
   }
 
   function toggleEditor(force){
+    if(!isAdminRoom(room()))return;
     const next=typeof force==='boolean'?force:!editorOpen;
     if(next&&!editorOpen){
       const stage=inferStage(room());
@@ -213,14 +217,14 @@
         <button type="button" data-rm-close>×</button>
       </div>
       <div class="room-master-levels">
-        ${[1,2,3,4].map(n=>`<button type="button" data-rm-level="${n}">${n} · ${CFG.levels[n].title}</button>`).join('')}
+        ${[0,1,2,3,4].map(n=>`<button type="button" data-rm-level="${n}">${n} · ${CFG.levels[n].title}</button>`).join('')}
       </div>
       <div class="room-master-select-row">
         <label>Обʼєкт<select data-rm-slot>
           ${[...SLOTS,'teddy'].map(s=>`<option value="${s}">${CFG.labels[s]}</option>`).join('')}
         </select></label>
         <label>Ассет<select data-rm-source>
-          <option value="1">1 · Cozy</option><option value="2">2 · Warm</option>
+          <option value="0">0 · Step 0</option><option value="1">1 · Cozy</option><option value="2">2 · Warm</option>
           <option value="3">3 · Hi-tech</option><option value="4">4 · Gothic</option>
         </select></label>
       </div>
@@ -269,7 +273,7 @@
     const src=p.querySelector('[data-rm-source]');
     if(src){
       src.disabled=selected==='teddy';
-      src.value=String(selected==='teddy'?state.activeLevel:(state.sources[selected]||state.activeLevel));
+      src.value=String(selected==='teddy'?state.activeLevel:(state.sources[selected]??state.activeLevel));
     }
     const range=p.querySelector('[data-rm-size]');
     const value=currentLayout()[selected]?.w||20;
@@ -293,7 +297,7 @@
   }
   function resetOne(){
     const n=String(state.activeLevel);
-    currentLayout()[selected]=clone(CFG.defaults[n][selected]||CFG.defaults[1][selected]);
+    currentLayout()[selected]=clone(CFG.defaults[n][selected]||CFG.defaults[0][selected]);
     save();render();
   }
   function resetLevel(){

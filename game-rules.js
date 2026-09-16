@@ -2,6 +2,14 @@ import { GAME_VERSION, DAILY_QUEST_TEMPLATES, cosmeticDefaults, LEVEL_REWARDS, d
 
 export { GAME_VERSION };
 export const skillKeys=['home','care','health','growth','finance','family','relationship','sport','mind','reading','cinema','creativity','discipline'];
+export const ROOM_THEME_PACKS=[
+  {level:0,id:'room-zero',title:'Занедбана кімната',subtitle:'Початок історії Тедіка',price:0,icon:'🧹',theme:'zero'},
+  {level:1,id:'room-cozy',title:'Затишний дім',subtitle:'Перший повноцінний затишний комплект',price:8,icon:'🪴',theme:'cozy'},
+  {level:2,id:'room-warm',title:'Теплий дім',subtitle:'Більше тепла, деталей і наповнення',price:18,icon:'🛋️',theme:'warm'},
+  {level:3,id:'room-hitech',title:'Hi-tech кімната',subtitle:'М’який технологічний стиль Тедіка',price:32,icon:'✨',theme:'hitech'},
+  {level:4,id:'room-gothic',title:'Готична кімната',subtitle:'Темний казковий преміум-стиль',price:50,icon:'🕯️',theme:'gothic'}
+];
+export function roomThemePack(level){return ROOM_THEME_PACKS.find(x=>x.level===Math.trunc(num(level)))||ROOM_THEME_PACKS[0];}
 export const ROOM_DECOR_CATALOG=[
   {id:'ceiling-basic',slot:'ceiling',title:'Базова стеля',price:0,icon:'▫️',theme:'basic',tier:0},
   {id:'ceiling-warm',slot:'ceiling',title:'Дерев’яні балки',price:10,icon:'🪵',theme:'warm',tier:1},
@@ -133,6 +141,14 @@ function userDefaults(u){
   if(!u.roomDecorStarterV3){for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;}u.roomDecorStarterV3=true;}
   for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;if(!u.roomDecorOwned.includes(id))u.roomDecorOwned.push(id);}
   u.roomDecorOwned=unique(u.roomDecorOwned.filter(id=>ROOM_DECOR_CATALOG.some(item=>item.id===id)));
+  u.roomThemeOwned=Array.isArray(u.roomThemeOwned)?unique(u.roomThemeOwned.map(x=>Math.trunc(num(x,0,4))).filter(x=>x>=0&&x<=4)):[0];
+  if(!u.roomThemeShopV1){
+    // New visual room progression starts from Step 0 for everyone. The legacy per-slot decorator stays only as migration data.
+    u.roomThemeOwned=[0];u.roomThemeLevel=0;u.roomThemeShopV1=true;
+  }
+  if(!u.roomThemeOwned.includes(0))u.roomThemeOwned.unshift(0);
+  u.roomThemeLevel=Math.trunc(num(u.roomThemeLevel,0,4));
+  if(!u.roomThemeOwned.includes(u.roomThemeLevel))u.roomThemeLevel=0;
   u.achievements=unique(u.achievements);u.stickerDust=num(u.stickerDust);if(u.totalXpEarned==null){let total=u.xp;for(let level=1;level<u.level;level++)total+=xpRequired(level);u.totalXpEarned=total;}u.streak=num(u.streak);u.bestStreak=Math.max(num(u.bestStreak),u.streak);
 }
 export function normalizeGame(s,now=Date.now()){
@@ -213,6 +229,14 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     if(purchased){item.stock=num(item.stock)-1;const order={id:op.id,sourceItemId:item.id,title:item.title,description:item.description,icon:item.icon,ownerId:u.id,startedAt:now,status:'available',kind:item.rewardKind||'permanent'};if(order.kind==='timed'){order.durationDays=num(item.durationDays,1,30);order.expiresAt=now+order.durationDays*864e5;}u.activeFeatures.push(order);u.purchaseHistory.push(copy(order));u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;s.history.unshift({eventId:op.id,userId:u.id,kind:'purchase',createdAt:now,icon:item.icon,text:`${u.name} придбав(ла) «${item.title}»`,time:day});}
   }else if(op.type==='cosmetic-buy'){
     const item=s.cosmeticsCatalog.find(i=>i.id===op.itemId);if(!item)fail('Предмет недоступний');if(!u.inventory.includes(item.id)){spend(u,item.price);grantItem(s,u,item.id);u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;}message='Предмет у колекції';
+  }else if(op.type==='room-theme-buy'||op.type==='room-theme-equip'){
+    const level=Math.trunc(num(op.level,0,4)),pack=ROOM_THEME_PACKS.find(x=>x.level===level);if(!pack)fail('Рівень кімнати недоступний');
+    u.roomThemeOwned=Array.isArray(u.roomThemeOwned)?unique(u.roomThemeOwned.map(x=>Math.trunc(num(x,0,4)))):[0];if(!u.roomThemeOwned.includes(0))u.roomThemeOwned.unshift(0);
+    if(op.type==='room-theme-buy'&&!u.roomThemeOwned.includes(level)){
+      const previous=Math.max(0,level-1);if(level>0&&!u.roomThemeOwned.includes(previous))fail(`Спочатку відкрийте рівень ${previous}`);
+      const price=Math.trunc(num(pack.price));if(u.diamonds<price)fail('Недостатньо діамантів');u.diamonds-=price;u.roomThemeOwned.push(level);u.roomThemeOwned=unique(u.roomThemeOwned);u.stats.roomThemePurchased=num(u.stats.roomThemePurchased)+1;
+    }
+    if(!u.roomThemeOwned.includes(level))fail('Спочатку придбайте цей рівень кімнати');u.roomThemeLevel=level;message=op.type==='room-theme-buy'?'Новий рівень кімнати відкрито':'Рівень кімнати встановлено';detail={level,diamonds:u.diamonds};
   }else if(op.type==='room-decor-buy'||op.type==='room-decor-equip'){
     const item=ROOM_DECOR_CATALOG.find(i=>i.id===op.itemId);if(!item)fail('Елемент кімнати недоступний');
     if(op.type==='room-decor-buy'&&!u.roomDecorOwned.includes(item.id)){
