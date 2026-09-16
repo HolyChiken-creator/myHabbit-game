@@ -1,0 +1,15 @@
+{
+  "collectionId": "step-two-warm-collection",
+  "title": "step two warm collection",
+  "description": "Warm upgraded room assets for Teddy Room.",
+  "version": "12.14.0",
+  "items": [
+    {"id": "window-warm", "title": "Вікно тепле", "file": "вікно_тепле.png", "role": "window"},
+    {"id": "armchair-warm", "title": "Крісло тепле", "file": "крісло_тепле.png", "role": "armchair"},
+    {"id": "table-warm", "title": "Столик теплий", "file": "столик_теплий.png", "role": "table"},
+    {"id": "bookshelf-warm", "title": "Книжкова шафа тепла", "file": "книжкова_шафа_тепла.png", "role": "bookshelf"},
+    {"id": "fireplace-warm", "title": "Камін теплий", "file": "камін_теплий.png", "role": "fireplace"},
+    {"id": "rug-warm", "title": "Килим теплий", "file": "килим_теплий.png", "role": "rug"},
+    {"id": "plant-warm", "title": "Рослина тепла", "file": "рослина_тепла.png", "role": "plant"}
+  ]
+}

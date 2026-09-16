@@ -1,15 +1,15 @@
-myHabbit 12.13.0 — step one cozy collection
+myHabbit 12.14.0 — step two warm collection
 
 Apply this ZIP over the project root.
 
 Added:
-- public/assets/step one cozy collection/README.md
-- public/assets/step one cozy collection/manifest.json
-- public/assets/step one cozy collection/вікно_затишне.png
-- public/assets/step one cozy collection/крісло_затишне.png
-- public/assets/step one cozy collection/столик_затишний.png
-- public/assets/step one cozy collection/книжкова_шафа_затишна.png
-- public/assets/step one cozy collection/камін_затишний.png
-- public/assets/step one cozy collection/килим_затишний.png
-- public/assets/step one cozy collection/рослина_затишна.png
-- docs/updates/12.13.0-step-one-cozy-collection.md
+- public/assets/step two warm collection/README.md
+- public/assets/step two warm collection/manifest.json
+- public/assets/step two warm collection/вікно_тепле.png
+- public/assets/step two warm collection/крісло_тепле.png
+- public/assets/step two warm collection/столик_теплий.png
+- public/assets/step two warm collection/книжкова_шафа_тепла.png
+- public/assets/step two warm collection/камін_теплий.png
+- public/assets/step two warm collection/килим_теплий.png
+- public/assets/step two warm collection/рослина_тепла.png
+- docs/updates/12.14.0-step-two-warm-collection.md
