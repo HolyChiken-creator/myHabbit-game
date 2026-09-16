@@ -1,4 +1,4 @@
-myHabbit 12.8.0 update over 12.7.0
+myHabbit 12.9.0 update over 12.8.0
 
 Changed files:
 - public/app.js
@@ -14,9 +14,9 @@ Changed files:
 - VERSION
 - VERSION.txt
 - package.json
-- scripts/test-room-decor.mjs
 - CHANGELOG.md
-- UPDATE-12.8.0.md
+- UPDATE-12.9.0.md
 - PATCH-MANIFEST.txt
+- scripts/test-room-decor.mjs
 
 No files need to be deleted for this update.

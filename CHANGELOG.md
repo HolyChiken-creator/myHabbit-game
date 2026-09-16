@@ -1,3 +1,12 @@
+# 12.9.0 — Teddy Room floating renovation sheet
+
+- Renovation controls no longer resize or squeeze the Teddy Room scene.
+- Removed automatic scroll-into-view jump when opening the room studio.
+- The studio now opens as a lightweight translucent glass sheet anchored beneath the room on desktop.
+- On phones the studio behaves as a compact fixed bottom sheet with safe-area support.
+- Style choices remain horizontally swipeable with snap scrolling and preserved live preview.
+- Added a subtle one-time opening motion without reanimating on every preview selection.
+
 # 12.8.0 — Teddy Room geometry & touch UX
 
 - Rebuilt the starter room perspective so the back wall, ceiling, floor, balcony and staircase share one coherent vanishing geometry.

@@ -1317,6 +1317,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     ['Кімната мрії','Dream room','Насичений особистий простір із колекціями, світлом і деталями.','A rich personal space filled with collections, light and detail.']
   ];
   let roomStudioOpen=false;
+  let roomStudioOpening=false;
   let roomStudioSlot='seat';
   let roomPreviewItemId='';
   let roomStudioScrollState={tabs:0,styles:0,studio:0};
@@ -1346,12 +1347,12 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const nextSlot=valid||roomStudioSlot||roomNextUpgrades(u)[0]?.slot||'seat';
     const changedSlot=Boolean(wasOpen&&nextSlot!==roomStudioSlot);
     roomStudioOpen=true;
+    roomStudioOpening=!wasOpen;
     roomStudioSlot=nextSlot;
     roomPreviewItemId='';
     cozyHaptic('light');
     render();
     restoreRoomStudioScroll({resetStyles:changedSlot,resetStudio:changedSlot});
-    if(!wasOpen)requestAnimationFrame(()=>document.querySelector('.room-live-studio')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
   }
   function previewRoomDecor(itemId){
     const item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!item)return;
@@ -1453,7 +1454,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     }else{
       confirm=`<div class="room-live-hint"><span>👆</span><div><strong>${tr('Приміряйте стиль наживо','Try a style live')}</strong><small>${tr('Торкніться будь-якого варіанта — кімната біля Тедіка зміниться одразу. Купівлі не буде, доки ви її не підтвердите.','Tap any option and Teddy’s room changes immediately. Nothing is purchased until you confirm it.')}</small></div></div>`;
     }
-    return `<aside class="room-live-studio" aria-label="${tr('Жива майстерня кімнати','Live room studio')}">
+    const opening=roomStudioOpening;roomStudioOpening=false;
+    return `<aside class="room-live-studio" data-opening="${opening?'true':'false'}" role="dialog" aria-modal="false" aria-label="${tr('Жива майстерня кімнати','Live room studio')}">
       <div class="room-live-head"><div><span>${tr('Жива майстерня','Live studio')}</span><strong>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
       <div class="room-live-tabs">${tabs}</div>
       <div class="room-live-swipe-hint" aria-hidden="true">↔ ${tr('Гортай стилі пальцем','Swipe styles')}</div>

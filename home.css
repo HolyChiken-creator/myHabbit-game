@@ -294,3 +294,66 @@
   .renovation-room{height:345px!important;min-height:345px!important}.renovation-room .room-staircase{left:7%;width:34%;height:40%}.renovation-room .room-companion{width:128px;left:54%}.renovation-room .room-live-preview-badge{max-width:60%}
   .room-live-studio{max-height:min(56svh,470px)}.room-live-styles{grid-auto-columns:82vw}.room-live-close{width:44px;height:44px}.room-live-tabs button{padding:10px 13px}
 }
+
+/* 12.9.0 — floating glass renovation sheet. The room frame never resizes or shifts. */
+.room-live-layout{
+  position:relative;display:block!important;overflow:visible;isolation:isolate
+}
+.room-live-layout.is-editing{display:block!important;grid-template-columns:none!important}
+.room-live-scene{position:relative;width:100%;min-width:0;z-index:1}
+.room-live-studio{
+  position:absolute!important;z-index:90;left:50%;right:auto;top:calc(100% - 24px);bottom:auto;
+  width:min(940px,calc(100% - 36px));max-height:360px;min-height:0;
+  transform:translateX(-50%);display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:8px;
+  padding:18px 14px 13px;border:1px solid rgba(255,255,255,.76);border-radius:23px;
+  background:linear-gradient(180deg,rgba(255,250,242,.86),rgba(247,237,226,.76));
+  -webkit-backdrop-filter:blur(20px) saturate(1.16);backdrop-filter:blur(20px) saturate(1.16);
+  box-shadow:0 18px 46px rgba(57,37,25,.23),inset 0 1px rgba(255,255,255,.9);
+  overflow:hidden;overscroll-behavior:contain
+}
+.room-live-studio:before{
+  content:"";position:absolute;left:50%;top:6px;width:42px;height:4px;transform:translateX(-50%);
+  border-radius:999px;background:rgba(102,78,60,.24);pointer-events:none
+}
+.room-live-studio[data-opening="true"]{animation:roomStudioSheetIn .22s cubic-bezier(.2,.78,.25,1) both}
+@keyframes roomStudioSheetIn{
+  from{opacity:0;transform:translate(-50%,13px) scale(.988)}
+  to{opacity:1;transform:translate(-50%,0) scale(1)}
+}
+.room-live-styles{
+  display:grid!important;grid-template-columns:none!important;grid-auto-flow:column;
+  grid-auto-columns:minmax(150px,185px);gap:8px;overflow-x:auto!important;overflow-y:hidden!important;
+  padding:2px 4px 8px 1px;scroll-snap-type:x mandatory;scroll-padding-inline:2px;
+  touch-action:pan-x;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain
+}
+.room-live-style{scroll-snap-align:start;scroll-snap-stop:normal;min-height:78px}
+.room-live-tabs{touch-action:pan-x;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.room-live-confirm,.room-live-hint{background:rgba(255,255,255,.66);border-color:rgba(217,201,184,.75)}
+.room-live-confirm{grid-template-columns:minmax(0,1fr) minmax(250px,.9fr);align-items:center;gap:10px}
+.room-live-confirm>div:first-child{min-width:0}.room-live-confirm-actions{align-self:stretch}
+.room-live-swipe-hint{display:block}
+@media(max-width:1100px){
+  .room-live-studio{position:absolute!important;top:calc(100% - 22px);max-height:350px}
+  .room-live-confirm{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .room-live-layout{overflow:visible}
+  .room-live-studio{
+    position:fixed!important;z-index:220;left:8px;right:8px;top:auto;bottom:calc(8px + env(safe-area-inset-bottom));
+    width:auto;max-height:min(49svh,430px);transform:none;border-radius:22px;padding:18px 10px 11px;
+    background:linear-gradient(180deg,rgba(255,250,242,.88),rgba(247,237,226,.80));
+    box-shadow:0 18px 54px rgba(42,27,19,.31),inset 0 1px rgba(255,255,255,.92)
+  }
+  .room-live-studio[data-opening="true"]{animation:roomStudioSheetInMobile .22s cubic-bezier(.2,.78,.25,1) both}
+  @keyframes roomStudioSheetInMobile{from{opacity:0;transform:translateY(18px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .room-live-head{grid-template-columns:minmax(0,1fr) auto auto}
+  .room-live-styles{grid-auto-columns:minmax(158px,76vw)!important}
+  .room-live-confirm-actions{grid-template-columns:1fr 1.1fr!important}
+  .room-live-confirm-actions .btn{min-height:46px}
+}
+@media(max-width:440px){
+  .room-live-studio{left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom));max-height:min(52svh,420px);border-radius:20px}
+  .room-live-styles{grid-auto-columns:82vw!important}
+  .room-live-confirm-actions{grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:reduce){.room-live-studio[data-opening="true"]{animation:none!important}}

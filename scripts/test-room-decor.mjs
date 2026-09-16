@@ -65,12 +65,19 @@ assert.match(appSource,/captureRoomStudioScroll/);
 assert.match(appSource,/restoreRoomStudioScroll/);
 assert.match(appSource,/Гортай стилі пальцем/);
 assert.match(appSource,/cozyHaptic\('light'\)/);
+const focusStudioSource=appSource.match(/function focusRoomStudio\([\s\S]*?function previewRoomDecor/)?.[0]||'';
+assert.doesNotMatch(focusStudioSource,/scrollIntoView\(/);
+assert.match(appSource,/data-opening=/);
 assert.doesNotMatch(appSource,/function roomDecorModal\(/);
 
 const homeCss=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
 assert.match(homeCss,/12\.8\.0 — corrected Teddy Room perspective/);
+assert.match(homeCss,/12\.9\.0 — floating glass renovation sheet/);
+assert.match(homeCss,/position:absolute!important/);
+assert.match(homeCss,/backdrop-filter:blur\(20px\)/);
+assert.match(homeCss,/position:fixed!important/);
 assert.match(homeCss,/scroll-snap-type:x mandatory/);
 assert.match(homeCss,/touch-action:pan-x/);
 assert.match(homeCss,/clip-path:polygon\(9% 0,91% 0,100% 100%,0 100%\)/);
 
-console.log('PASS: 15-zone persistent Teddy room + corrected perspective + tactile scroll-safe live preview.');
+console.log('PASS: 15-zone Teddy room + fixed scene + floating tactile glass renovation sheet.');
