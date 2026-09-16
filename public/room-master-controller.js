@@ -135,12 +135,35 @@
   }
 
   let tripleDelegateBound=false;
-  function registerTripleTap(ev){
+  let triplePointerId=null;
+  let tripleStart=null;
+
+  function registerTripleStart(ev){
     const target=ev?.target?.closest?.('.room-master-teddy');
     if(!target)return;
+    triplePointerId=ev.pointerId ?? null;
+    tripleStart={x:ev.clientX ?? ev.touches?.[0]?.clientX ?? 0,y:ev.clientY ?? ev.touches?.[0]?.clientY ?? 0,time:Date.now()};
+  }
+
+  function registerTripleEnd(ev){
+    const target=ev?.target?.closest?.('.room-master-teddy');
+    if(!target)return;
+
     const now=Date.now();
-    tapTimes=tapTimes.filter(t=>now-t<1400);
+    const x=ev.clientX ?? ev.changedTouches?.[0]?.clientX ?? 0;
+    const y=ev.clientY ?? ev.changedTouches?.[0]?.clientY ?? 0;
+
+    if(tripleStart){
+      const dx=x-tripleStart.x,dy=y-tripleStart.y;
+      const moved=Math.hypot(dx,dy);
+      const held=now-tripleStart.time;
+      if(moved>24 || held>650){tripleStart=null;tapTimes=[];return;}
+    }
+
+    tapTimes=tapTimes.filter(t=>now-t<1500);
     tapTimes.push(now);
+    tripleStart=null;
+
     if(tapTimes.length>=3){
       tapTimes=[];
       ev?.preventDefault?.();
@@ -153,8 +176,17 @@
   function ensureTripleTapDelegate(){
     if(tripleDelegateBound)return;
     tripleDelegateBound=true;
-    document.addEventListener('pointerdown',registerTripleTap,{capture:true,passive:false});
-    document.addEventListener('touchstart',registerTripleTap,{capture:true,passive:false});
+
+    // IMPORTANT: use exactly one input event family.
+    // iPhone Safari emits both PointerEvents and TouchEvents for the same physical tap.
+    // Listening to both made the editor open and close again during the same 3-tap gesture.
+    if(window.PointerEvent){
+      document.addEventListener('pointerdown',registerTripleStart,{capture:true,passive:true});
+      document.addEventListener('pointerup',registerTripleEnd,{capture:true,passive:false});
+    }else{
+      document.addEventListener('touchstart',registerTripleStart,{capture:true,passive:true});
+      document.addEventListener('touchend',registerTripleEnd,{capture:true,passive:false});
+    }
   }
 
   function bindTripleTap(teddy){

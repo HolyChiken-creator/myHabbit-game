@@ -77,11 +77,11 @@ assert.match(fixedApp,/let roomStudioSlot='background'/);
 assert.match(fixedApp,/ROOM_DECOR_SLOT_NAMES\[roomStudioSlot\]\?roomStudioSlot:'background'/);
 assert.doesNotMatch(fixedApp,/roomStudioSlot='seat'/);
 const fixedController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
-assert.match(fixedController,/now-t<1400/);
+assert.match(fixedController,/now-t<1500/);
 assert.match(fixedController,/isAdminRoom\(room\(\)\)/);
 
 const openController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
-const tripleBlock=openController.match(/function registerTripleTap\(ev\)[\s\S]*?function bindObjectEvents/)[0];
+const tripleBlock=openController.match(/function registerTripleStart\(ev\)[\s\S]*?function bindObjectEvents/)[0];
 assert.doesNotMatch(tripleBlock,/isAdminRoom\(room\(\)\)/);
 assert.match(tripleBlock,/tapTimes\.length>=3/);
 const statusApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
@@ -89,5 +89,7 @@ assert.match(statusApp,/data-action="room-decor">\$\{next\?tr\('Прокачат
 assert.doesNotMatch(statusApp,/Прокачати','Upgrade'\)\} · \$\{next\.price\}/);
 
 assert.doesNotMatch(fixedController,/if\(isAdminRoom\(el\)\)bindTripleTap\(companion\)/);
-assert.match(fixedController,/document\.addEventListener\('pointerdown',registerTripleTap/);
-assert.match(fixedController,/document\.addEventListener\('touchstart',registerTripleTap/);
+assert.match(fixedController,/if\(window\.PointerEvent\)/);
+assert.match(fixedController,/document\.addEventListener\('pointerup',registerTripleEnd/);
+assert.match(fixedController,/document\.addEventListener\('touchend',registerTripleEnd/);
+assert.match(fixedController,/use exactly one input event family/);
