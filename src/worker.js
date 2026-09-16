@@ -1,6 +1,6 @@
-const APP_VERSION = '11.3.3-maintenance-splash-schedule';
-const DEPLOY_MARKER = 'myhabbit-11-3-2-2026-08-02';
-const DEFAULT_OWNER_PANEL_SECRET = 'TedyK-Owner-9472!';
+import { normalizeGame, applyGameAction, num, GAME_VERSION, evaluateGameAchievements } from '../public/game-rules.js';
+const APP_VERSION = GAME_VERSION;
+const DEPLOY_MARKER = 'myhabbit-12-1-0';
 const JSON_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
   'cache-control': 'no-store'
@@ -344,6 +344,9 @@ export class TelegramStateV2 {
   }
 
   async fetch(request) {
+    return this.state.blockConcurrencyWhile(() => this.handleRequest(request));
+  }
+  async handleRequest(request) {
     const url = new URL(request.url);
     try {
       if (url.pathname === '/family-create' && request.method === 'POST') return this.familyCreate(request, await request.json());
@@ -353,6 +356,7 @@ export class TelegramStateV2 {
       if (url.pathname === '/family-invite' && request.method === 'POST') return this.familyCreateInvite(request, await request.json().catch(() => ({})));
       if (url.pathname === '/family-invite-info' && request.method === 'POST') return this.familyInviteInfo(await request.json().catch(() => ({})));
       if (url.pathname === '/family-invite-join' && request.method === 'POST') return this.familyInviteJoin(await request.json());
+      if (url.pathname === '/family-action' && request.method === 'POST') return this.familyAction(request, await request.json());
       if (url.pathname === '/family-state' && request.method === 'GET') return this.familyGetState(request);
       if (url.pathname === '/family-state' && request.method === 'PUT') return this.familyPutState(request, await request.json());
       if (url.pathname === '/daily-submit' && request.method === 'POST') return this.dailySubmit(request, await request.json());
@@ -660,72 +664,69 @@ export class TelegramStateV2 {
   }
 
   async familyGetState(request) {
-    const auth = await this.familyAuthorize(request);
-    if (!auth) return json({ error: 'Недійсна сімейна сесія' }, 401);
-    return json({ state:{...auth.family.state,currentUserId:auth.user.id}, revision:auth.family.revision, updatedAt:auth.family.updatedAt });
+    const auth=await this.familyAuthorize(request);
+    if(!auth)return json({error:'Недійсна сімейна сесія'},401);
+    normalizeGame(auth.family.state);
+    await this.state.storage.put(`fq-family:${auth.family.id}`,auth.family);
+    return json({state:{...auth.family.state,currentUserId:auth.user.id},revision:Number(auth.family.revision||0),updatedAt:auth.family.updatedAt});
   }
 
-  async familyPutState(request, payload) {
-    const auth = await this.familyAuthorize(request);
-    if (!auth) return json({ error: 'Недійсна сімейна сесія' }, 401);
-    await this.enforceRateLimit(`state-write:${auth.user.id}`, 120, 60 * 1000);
-    const next = payload?.state;
-    if (!next || typeof next !== 'object') return json({ error: 'Некоректний стан' }, 400);
-    const serialized = JSON.stringify(next);
-    if (serialized.length > 700000) return json({ error: 'Стан сім’ї завеликий' }, 413);
+  async familyAction(request,op) {
+    const auth=await this.familyAuthorize(request);
+    if(!auth)return json({error:'Недійсна сімейна сесія'},401);
+    await this.enforceRateLimit(`actions:${auth.user.id}`,120,60000);
+    if(!op||!/^[-a-zA-Z0-9]{16,80}$/.test(op.id||'')||JSON.stringify(op).length>16000)return json({error:'Некоректна дія'},400);
+    const key=`fq-action:${auth.family.id}:${auth.user.id}:${op.id}`;
+    const existing=await this.state.storage.get(key);
+    if(existing)return json({...existing,duplicate:true,state:{...auth.family.state,currentUserId:auth.user.id},revision:auth.family.revision});
+    let result;const roleChanges={};
+    try {
+      if(op.type==='admin-transfer'){
+        if(!['owner','admin'].includes(auth.user.role))return json({error:'Недостатньо прав'},403);
+        const target=await this.state.storage.get(`fq-user:${op.to}`);
+        if(!target||target.familyId!==auth.family.id||target.id===auth.user.id)return json({error:'Оберіть іншого учасника'},400);
+        const changes={};for(const member of auth.family.state.users){const record=await this.state.storage.get(`fq-user:${member.id}`);if(!record)continue;if(member.id===target.id||['owner','admin'].includes(record.role)){record.role=member.id===target.id?'owner':'member';member.role=record.role;changes[`fq-user:${member.id}`]=record;}}
+        Object.assign(roleChanges,changes);result={message:'Права адміністратора передано'};
+      }else result=applyGameAction(auth.family.state,auth.user.id,op,Date.now(),()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296);
+    }catch(error){return json({error:error.message||'Не вдалося виконати дію'},400);}
+    auth.family.revision=Number(auth.family.revision||0)+1;auth.family.updatedAt=new Date().toISOString();
+    await this.state.storage.put({...roleChanges,[`fq-family:${auth.family.id}`]:auth.family,[key]:result});
+    return json({...result,state:{...auth.family.state,currentUserId:auth.user.id},revision:auth.family.revision});
+  }
 
-    const previous = auth.family.state || {};
-    const previousUsers = Array.isArray(previous.users) ? previous.users : [];
-    const incomingUsers = Array.isArray(next.users) ? next.users : [];
-    const previousIds = previousUsers.map((item) => item.id).filter(Boolean).sort();
-    const incomingIds = incomingUsers.map((item) => item.id).filter(Boolean).sort();
-    if (JSON.stringify(previousIds) !== JSON.stringify(incomingIds)) {
-      await this.securityEvent('blocked-member-list-change', { userId: auth.user.id, familyId: auth.family.id });
-      return json({ error: 'Склад сімʼї змінюється лише через захищені серверні дії' }, 403);
+  async familyPutState(request,payload) {
+    const auth=await this.familyAuthorize(request);
+    if(!auth)return json({error:'Недійсна сімейна сесія'},401);
+    if(payload?.protocol!==2)return json({error:'Оновіть застосунок. Старий спосіб збереження вимкнено для захисту нагород.'},426);
+    await this.enforceRateLimit(`state-write:${auth.user.id}`,120,60000);
+    if(!Number.isInteger(payload.baseRevision)||payload.baseRevision!==Number(auth.family.revision||0))return json({error:'Дані змінилися на іншому пристрої. Оновіть стан і повторіть зміну.',state:{...auth.family.state,currentUserId:auth.user.id},revision:auth.family.revision},409);
+    const incoming=payload.state;if(!incoming||JSON.stringify(incoming).length>1500000)return json({error:'Некоректний розмір даних'},400);
+    const state=normalizeGame(auth.family.state),own=state.users.find(u=>u.id===auth.user.id),profile=(incoming.users||[]).find(u=>u.id===auth.user.id);
+    if(profile&&own){
+      own.importantDates=(Array.isArray(profile.importantDates)?profile.importantDates:[]).slice(0,20).map(d=>({id:text(d.id,100),day:Math.floor(num(d.day,1,31)),month:Math.floor(num(d.month,1,12)),title:text(d.title,48),visible:d.visible!==false}));
+      own.featuredAchievements=(Array.isArray(profile.featuredAchievements)?profile.featuredAchievements:[]).filter(id=>own.achievements.includes(id)).slice(0,3);
+      own.audioPrefs={mode:['off','minimal','full'].includes(profile.audioPrefs?.mode)?profile.audioPrefs.mode:'minimal',haptics:profile.audioPrefs?.haptics!==false};
+      for(const kind of ['badge','frame','animatedFrame','nicknameEffect','profileEffect','theme']){const id=profile.equipped?.[kind];const item=state.cosmeticsCatalog.find(i=>i.kind===kind&&(i.id===id||i.asset===id)&&own.inventory.includes(i.id));own.equipped[kind]=item?(kind==='theme'?item.asset:item.id):(kind==='theme'?'light':null);}
     }
-
-    const privileged = ['owner', 'admin'].includes(auth.user.role);
-    const oldById = new Map(previousUsers.map((item) => [item.id, item]));
-    const safeUsers = incomingUsers.map((incoming) => {
-      const old = oldById.get(incoming.id);
-      if (!old) return null;
-      if (!privileged && incoming.id !== auth.user.id) return old;
-      return {
-        ...old,
-        ...incoming,
-        id: old.id,
-        role: old.role,
-        createdAt: old.createdAt,
-        telegramLinked: old.telegramLinked,
-        telegramUsername: old.telegramUsername
-      };
-    }).filter(Boolean);
-
-    const oldFamily = previous.family || {};
-    const incomingFamily = next.family && typeof next.family === 'object' ? next.family : {};
-    const safeFamily = {
-      ...oldFamily,
-      ...incomingFamily,
-      id: oldFamily.id || auth.family.id,
-      code: oldFamily.code || auth.family.code,
-      maxMembers: oldFamily.maxMembers || auth.family.maxMembers || 5
-    };
-    if (!privileged) safeFamily.name = oldFamily.name;
-
-    const safeNext = {
-      ...previous,
-      ...next,
-      family: safeFamily,
-      users: safeUsers,
-      currentUserId: auth.user.id
-    };
-    auth.family.state = safeNext;
-    auth.family.revision = Number(auth.family.revision || 0) + 1;
-    auth.family.updatedAt = new Date().toISOString();
-    await this.state.storage.put(`fq-family:${auth.family.id}`, auth.family);
-    return json({ revision:auth.family.revision, updatedAt:auth.family.updatedAt, securityMode:'protected-state-v1' });
+    if(['admin','owner'].includes(auth.user.role)){
+      const adminQuest=q=>({id:text(q.id,180),title:text(q.title,100),icon:text(q.icon,12),description:text(q.description,700),type:['personal','pair','coop','limited'].includes(q.type)?q.type:'personal',participants:['pair','coop'].includes(q.type)?Math.floor(num(q.participants,2,25)):1,rewardCoins:num(q.rewardCoins,0,10000),rewardXp:num(q.rewardXp,0,10000),skill:text(q.skill,24),skillXp:num(q.skillXp,0,10000),difficulty:['easy','normal','hard'].includes(q.difficulty)?q.difficulty:'normal',prerequisiteId:text(q.prerequisiteId,180),stage:text(q.stage,30),status:q.status==='paused'?'paused':'active',repeatType:['daily','weekly'].includes(q.repeatType)?q.repeatType:'none',source:'admin',stock:q.type==='limited'?Math.floor(num(q.stock,0,100)):undefined});
+      const oldQuests=new Map(state.quests.map(q=>[q.id,q]));const incomingQuests=Array.isArray(incoming.quests)?incoming.quests:[];
+      state.questOverrides=state.questOverrides||{};for(const q of incomingQuests){if(oldQuests.get(q.id)?.catalog)state.questOverrides[q.id]=adminQuest(q);}
+      const custom=incomingQuests.filter(q=>q.source==='admin'&&!q.dailyDay&&!q.catalog&&!String(q.id).startsWith('daily-')).slice(0,300).map(q=>{const old=oldQuests.get(q.id);return {...adminQuest(q),progress:old?.progress||{},claimedBy:old?.claimedBy||[]};});
+      state.quests=[...state.quests.filter(q=>q.source!=='admin'||q.catalog||q.dailyDay),...custom];
+      const shop=Array.isArray(incoming.shop)?incoming.shop:[];const oldShop=new Map(state.shop.map(i=>[i.id,i]));
+      state.shop=shop.slice(0,300).map(i=>({id:text(i.id,120),title:text(i.title,100),description:text(i.description,700),icon:text(i.icon,12),type:['personal','family','collective'].includes(i.type)?i.type:'personal',price:num(i.price,0,1000000),stock:Math.floor(num(i.stock,0,9999)),fund:num(oldShop.get(i.id)?.fund),durationDays:Math.floor(num(i.durationDays,1,30)),rewardKind:i.rewardKind==='timed'?'timed':'permanent',resourceUrl:/^https?:\/\//i.test(i.resourceUrl||'')?text(i.resourceUrl,1000):'',source:'admin'}));
+      const settings=incoming.questTemplateSettings||{};state.questTemplateSettings={};for(const [key,v] of Object.entries(settings).slice(0,100)){const clean=adminQuest(v);state.questTemplateSettings[key]={enabled:v.enabled!==false};for(const field of ['title','icon','description','type','rewardCoins','rewardXp','skill','difficulty','prerequisiteId','stage'])if(Object.hasOwn(v,field))state.questTemplateSettings[key][field]=clean[field];}
+      const limit=Math.max(state.users.length,Math.floor(num(incoming.family?.maxMembers,2,25)));state.family.maxMembers=limit;auth.family.maxMembers=limit;
+      state.family.name=text(incoming.family?.name||state.family.name,80);auth.family.name=state.family.name;
+      const fp=state.family.styleProgress;if(fp?.unlockedThemes?.includes(incoming.family?.styleProgress?.activeTheme))fp.activeTheme=incoming.family.styleProgress.activeTheme;
+      for(const member of state.users){const other=(incoming.users||[]).find(u=>u.id===member.id);if(other&&['owner','admin'].includes(member.role))member.hiddenFromFamily=Boolean(other.hiddenFromFamily);}
+      const keep=new Set((incoming.profileStickers||[]).map(st=>st.id));state.profileStickers=state.profileStickers.filter(st=>keep.has(st.id));
+    }
+    normalizeGame(state);auth.family.revision=Number(auth.family.revision||0)+1;auth.family.updatedAt=new Date().toISOString();
+    await this.state.storage.put(`fq-family:${auth.family.id}`,auth.family);
+    return json({state:{...state,currentUserId:auth.user.id},revision:auth.family.revision,updatedAt:auth.family.updatedAt});
   }
-
 
   kyivDay() {
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
@@ -755,7 +756,9 @@ export class TelegramStateV2 {
     else if (roll >= 0.62) { reward = 10; tier = 'bright'; }
     const member = (auth.family.state.users || []).find((item) => item.id === auth.user.id);
     if (!member) return json({ error: 'Профіль не знайдено' }, 404);
+    normalizeGame(auth.family.state);
     member.coins = Number(member.coins || 0) + reward;
+    member.stats.giftsOpened=num(member.stats.giftsOpened)+1;member.stats.coinsEarned=num(member.stats.coinsEarned)+reward;if(reward===500)member.stats.jackpots=num(member.stats.jackpots)+1;evaluateGameAchievements(auth.family.state,member);
     member.activity = Array.isArray(member.activity) ? member.activity : [];
     member.activity.unshift(`Ранкова рулетка подарувала ${reward} монет`);
     auth.family.state.history = Array.isArray(auth.family.state.history) ? auth.family.state.history : [];
@@ -765,30 +768,13 @@ export class TelegramStateV2 {
     const result = { reward, tier, day, claimedAt: auth.family.updatedAt };
     await this.state.storage.put(key, result);
     await this.state.storage.put(`fq-family:${auth.family.id}`, auth.family);
-    return json({ claimed: true, duplicate: false, ...result, state:{...auth.family.state,currentUserId:auth.user.id} });
+    return json({ claimed: true, duplicate: false, ...result, revision:auth.family.revision, state:{...auth.family.state,currentUserId:auth.user.id} });
   }
 
-  async dailySubmit(request, payload) {
-    const auth = await this.familyAuthorize(request);
-    if (!auth) return json({ error: 'Недійсна сімейна сесія' }, 401);
-    const day = text(payload?.day, 10);
-    const seq = Math.max(1, Math.floor(number(payload?.seq)));
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return json({ error: 'Некоректна дата пакета' }, 400);
-    const compact = payload?.data && typeof payload.data === 'object' ? payload.data : null;
-    if (!compact) return json({ error: 'Порожній пакет синхронізації' }, 400);
-    const serialized = JSON.stringify(compact);
-    if (serialized.length > 80000) return json({ error: 'Денний пакет завеликий' }, 413);
-    const key = `fq-pending:${auth.family.id}:${auth.user.id}:${day}:${seq}`;
-    if (await this.state.storage.get(key)) return json({ accepted: true, duplicate: true });
-    await this.state.storage.put(key, {
-      familyId: auth.family.id,
-      userId: auth.user.id,
-      day,
-      seq,
-      receivedAt: new Date().toISOString(),
-      data: compact
-    });
-    return json({ accepted: true, duplicate: false });
+  async dailySubmit(request,payload) {
+    const auth=await this.familyAuthorize(request);
+    if(!auth)return json({error:'Недійсна сімейна сесія'},401);
+    return json({error:'Оновіть застосунок. Використовується черга окремих дій замість денних знімків.'},426);
   }
 
   async adminSyncStatus(request) {
@@ -809,47 +795,10 @@ export class TelegramStateV2 {
   }
 
   async processFamilyPending(family) {
-    const records = await this.state.storage.list({ prefix: `fq-pending:${family.id}:` });
-    if (!records.size) return { processed: false, packets: 0, users: 0, revision: Number(family.revision || 0) };
-    const ordered = [...records.entries()].sort((a, b) => String(a[1].receivedAt).localeCompare(String(b[1].receivedAt)));
-    const affected = new Set();
-    for (const [, packet] of ordered) {
-      affected.add(packet.userId);
-      const data = packet.data || {};
-      if (data.user && typeof data.user === 'object') {
-        const index = (family.state.users || []).findIndex((item) => item.id === packet.userId);
-        if (index >= 0) family.state.users[index] = { ...family.state.users[index], ...data.user, id: packet.userId };
-      }
-      if (data.family && typeof data.family === 'object') family.state.family = { ...family.state.family, ...data.family, id: family.id };
-      if (Array.isArray(data.quests)) {
-        const map = new Map((family.state.quests || []).map((item) => [item.id, item]));
-        for (const item of data.quests) if (item?.id) map.set(item.id, { ...(map.get(item.id) || {}), ...item });
-        family.state.quests = [...map.values()];
-      }
-      if (Array.isArray(data.shop)) {
-        const map = new Map((family.state.shop || []).map((item) => [item.id, item]));
-        for (const item of data.shop) if (item?.id) map.set(item.id, { ...(map.get(item.id) || {}), ...item });
-        family.state.shop = [...map.values()];
-      }
-      if (Array.isArray(data.history) && data.history.length) {
-        const merged = [...data.history, ...(family.state.history || [])];
-        const seen = new Set();
-        family.state.history = merged.filter((item) => {
-          const key = `${item.text || ''}|${item.time || ''}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        }).slice(0, 120);
-      }
-    }
-    family.revision = Number(family.revision || 0) + 1;
-    family.updatedAt = new Date().toISOString();
-    family.lastProcessedAt = family.updatedAt;
-    await this.state.storage.put(`fq-family:${family.id}`, family);
-    await this.state.storage.delete([...records.keys()]);
-    return { processed: true, packets: records.size, users: affected.size, revision: family.revision, updatedAt: family.updatedAt };
+    // Legacy snapshots are retained for recovery, never applied over confirmed rewards.
+    const records=await this.state.storage.list({prefix:`fq-pending:${family.id}:`});
+    return {processed:false,packets:0,legacyPackets:records.size,users:0,revision:Number(family.revision||0)};
   }
-
 
   async verifyFamilyPin(family, pinValue) {
     const pin = text(pinValue, 8).replace(/\D/g, '');
@@ -2206,7 +2155,7 @@ const ownerDayToken = async (secret, dayOffset = 0) => {
 };
 
 const ownerAuthorized = async (request, env) => {
-  const ownerSecret = env.OWNER_PANEL_SECRET || DEFAULT_OWNER_PANEL_SECRET;
+  const ownerSecret = env.OWNER_PANEL_SECRET;
   if (!ownerSecret) return false;
   const cookie = request.headers.get('cookie') || '';
   const token = cookie.match(/(?:^|;\s*)myhabbit_owner=([^;]+)/)?.[1] || '';
@@ -2320,8 +2269,8 @@ export default {
     if (url.pathname === '/api/owner/login' && request.method === 'POST') {
       const payload = await request.json().catch(() => ({}));
       const supplied = text(payload.secret, 256);
-      const ownerSecret = env.OWNER_PANEL_SECRET || DEFAULT_OWNER_PANEL_SECRET;
-      if (supplied !== ownerSecret) return json({ error: 'Unauthorized' }, 401);
+      const ownerSecret = env.OWNER_PANEL_SECRET;
+      if (!ownerSecret || supplied !== ownerSecret) return json({ error: 'Unauthorized' }, 401);
       const token = await ownerDayToken(ownerSecret);
       return json({ ok: true }, 200, { 'set-cookie': `myhabbit_owner=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400` });
     }
@@ -2436,6 +2385,7 @@ export default {
       '/api/family/invite-info': ['/family-invite-info', 'POST'],
       '/api/family/invite-join': ['/family-invite-join', 'POST'],
       '/api/family/state': ['/family-state', request.method],
+      '/api/family/action': ['/family-action', 'POST'],
       '/api/family/daily-submit': ['/daily-submit', 'POST'],
       '/api/family/daily-gift-status': ['/daily-gift-status', 'GET'],
       '/api/family/daily-gift-claim': ['/daily-gift-claim', 'POST'],
@@ -2521,6 +2471,8 @@ export default {
       }));
       if (assetResponse.status !== 404) {
         const headers = new Headers(assetResponse.headers);
+        headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self' https://telegram.org https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https://telegram.org; object-src 'none'; base-uri 'self'; form-action 'self'");
+        headers.set('X-Content-Type-Options','nosniff');
         headers.set('x-myhabbit-version', APP_VERSION);
         headers.set('x-myhabbit-marker', DEPLOY_MARKER);
         headers.set('x-myhabbit-request-id', requestId);

@@ -1,4 +1,4 @@
-# myHabbit 11.2.0 — Sticker Flow & Compact Museum
+# myHabbit 12.1.0 — Persistent Rewards
 
 Це єдина базова структура проєкту для GitHub, Cloudflare Workers і наступних update-only патчів.
 
@@ -21,6 +21,7 @@
 npm install
 npm run check
 npm run validate
+npm run audit
 ```
 
 ## Deploy
@@ -34,3 +35,11 @@ npm run deploy
 ## Update-only патчі
 
 Патч розпаковується поверх попередньої стабільної версії у новому Git branch. Він повинен містити тільки нові та змінені файли зі збереженням їхніх шляхів. Правила описані у `docs/PATCHING.md`.
+
+## 12.1.0
+
+Gameplay rewards are now issued through `/api/family/action`. Old snapshot writes are rejected; previously queued legacy snapshots are retained for recovery. Define `OWNER_PANEL_SECRET` as a Cloudflare secret before using the owner console; there is no built-in owner password.
+
+The update preserves received achievements and permanent rewards. The new interface uses an SVG room without painted controls.
+
+This change set has not been tested at the user’s request. Run the checks and a two-device acceptance pass before deployment.

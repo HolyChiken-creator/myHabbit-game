@@ -1,14 +1,20 @@
-const CACHE = 'myhabbit-game-12.0.0';
-const META_CACHE = 'myhabbit-game-12.0.0';
-const CORE = [
-  '/', '/index.html', '/styles.css?v=12.0.0', '/app.js?v=12.0.0',
-  '/manifest.webmanifest?v=12.0.0', '/assets/myhabbit-brand.webp?v=10.1.8', '/assets/welcome-family-clean.webp', '/assets/game/room-1.webp', '/assets/game/room-5.webp', '/assets/game/room-20.webp', '/assets/game/room-50.webp', '/assets/maintenance-splash.webp?v=12.0.0',
-  '/icons/icon-192.png', '/icons/icon-512.png'
-];
-async function broadcast(message){const clients=await self.clients.matchAll({includeUncontrolled:true,type:'window'});clients.forEach(c=>c.postMessage(message));}
-async function cacheCore(){const cache=await caches.open(CACHE);await Promise.allSettled(CORE.map(async url=>{const r=await fetch(url,{cache:'reload'});if(r.ok)await cache.put(url,r.clone());}));}
-self.addEventListener('install',event=>event.waitUntil((async()=>{await cacheCore();await self.skipWaiting();})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('myhabbit-')&&![CACHE,META_CACHE].includes(k)).map(k=>caches.delete(k)));await self.clients.claim();await broadcast({type:'APP_CACHE_UPDATED',version:CACHE});})()));
-self.addEventListener('message',event=>{const d=event.data||{};if(d.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());if(d.type==='REFRESH_APP_CACHE'||d.type==='PRELOAD_ALL')event.waitUntil((async()=>{await cacheCore();const meta=await caches.open(META_CACHE);await meta.put('/offline-ready',new Response(JSON.stringify({version:CACHE,completedAt:Date.now()}),{headers:{'content-type':'application/json'}}));await broadcast({type:'OFFLINE_PRELOAD_COMPLETE',completed:CORE.length,total:CORE.length,percent:100});})());if(d.type==='GET_OFFLINE_STATUS')event.waitUntil((async()=>{const meta=await caches.open(META_CACHE),r=await meta.match('/offline-ready'),status=r?await r.json():null;event.source?.postMessage({type:'OFFLINE_STATUS',ready:status?.version===CACHE,status});})());});
-async function networkFirst(request,fallback){const cache=await caches.open(CACHE);try{const r=await fetch(request,{cache:'no-store'});if(r.ok)await cache.put(fallback||request,r.clone());return r;}catch{const c=await cache.match(fallback||request);if(c)return c;throw new Error('offline');}}
-self.addEventListener('fetch',event=>{const req=event.request,url=new URL(req.url);if(req.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/'))return;if(req.mode==='navigate'){event.respondWith(networkFirst(req,'/index.html').catch(()=>caches.match('/index.html')));return;}if(req.destination==='script'||req.destination==='style'||url.pathname==='/manifest.webmanifest'){event.respondWith(networkFirst(req).catch(()=>caches.match(req)));return;}event.respondWith((async()=>{const cache=await caches.open(CACHE),cached=await cache.match(req);if(cached)return cached;try{const r=await fetch(req);if(r.ok&&r.type==='basic')await cache.put(req,r.clone());return r;}catch{return new Response('',{status:504});}})());});
+const VERSION='12.1.0',CACHE='myhabbit-game-'+VERSION;
+const CORE=['/index.html','/boot.js?v='+VERSION,'/app.js?v='+VERSION,'/game-rules.js','/game-content.js','/styles.css?v='+VERSION,'/home.css?v='+VERSION,'/room.svg','/manifest.webmanifest?v='+VERSION,'/icons/icon-192.png','/icons/icon-512.png'];
+async function broadcast(data){for(const c of await self.clients.matchAll({type:'window',includeUncontrolled:true}))c.postMessage(data);}
+async function cacheCore(){
+  const cache=await caches.open(CACHE),failures=[];let completed=0;
+  for(const url of CORE){try{const response=await fetch(url,{cache:'reload'});if(!response.ok)throw Error(url);await cache.put(url,response);completed++;}catch{failures.push(url);}await broadcast({type:'OFFLINE_PRELOAD_PROGRESS',completed,total:CORE.length,percent:Math.round(completed/CORE.length*100)});}
+  if(failures.length){await cache.delete('/offline-ready');await broadcast({type:'OFFLINE_PRELOAD_FAILED',completed,total:CORE.length,missing:failures});return false;}
+  await cache.put('/offline-ready',new Response(JSON.stringify({version:VERSION,completedAt:Date.now()})));await broadcast({type:'OFFLINE_PRELOAD_COMPLETE',completed,total:CORE.length,percent:100});return true;
+}
+self.addEventListener('install',event=>event.waitUntil((async()=>{if(!await cacheCore())throw Error('Core resources incomplete');await self.skipWaiting();})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{await self.clients.claim();await broadcast({type:'APP_CACHE_UPDATED',version:VERSION});/* Previous caches remain available until a later maintenance release. */})()));
+self.addEventListener('message',event=>{const type=event.data?.type;if(type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());if(['REFRESH_APP_CACHE','PRELOAD_ALL'].includes(type))event.waitUntil(cacheCore());if(type==='GET_OFFLINE_STATUS')event.waitUntil((async()=>{const cache=await caches.open(CACHE),entry=await cache.match('/offline-ready'),status=entry?await entry.json():null;event.source?.postMessage({type:'OFFLINE_STATUS',ready:status?.version===VERSION,status});})());});
+self.addEventListener('fetch',event=>{
+  const request=event.request,url=new URL(request.url);if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/')||url.pathname.startsWith('/owner-console'))return;
+  event.respondWith((async()=>{const cache=await caches.open(CACHE),navigation=request.mode==='navigate',key=navigation?'/index.html':request;
+    // Keep one complete application version together, including ESM imports.
+    if(navigation||['script','style'].includes(request.destination)||url.pathname==='/manifest.webmanifest'){const cached=await cache.match(key);if(cached)return cached;}
+    try{const response=await fetch(request);if(response.ok)await cache.put(key,response.clone());return response;}catch{const cached=await cache.match(key);return cached||new Response('Ресурс поки недоступний офлайн',{status:503,headers:{'content-type':'text/plain; charset=utf-8'}});}
+  })());
+});
