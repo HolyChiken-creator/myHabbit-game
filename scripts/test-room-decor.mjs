@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {normalizeGame,applyGameAction,ROOM_DECOR_CATALOG,roomDecorPrerequisite} from '../public/game-rules.js';
 
 const now=Date.parse('2026-09-16T12:00:00Z');
@@ -53,4 +54,12 @@ applyGameAction(fresh,'u2',{type:'room-decor-buy',itemId:'seat-armchair'},now);
 applyGameAction(fresh,'u2',{type:'room-decor-buy',itemId:'seat-loveseat'},now);
 assert.equal(fresh.users[0].roomDecor.seat,'seat-loveseat');
 
-console.log('PASS: 15-zone persistent Teddy room, sequential renovation tiers, purchase/equip and insufficient-crystal protection.');
+const appSource=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
+assert.match(appSource,/function roomPreviewUser\(u\)/);
+assert.match(appSource,/class=\"room-live-studio\"/);
+assert.match(appSource,/data-action=\"room-decor-preview\"/);
+assert.match(appSource,/data-action=\"room-decor-confirm\"/);
+assert.match(appSource,/Зараз це лише примірка/);
+assert.doesNotMatch(appSource,/function roomDecorModal\(/);
+
+console.log('PASS: 15-zone persistent Teddy room + sequential tiers + live no-charge preview before purchase.');

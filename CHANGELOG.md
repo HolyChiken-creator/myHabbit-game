@@ -1,3 +1,11 @@
+# 12.7.0 — Live Teddy Room studio
+
+- Replaced the blocking room-decoration modal with a live side/bottom studio.
+- Added instant temporary previews beside Teddy before spending crystals.
+- Added explicit Buy & Equip / Equip / Revert Preview controls.
+- Locked tiers remain previewable but cannot be purchased early.
+- Closing the studio never saves a preview.
+
 # 12.6.0 — Teddy Room master renovation
 
 - Rebuilt Teddy Room around one persistent 2.5D room instead of background swaps.

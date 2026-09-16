@@ -1,41 +1,38 @@
-myHabbit 12.6.0 update over 12.5.0
+myHabbit 12.7.0 update over 12.6.0
 
 Primary changes:
-- One persistent Teddy Room instead of room-background swapping.
-- 15 separately upgradeable renovation zones.
-- Sparse starter 2.5D room with stairs, upper railing, door, window and fireplace architecture.
-- Four visible renovation stages: Bare room, Getting cozy, Warm home, Dream room.
-- Sequential zone tiers: higher upgrades require the previous tier.
-- Room progress tracks highest unlocked tiers and never falls when an older visual choice is equipped.
-- Suggested next renovation steps in the room shop.
-- Transparent furniture assets used as separate room objects.
-- Mobile keeps the same room composition with scaled/simplified props.
-- Crystal economy from 12.5.0 remains the funding source for renovation.
-- Core room furniture is now included in offline PWA preload.
+- Replaced the blocking Teddy Room decoration modal with a non-blocking live studio.
+- Desktop studio sits beside the room; mobile/tablet studio sits below it so Teddy remains visible.
+- Tapping any room style previews it instantly in the real Teddy Room.
+- Preview is temporary: it never spends crystals and never mutates the saved room state.
+- Explicit Buy & Equip / Equip confirmation is required before saving a style.
+- Revert Preview restores the currently equipped room immediately.
+- Closing the studio discards any temporary preview.
+- Locked higher tiers can still be previewed, but purchase remains blocked until the previous tier is unlocked.
+- Owned styles can be previewed and re-equipped without another charge.
+- Added a visible Live Preview badge inside the room.
 
 Files changed/added:
 - CHANGELOG.md
-- UPDATE-12.6.0.md
+- UPDATE-12.7.0.md
 - VERSION
 - VERSION.txt
 - package.json
 - game-content.js
-- game-rules.js
-- home.css
+- PATCH-MANIFEST.txt
 - public/VERSION.txt
 - public/app.js
 - public/boot.js
 - public/game-content.js
-- public/game-rules.js
 - public/home.css
 - public/index.html
 - public/manifest.webmanifest
 - public/sw.js
 - scripts/test-room-decor.mjs
-- scripts/release-audit.mjs
 
 Validation completed:
-- npm test
 - npm run check
 - npm run validate
 - npm run audit
+- npm test
+- room test verifies live preview controls are present and the old blocking room modal is removed
