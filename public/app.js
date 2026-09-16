@@ -1425,7 +1425,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   }
   function roomStatusBar(u){
     const p=roomRenovationProgress(u),next=roomNextUpgrades(u)[0];
-    return `<section class="room-status-bar"><div class="room-status-stage"><b>${p.stage}</b><div><span>${tr('Кімната Тедіка','Teddy room')} · ${p.upgraded}/${p.slots.length} ${tr('зон прокачано','zones upgraded')}</span><strong>${tr(p.stageCopy[0],p.stageCopy[1])}</strong><small>${tr(p.stageCopy[2],p.stageCopy[3])}</small></div></div><div class="room-status-actions"><div class="room-status-meter"><i style="width:${p.percent}%"></i><span>${p.percent}%</span></div><button class="room-decor-open" data-action="room-decor">${next?`💎 ${tr('Прокачати','Upgrade')} · ${next.price}`:`✓ ${tr('Усе прокачано','Fully upgraded')}`}</button></div></section>`;
+    return `<section class="room-status-bar"><div class="room-status-stage"><b>${p.stage}</b><div><span>${tr('Кімната Тедіка','Teddy room')} · ${p.upgraded}/${p.slots.length} ${tr('зон прокачано','zones upgraded')}</span><strong>${tr(p.stageCopy[0],p.stageCopy[1])}</strong><small>${tr(p.stageCopy[2],p.stageCopy[3])}</small></div></div><div class="room-status-actions"><div class="room-status-meter"><i style="width:${p.percent}%"></i><span>${p.percent}%</span></div><button class="room-decor-open" data-action="room-decor">${next?tr('Прокачати','Upgrade'):`✓ ${tr('Усе прокачано','Fully upgraded')}`}</button></div></section>`;
   }
   function roomNextUpgrades(u){
     return Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>{

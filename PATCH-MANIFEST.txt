@@ -1,4 +1,4 @@
-myHabbit 12.21.1 hotfix
+myHabbit 12.21.2
 
 Changed:
 - public/app.js
@@ -13,4 +13,4 @@ Changed:
 - public/VERSION.txt
 
 Added:
-- UPDATE-12.21.1.md
+- UPDATE-12.21.2.md

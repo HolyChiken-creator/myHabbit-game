@@ -139,7 +139,6 @@
     teddy.dataset.roomMasterTripleBound='1';
     let lastHandled=0;
     const handleTap=ev=>{
-      if(!isAdminRoom(room()))return;
       const now=Date.now();
       // Ignore the synthetic compatibility event Safari can emit after a touch.
       if(now-lastHandled<90)return;
