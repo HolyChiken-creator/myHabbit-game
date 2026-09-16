@@ -1,21 +1,15 @@
-myHabbit 12.11.0 update over 12.10.0
+myHabbit 12.12.0 — step zero home collection
 
-Changed files:
-- public/app.js
-- public/home.css
-- home.css
-- public/game-content.js
-- game-content.js
-- public/VERSION.txt
-- VERSION
-- VERSION.txt
-- package.json
-- scripts/test-room-decor.mjs
-- CHANGELOG.md
-- UPDATE-12.11.0.md
+Apply this ZIP over the project root.
 
-What changed:
-- room status moved out of Teddy viewport
-- floating/modal decorator removed
-- inline expandable decorator pushes dashboard content down
-- native mobile page scroll + horizontal category tabs + full style grid
+Added:
+- public/assets/step zero home collection/README.md
+- public/assets/step zero home collection/manifest.json
+- public/assets/step zero home collection/вікно_занедбане.png
+- public/assets/step zero home collection/крісло_занедбане.png
+- public/assets/step zero home collection/столик_занедбаний.png
+- public/assets/step zero home collection/книжкова_шафа_занедбана.png
+- public/assets/step zero home collection/камін_занедбаний.png
+- public/assets/step zero home collection/килим_занедбаний.png
+- public/assets/step zero home collection/рослина_занедбана.png
+- docs/updates/12.12.0-step-zero-home-collection.md

@@ -1,0 +1,50 @@
+{
+  "collectionId": "step-zero-home-collection",
+  "title": "step zero home collection",
+  "description": "Neglected starter-room assets for Teddy Room.",
+  "version": "12.12.0",
+  "items": [
+    {
+      "id": "window-neglected",
+      "title": "Вікно занедбане",
+      "file": "вікно_занедбане.png",
+      "role": "window"
+    },
+    {
+      "id": "armchair-neglected",
+      "title": "Крісло занедбане",
+      "file": "крісло_занедбане.png",
+      "role": "armchair"
+    },
+    {
+      "id": "table-neglected",
+      "title": "Столик занедбаний",
+      "file": "столик_занедбаний.png",
+      "role": "table"
+    },
+    {
+      "id": "bookshelf-neglected",
+      "title": "Книжкова шафа занедбана",
+      "file": "книжкова_шафа_занедбана.png",
+      "role": "bookshelf"
+    },
+    {
+      "id": "fireplace-neglected",
+      "title": "Камін занедбаний",
+      "file": "камін_занедбаний.png",
+      "role": "fireplace"
+    },
+    {
+      "id": "rug-neglected",
+      "title": "Килим занедбаний",
+      "file": "килим_занедбаний.png",
+      "role": "rug"
+    },
+    {
+      "id": "plant-neglected",
+      "title": "Рослина занедбана",
+      "file": "рослина_занедбана.png",
+      "role": "plant"
+    }
+  ]
+}
