@@ -1305,16 +1305,15 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
   }
   const ROOM_DECOR_SLOT_NAMES={
-    ceiling:['Стеля','Ceiling'],walls:['Стіни','Walls'],floor:['Підлога','Floor'],window:['Вікно й штори','Window & curtains'],
-    fireplace:['Камін','Fireplace'],seat:['Зона відпочинку','Seating'],storage:['Зберігання й книги','Storage & books'],wallart:['Настінний декор','Wall art'],
-    plant:['Рослини','Plants'],collection:['Колекційний куточок','Collection corner'],table:['Стіл','Table'],tabletop:['Наповнення столу','Table items'],
-    rug:['Килим','Rug'],corner:['Додатковий куточок','Extra corner'],light:['Світло','Lighting']
+    background:['Фон','Background'],window:['Вікно','Window'],armchair:['Крісло','Armchair'],table:['Столик','Side table'],
+    bookshelf:['Книжкова шафа','Bookshelf'],fireplace:['Камін','Fireplace'],rug:['Килим','Rug'],plant:['Рослина','Plant']
   };
   const ROOM_STAGE_COPY=[
-    ['Порожня кімната','Bare room','Майже порожній простір. Усе цікаве ще попереду.','An almost empty room. Everything interesting is still ahead.'],
-    ['Стає затишно','Getting cozy','З’явилися перші меблі, світло й власний характер.','Furniture, light and personality are starting to appear.'],
-    ['Теплий дім','Warm home','Кімната вже живе: більше зон, декору й занять для Тедіка.','The room feels alive with more zones, decor and things for Teddy to do.'],
-    ['Кімната мрії','Dream room','Насичений особистий простір із колекціями, світлом і деталями.','A rich personal space filled with collections, light and detail.']
+    ['Занедбана кімната','Neglected room','Початок історії. Кожен елемент можна відновлювати окремо.','The story begins here. Upgrade each item separately.'],
+    ['Перші зміни','First upgrades','У кімнаті вже з’являються перші затишні речі.','The first cozy upgrades are appearing.'],
+    ['Стає затишно','Getting cozy','Тедик поступово облаштовує свій простір.','Teddy is gradually making the room his own.'],
+    ['Теплий дім','Warm home','Більшість зон уже прокачано.','Most room zones are upgraded.'],
+    ['Кімната мрії','Dream room','Повністю прокачаний особистий простір Тедіка.','Teddy’s fully upgraded personal space.']
   ];
   let roomStudioOpen=false;
   let roomStudioOpening=false;
@@ -1380,10 +1379,10 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   function roomOwnedTier(u,slot){return Math.max(0,...ROOM_DECOR_CATALOG.filter(item=>item.slot===slot&&u?.roomDecorOwned?.includes(item.id)).map(item=>Number(item.tier||0)));}
   function roomRenovationProgress(u){
     const slots=Object.keys(ROOM_DECOR_SLOT_NAMES),tiers=slots.map(slot=>roomOwnedTier(u,slot));
-    const current=tiers.reduce((a,b)=>a+b,0),max=slots.reduce((sum,slot)=>sum+Math.max(...ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>Number(item.tier||0))),0);
+    const current=tiers.reduce((a,b)=>a+b,0),max=slots.length*4;
     const upgraded=tiers.filter(Boolean).length,purchases=Math.max(0,Number(u?.stats?.roomDecorPurchased||0)),percent=max?Math.round(current/max*100):0;
-    const stage=percent>=74?4:percent>=42?3:percent>=15?2:1;
-    return {slots,upgraded,purchases,current,max,percent,stage,stageCopy:ROOM_STAGE_COPY[stage-1]};
+    const stage=Math.max(0,Math.min(4,Math.floor(current/Math.max(1,slots.length))));
+    return {slots,upgraded,purchases,current,max,percent,stage,stageCopy:ROOM_STAGE_COPY[stage]};
   }
   function roomPictureFrames(tier){
     if(tier<=0)return '';
@@ -1411,22 +1410,22 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(tier===1)return `<div class="room-collection-prop basket" aria-hidden="true"><span>🧸</span><span>⚽</span></div>`;
     return `<div class="room-collection-prop tier-${tier}" aria-hidden="true"><img src="${ROOM_ASSET}${tier>=3?'reward_chest_legendary_v01.webp':'reward_chest_common_v01.webp'}" alt=""><span>${tier>=3?'★ 🧸 ★':'🧸'}</span></div>`;
   }
-  function activeRoomThemeLevel(u){
-    const level=Math.trunc(Number(u?.roomThemeLevel)||0);return Math.max(0,Math.min(4,level));
+  function roomSourceTier(u,slot){
+    const item=roomDecorItem(u,slot);return Math.max(0,Math.min(4,Number(item?.tier||0)));
   }
-  function roomThemeOwned(u,level){return Array.isArray(u?.roomThemeOwned)&&u.roomThemeOwned.includes(Number(level));}
-  function roomThemePack(level){return ROOM_THEME_PACKS.find(x=>Number(x.level)===Number(level))||ROOM_THEME_PACKS[0];}
   function roomScene(u,next,completed,total,room){
-    const level=activeRoomThemeLevel(u);
-    const classes=['game-room','room-depth','renovation-room','room-theme-level-'+level,'renovation-stage-'+Math.max(1,level)].join(' ');
-    return `<section class="${classes}" data-room-theme-level="${level}" data-room-admin="${isAdmin()?'true':'false'}">
+    const progress=roomRenovationProgress(u),preview=roomStudioOpen?roomPreviewItem():null,view=preview?roomPreviewUser(u):u;
+    const src={};for(const slot of Object.keys(ROOM_DECOR_SLOT_NAMES))src[slot]=roomSourceTier(view,slot);
+    const attrs=Object.entries(src).map(([slot,level])=>`data-room-source-${slot}="${level}"`).join(' ');
+    const layout=escapeHtml(JSON.stringify(state.roomLayoutMaster||{}));
+    const classes=['game-room','room-depth','renovation-room','renovation-stage-'+progress.stage].join(' ');
+    return `<section class="${classes}" data-room-theme-level="${progress.stage}" data-room-admin="${isAdmin()?'true':'false'}" data-room-layout="${layout}" ${attrs}>
       ${roomCompanion(next,completed,total)}
     </section>`;
   }
   function roomStatusBar(u){
-    const level=activeRoomThemeLevel(u),pack=roomThemePack(level),next=ROOM_THEME_PACKS.find(x=>x.level===level+1);
-    const percent=Math.round(level/4*100),maxed=level>=4;
-    return `<section class="room-status-bar"><div class="room-status-stage"><b>${level}</b><div><span>${tr('Кімната Тедіка','Teddy room')} · ${tr('рівень','level')} ${level}/4</span><strong>${escapeHtml(pack.title)}</strong><small>${escapeHtml(pack.subtitle)}</small></div></div><div class="room-status-actions"><div class="room-status-meter"><i style="width:${percent}%"></i><span>${percent}%</span></div>${maxed?`<button class="room-decor-open" disabled>✓ ${tr('Максимальний рівень','Maximum level')}</button>`:`<button class="room-decor-open" data-route="shop">💎 ${tr('Покращити в магазині','Upgrade in shop')} · ${format(u.diamonds)}</button>`}</div></section>`;
+    const p=roomRenovationProgress(u),next=roomNextUpgrades(u)[0];
+    return `<section class="room-status-bar"><div class="room-status-stage"><b>${p.stage}</b><div><span>${tr('Кімната Тедіка','Teddy room')} · ${p.upgraded}/${p.slots.length} ${tr('зон прокачано','zones upgraded')}</span><strong>${tr(p.stageCopy[0],p.stageCopy[1])}</strong><small>${tr(p.stageCopy[2],p.stageCopy[3])}</small></div></div><div class="room-status-actions"><div class="room-status-meter"><i style="width:${p.percent}%"></i><span>${p.percent}%</span></div><button class="room-decor-open" data-action="room-decor">${next?`💎 ${tr('Прокачати','Upgrade')} · ${next.price}`:`✓ ${tr('Усе прокачано','Fully upgraded')}`}</button></div></section>`;
   }
   function roomNextUpgrades(u){
     return Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>{
@@ -1443,7 +1442,9 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const cards=ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>{
       const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,isPreview=roomPreviewItemId===item.id,tier=item.tier||0,prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id));
       const status=active?tr('Зараз у кімнаті','Currently equipped'):owned?tr('Уже придбано','Owned'):locked?tr('Можна приміряти · купівля після попереднього рівня','Preview available · unlock previous tier first'):item.price+' 💎';
-      return `<button class="room-live-style tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}" data-action="room-decor-preview" data-item-id="${item.id}"><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}</button>`;
+      const assetSlot=item.slot==='background'?'background':item.slot;
+      const previewSrc=`/assets/room-master/level-${tier}/${assetSlot}.webp`;
+      return `<button class="room-live-style tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}" data-action="room-decor-preview" data-item-id="${item.id}"><img src="${previewSrc}" alt="" loading="lazy"><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}</button>`;
     }).join('');
     let confirm='';
     if(selected){
@@ -1470,6 +1471,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();}
   }
 
+  window.myHabbitSaveRoomLayout=layout=>isAdmin()?runGameAction('room-layout-save',{layout}):Promise.resolve(null);
+
 
   function dashboard(){
     const u=currentUser(),today=state.quests.filter(q=>q.dailyDay===localDay()),completed=today.filter(q=>questStatus(state,u,q).done).length;
@@ -1477,7 +1480,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const next=available[0],room=gameRoomStage(state.family.level),familyXp=Math.max(0,num(state.family.xp)-num(state.family.progressBaseXp))%1000;
     const tiles=available.slice(0,5).map(q=>{const st=questStatus(state,u,q);return `<button class="game-task ${st.joined?'is-active':''}" data-quest="${escapeHtml(q.id)}"><span class="game-task-icon">${escapeHtml(q.icon||'✨')}</span><strong>${escapeHtml(q.title)}</strong><small>+${num(q.rewardCoins)} 🪙 · +${num(q.rewardDiamonds??questDiamondReward(q))} 💎 · +${num(q.rewardXp)} XP</small><span class="task-action-label">${st.joined?tr('Завершити','Complete'):tr('Взяти','Start')}</span></button>`;}).join('');
     return shell(`<section class="home-hud"><div><small>${tr('Мій рівень','My level')}</small><strong>${u.level}</strong><span>${format(u.xp)} / ${format(xpRequiredForLevel(u.level))} XP</span></div><div><small>${tr('Монети','Coins')}</small><strong>${format(u.coins)} 🪙</strong></div><div><small>${tr('Діаманти','Diamonds')}</small><strong>${format(u.diamonds)} 💎</strong><span>${tr('для кімнати','for your room')}</span></div><div><small>${tr('Мій ритм','My streak')}</small><strong>${u.streak} ${tr('дн.','days')}</strong></div></section>
-    <section class="room-live-layout ${roomStudioOpen?'is-editing':''}"><div class="room-live-scene">${roomScene(u,next,completed,today.length,room)}</div>${roomStatusBar(u)}</section>
+    <section class="room-live-layout ${roomStudioOpen?'is-editing':''}"><div class="room-live-scene">${roomScene(u,next,completed,today.length,room)}</div>${roomStatusBar(u)}${roomDecorStudio(u)}</section>
     <section class="next-step"><div><span class="eyebrow">${tr('Мій наступний крок','My next step')}</span><h2>${next?escapeHtml(next.title):tr('На сьогодні все готово','You are all set for today')}</h2><p>${next?escapeHtml(next.description||''):tr('Нагороди збережено. Можна відпочити.','Your rewards are safe. Time to rest.')}</p></div>${next?`<button class="btn primary" data-quest="${escapeHtml(next.id)}">${questStatus(state,u,next).joined?tr('Завершити','Complete'):tr('Взяти завдання','Start task')}</button>`:'<button class="btn soft" data-route="collections">'+tr('Мої колекції','My collections')+'</button>'}</section>
     <section class="today-section"><div class="section-head"><div><h2>${tr('Справи на сьогодні','Today’s tasks')}</h2><small>${tr('Виконано','Completed')} ${completed} / ${today.length}</small></div><button class="btn soft" data-route="quests">${tr('Усі справи','All tasks')} →</button></div><div class="game-task-strip">${tiles||'<p>'+tr('Усі справи виконані ✨','All tasks completed ✨')+'</p>'}</div></section>
     <section class="home-family"><div><span>🏡</span><strong>${tr('Спільний розвиток','Shared progress')}</strong><small>${format(familyXp)} / 1 000 XP · ${tr('до наступного рівня дому','until the next home level')}</small></div><div class="progress"><i style="width:${familyXp/10}%"></i></div><button class="btn soft" data-route="family">${tr('Наша сімʼя','Our family')} →</button></section>
@@ -1677,7 +1680,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const cosmetics=cosmeticsCatalog.filter(Boolean).map(item=>{try{return `<div class="cosmetic-filter-item" data-kind="${escapeHtml(item.kind||'other')}">${cosmeticShopCard(item)}</div>`}catch(e){console.warn('Cosmetic card skipped',e);return ''}}).join('');
     const filters=cosmeticKinds.map(([id,label])=>`<button class="cosmetic-filter ${id==='all'?'active':''}" data-cosmetic-filter="${id}">${label}</button>`).join('');
     const boxes=stickerBoxes.filter(Boolean).map(b=>{const c=stickerCollections.find(x=>x&&x.id===b.collectionId);if(!c)return '';const season=seasonInfo(c.season);return `<article class="shop-card box-card ${season.active?'':'locked'}"><div class="box-visual">📦</div><span class="rarity">${season.active?'Активний бокс':'Сезон закритий'}</span><h3>${escapeHtml(b.title)}</h3><p>${escapeHtml(c.title)} · 1 випадковий стікер<br><small>${season.label}</small></p><div class="shop-bottom"><span class="price">${format(b.price)} 🪙</span><button class="btn primary small" data-open-box="${b.id}" ${season.active?'':'disabled'}>Відкрити</button></div></article>`}).join('');
-    return shell(`${roomThemeShopMarkup(currentUser())}<section class="dust-exchange"><strong>✨ ${num(currentUser()?.stickerDust)} пилу</strong><span>100 пилу → новий стікер</span>${stickerCollections.filter(c=>seasonInfo(c.season).active).map(c=>`<button class="btn soft small" data-action="exchange-dust" data-collection-id="${escapeHtml(c.id)}" ${num(currentUser()?.stickerDust)<100?'disabled':''}>${escapeHtml(c.title)}</button>`).join('')}</section>${shopStatus}<section class="real-shop-hero"><div><span class="eyebrow">Головний розділ</span><h2>Товари для життя</h2><p>Реальні подарунки, дозволи, покупки та сімейні цілі. Товари адміністратора завжди показуються першими.</p></div>${isAdmin()?'<button class="btn primary" data-action="new-shop">+ Додати товар</button>':''}</section><div class="shop-grid real-shop-grid">${real||'<div class="shop-empty-state"><span>🥲</span><h3>Ми вже готуємо нові подарунки</h3><p>Зазирни трохи пізніше ❤️</p></div>'}</div><details class="shop-fold"><summary><span><strong>Косметика профілю</strong><small>Рамки, теми, ефекти та стікерпакети</small></span><b>Відкрити</b></summary><div class="cosmetic-filters">${filters}</div><div class="shop-grid cosmetics-shop-grid">${cosmetics}</div></details><details class="shop-fold"><summary><span><strong>Стікер-бокси</strong><small>Колекційні випадкові стікери</small></span><b>Відкрити</b></summary><div class="shop-grid">${boxes}</div></details>`,`Магазин`,`Спочатку реальні товари для життя, нижче — косметика та колекції.`);
+    return shell(`<section class="dust-exchange"><strong>✨ ${num(currentUser()?.stickerDust)} пилу</strong><span>100 пилу → новий стікер</span>${stickerCollections.filter(c=>seasonInfo(c.season).active).map(c=>`<button class="btn soft small" data-action="exchange-dust" data-collection-id="${escapeHtml(c.id)}" ${num(currentUser()?.stickerDust)<100?'disabled':''}>${escapeHtml(c.title)}</button>`).join('')}</section>${shopStatus}<section class="real-shop-hero"><div><span class="eyebrow">Головний розділ</span><h2>Товари для життя</h2><p>Реальні подарунки, дозволи, покупки та сімейні цілі. Товари адміністратора завжди показуються першими.</p></div>${isAdmin()?'<button class="btn primary" data-action="new-shop">+ Додати товар</button>':''}</section><div class="shop-grid real-shop-grid">${real||'<div class="shop-empty-state"><span>🥲</span><h3>Ми вже готуємо нові подарунки</h3><p>Зазирни трохи пізніше ❤️</p></div>'}</div><details class="shop-fold"><summary><span><strong>Косметика профілю</strong><small>Рамки, теми, ефекти та стікерпакети</small></span><b>Відкрити</b></summary><div class="cosmetic-filters">${filters}</div><div class="shop-grid cosmetics-shop-grid">${cosmetics}</div></details><details class="shop-fold"><summary><span><strong>Стікер-бокси</strong><small>Колекційні випадкові стікери</small></span><b>Відкрити</b></summary><div class="shop-grid">${boxes}</div></details>`,`Магазин`,`Спочатку реальні товари для життя, нижче — косметика та колекції.`);
   }
   function customShopScreen(){
     const real=(state.shop||[]).map(i=>{const resourceUrl=cleanResourceUrl(i.resourceUrl);return `<article class="shop-card admin-product-card"><div class="shop-top"><span class="shop-icon">${escapeHtml(i.icon)}</span><span class="stock ${i.stock?'':'out'}">${i.stock?`Залишок ${i.stock}`:'Немає'}</span></div><h3>${escapeHtml(i.title)}</h3><p>${escapeHtml(i.description)}</p>${resourceUrl?`<a class="shop-reference-link" href="${resourceUrl.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">↗ Подивитися приклад</a>`:''}${i.type==='collective'?`<div class="progress"><i style="width:${Math.min(100,(i.fund||0)/i.price*100)}%"></i></div><small>${format(i.fund||0)} / ${format(i.price)} 🪙</small>`:`<div class="price">${format(i.price)} 🪙</div>`}<button class="btn ${i.type==='collective'?'soft':'primary'}" data-shop="${i.id}" ${i.stock<=0?'disabled':''}>${i.type==='collective'?'Зробити внесок':'Придбати'}</button></article>`}).join('');

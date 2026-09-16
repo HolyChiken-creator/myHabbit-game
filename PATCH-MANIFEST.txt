@@ -1,32 +1,19 @@
-myHabbit 12.20.0 — Room Shop Progression
-
-Apply over 12.19.0.
+myHabbit 12.21.0
 
 Changed:
 - public/app.js
 - public/game-rules.js
 - game-rules.js
-- public/game-content.js
-- game-content.js
 - public/home.css
-- public/room-master.config.js
 - public/room-master-controller.js
-- public/room-master.css
 - public/index.html
 - public/boot.js
 - public/sw.js
-- src/worker.js
-- worker.js
+- scripts/test-room-decor.mjs
 - package.json
-- VERSION / VERSION.txt / public/VERSION.txt
+- VERSION
+- VERSION.txt
+- public/VERSION.txt
 
 Added:
-- public/assets/room-master/level-0/background.webp
-- public/assets/room-master/level-0/window.webp
-- public/assets/room-master/level-0/armchair.webp
-- public/assets/room-master/level-0/table.webp
-- public/assets/room-master/level-0/bookshelf.webp
-- public/assets/room-master/level-0/fireplace.webp
-- public/assets/room-master/level-0/rug.webp
-- public/assets/room-master/level-0/plant.webp
-- UPDATE-12.20.0.md
+- UPDATE-12.21.0.md

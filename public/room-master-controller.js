@@ -51,13 +51,18 @@
   }
   function isAdminRoom(el){return el?.dataset?.roomAdmin==='true';}
 
+  function serverLayouts(el){
+    try{return JSON.parse(el?.dataset?.roomLayout||'{}')||{};}catch{return {};}
+  }
+  function sourceFor(el,slot){
+    const raw=Number(el?.dataset?.['roomSource'+slot[0].toUpperCase()+slot.slice(1)]);
+    return Number.isFinite(raw)?Math.max(0,Math.min(4,Math.trunc(raw))):0;
+  }
   function ensureStateForRoom(el){
-    if(!localStorage.getItem(CFG.storageKey)){
-      const stage=inferStage(el);
-      state.activeLevel=stage;
-      SLOTS.forEach(s=>state.sources[s]=stage);
-      save();
-    }
+    const remote=serverLayouts(el);
+    if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+    const stage=inferStage(el);state.activeLevel=stage;
+    SLOTS.forEach(s=>state.sources[s]=sourceFor(el,s));
   }
 
   function mount(){
@@ -92,32 +97,28 @@
 
   function render(){
     const el=room(); if(!el)return;
+    const remote=serverLayouts(el);if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
     const runtimeLevel=String(inferStage(el));
-    const lvl=editorOpen&&isAdminRoom(el)?String(state.activeLevel):runtimeLevel;
-    const level=CFG.levels[lvl]||CFG.levels[0];
-    const layout=(state.layouts[lvl]||(state.layouts[lvl]=clone(CFG.defaults[lvl]||CFG.defaults[0])));
+    const bgLevel=editorOpen&&isAdminRoom(el)?String(state.activeLevel):String(sourceFor(el,'background'));
     const bg=el.querySelector('[data-room-master-bg]');
-    if(bg){bg.onerror=()=>{bg.classList.add('asset-load-error');};bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=level.background;}
+    if(bg){bg.onerror=()=>bg.classList.add('asset-load-error');bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=(CFG.levels[bgLevel]||CFG.levels[0]).background;}
 
     SLOTS.forEach(slot=>{
-      const img=el.querySelector(`[data-room-master-object="${slot}"]`);
-      if(!img)return;
-      const sourceLevel=editorOpen&&isAdminRoom(el)?String(state.sources[slot]??lvl):lvl;
-      const src=CFG.levels[sourceLevel]?.assets?.[slot]||level.assets[slot];
-      img.onerror=()=>{img.classList.add('asset-load-error');};
-      img.onload=()=>img.classList.remove('asset-load-error');
-      img.src=src;
-      applyBox(img,layout[slot],slot);
+      const img=el.querySelector(`[data-room-master-object="${slot}"]`);if(!img)return;
+      const sourceLevel=editorOpen&&isAdminRoom(el)?String(state.sources[slot]??state.activeLevel):String(sourceFor(el,slot));
+      const level=CFG.levels[sourceLevel]||CFG.levels[0];
+      const layout=(state.layouts[sourceLevel]||CFG.defaults[sourceLevel]||CFG.defaults[0]);
+      img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
+      img.src=level.assets[slot];applyBox(img,layout[slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
     });
 
     const teddy=el.querySelector('.room-master-teddy');
     if(teddy){
-      applyBox(teddy,layout.teddy,'teddy');
-      teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
+      const tl=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]).teddy;
+      applyBox(teddy,tl,'teddy');teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
     }
-    el.classList.toggle('room-master-editing',editorOpen);
-    syncEditor();
+    el.classList.toggle('room-master-editing',editorOpen);syncEditor();
   }
 
   function applyBox(el,b={},slot){
@@ -188,8 +189,13 @@
     if(!drag)return;
     drag.node.removeEventListener('pointermove',onPointerMove);
     drag=null;
-    save();
+    save();persistGlobal();
     render();
+  }
+
+  async function persistGlobal(){
+    if(!isAdminRoom(room()))return;
+    try{await window.myHabbitSaveRoomLayout?.(state.layouts);}catch{}
   }
 
   function toggleEditor(force){
@@ -251,7 +257,7 @@
     panel.querySelector('[data-rm-source]').onchange=e=>{
       if(selected==='teddy')return;
       state.sources[selected]=Number(e.target.value);
-      save();render();
+      save();persistGlobal();render();
     };
     panel.querySelector('[data-rm-size]').oninput=e=>{
       currentLayout()[selected].w=Number(e.target.value);
@@ -293,18 +299,18 @@
     if(dir==='right')l.x=pct(l.x+step,0,92);
     if(dir==='up')l.y=pct(l.y-step,0,90);
     if(dir==='down')l.y=pct(l.y+step,0,90);
-    save();render();
+    save();persistGlobal();render();
   }
   function resetOne(){
     const n=String(state.activeLevel);
     currentLayout()[selected]=clone(CFG.defaults[n][selected]||CFG.defaults[0][selected]);
-    save();render();
+    save();persistGlobal();render();
   }
   function resetLevel(){
     const n=String(state.activeLevel);
     state.layouts[n]=clone(CFG.defaults[n]);
     SLOTS.forEach(s=>state.sources[s]=state.activeLevel);
-    save();render();
+    save();persistGlobal();render();
   }
   function exportJSON(){
     const payload=JSON.stringify({version:CFG.version,exportedAt:new Date().toISOString(),roomMaster:state},null,2);
