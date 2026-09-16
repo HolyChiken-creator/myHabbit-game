@@ -1,0 +1,53 @@
+{
+  "version": "12.19.0",
+  "levels": {
+    "1": {
+      "background": "/assets/room-master/level-1/background.webp",
+      "assets": {
+        "window": "/assets/room-master/level-1/window.webp",
+        "armchair": "/assets/room-master/level-1/armchair.webp",
+        "table": "/assets/room-master/level-1/table.webp",
+        "bookshelf": "/assets/room-master/level-1/bookshelf.webp",
+        "fireplace": "/assets/room-master/level-1/fireplace.webp",
+        "rug": "/assets/room-master/level-1/rug.webp",
+        "plant": "/assets/room-master/level-1/plant.webp"
+      }
+    },
+    "2": {
+      "background": "/assets/room-master/level-2/background.webp",
+      "assets": {
+        "window": "/assets/room-master/level-2/window.webp",
+        "armchair": "/assets/room-master/level-2/armchair.webp",
+        "table": "/assets/room-master/level-2/table.webp",
+        "bookshelf": "/assets/room-master/level-2/bookshelf.webp",
+        "fireplace": "/assets/room-master/level-2/fireplace.webp",
+        "rug": "/assets/room-master/level-2/rug.webp",
+        "plant": "/assets/room-master/level-2/plant.webp"
+      }
+    },
+    "3": {
+      "background": "/assets/room-master/level-3/background.webp",
+      "assets": {
+        "window": "/assets/room-master/level-3/window.webp",
+        "armchair": "/assets/room-master/level-3/armchair.webp",
+        "table": "/assets/room-master/level-3/table.webp",
+        "bookshelf": "/assets/room-master/level-3/bookshelf.webp",
+        "fireplace": "/assets/room-master/level-3/fireplace.webp",
+        "rug": "/assets/room-master/level-3/rug.webp",
+        "plant": "/assets/room-master/level-3/plant.webp"
+      }
+    },
+    "4": {
+      "background": "/assets/room-master/level-4/background.webp",
+      "assets": {
+        "window": "/assets/room-master/level-4/window.webp",
+        "armchair": "/assets/room-master/level-4/armchair.webp",
+        "table": "/assets/room-master/level-4/table.webp",
+        "bookshelf": "/assets/room-master/level-4/bookshelf.webp",
+        "fireplace": "/assets/room-master/level-4/fireplace.webp",
+        "rug": "/assets/room-master/level-4/rug.webp",
+        "plant": "/assets/room-master/level-4/plant.webp"
+      }
+    }
+  }
+}

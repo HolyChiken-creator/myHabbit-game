@@ -89,18 +89,21 @@
 
   function render(){
     const el=room(); if(!el)return;
-    const lvl=String(state.activeLevel);
+    const runtimeLevel=String(inferStage(el));
+    const lvl=editorOpen?String(state.activeLevel):runtimeLevel;
     const level=CFG.levels[lvl]||CFG.levels[1];
-    const layout=currentLayout();
+    const layout=(state.layouts[lvl]||(state.layouts[lvl]=clone(CFG.defaults[lvl]||CFG.defaults[1])));
     const bg=el.querySelector('[data-room-master-bg]');
-    if(bg)bg.src=encodeURI(level.background);
+    if(bg){bg.onerror=()=>{bg.classList.add('asset-load-error');};bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=level.background;}
 
     SLOTS.forEach(slot=>{
       const img=el.querySelector(`[data-room-master-object="${slot}"]`);
       if(!img)return;
-      const srcLevel=String(state.sources[slot]||state.activeLevel);
-      const src=CFG.levels[srcLevel]?.assets?.[slot]||level.assets[slot];
-      img.src=encodeURI(src);
+      const sourceLevel=editorOpen?String(state.sources[slot]||lvl):lvl;
+      const src=CFG.levels[sourceLevel]?.assets?.[slot]||level.assets[slot];
+      img.onerror=()=>{img.classList.add('asset-load-error');};
+      img.onload=()=>img.classList.remove('asset-load-error');
+      img.src=src;
       applyBox(img,layout[slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
     });
@@ -187,10 +190,16 @@
   }
 
   function toggleEditor(force){
-    editorOpen=typeof force==='boolean'?force:!editorOpen;
+    const next=typeof force==='boolean'?force:!editorOpen;
+    if(next&&!editorOpen){
+      const stage=inferStage(room());
+      state.activeLevel=stage;
+      SLOTS.forEach(slot=>{if(!CFG.levels[state.sources[slot]])state.sources[slot]=stage;});
+    }
+    editorOpen=next;
     if(editorOpen)ensureEditor();
     else document.querySelector('.room-master-editor')?.remove();
-    render();
+    save();render();
   }
 
   function ensureEditor(){

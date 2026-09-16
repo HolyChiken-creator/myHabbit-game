@@ -1,19 +1,18 @@
-myHabbit 12.18.0 — Teddy Room Master Controller
+myHabbit 12.19.0 — Teddy Room render fix
 
-Apply over the current project root.
+Apply over 12.18.0 project root.
 
-Changed:
-- public/index.html
-- public/boot.js
-- public/sw.js
-- package.json
-- VERSION
-- VERSION.txt
+Fixes:
+- Safari broken-image question-mark placeholders
+- room background not painting correctly
+- stale Level 1 furniture showing while room is at another stage
+- Teddy activity prop covering Teddy
+- oversized transparent padding in furniture source PNGs
+- mobile `Ремонтувати` / progress width conflict
+- service-worker room asset preload fragility
 
-Added:
-- public/room-master.config.js
-- public/room-master-controller.js
-- public/room-master.css
-- UPDATE-12.18.0.md
-
-The controller uses the room level collections/backgrounds that are already present in public/assets.
+New runtime assets:
+- public/assets/room-master/level-1/*
+- public/assets/room-master/level-2/*
+- public/assets/room-master/level-3/*
+- public/assets/room-master/level-4/*
