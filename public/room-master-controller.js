@@ -88,7 +88,7 @@
     if(companion){
       companion.classList.add('room-master-teddy');
       companion.dataset.roomMasterObject='teddy';
-      if(isAdminRoom(el))bindTripleTap(companion);
+      bindTripleTap(companion);
     }
 
     bindObjectEvents(el);
@@ -134,27 +134,33 @@
     }
   }
 
+  let tripleDelegateBound=false;
+  function registerTripleTap(ev){
+    const target=ev?.target?.closest?.('.room-master-teddy');
+    if(!target)return;
+    const now=Date.now();
+    tapTimes=tapTimes.filter(t=>now-t<1400);
+    tapTimes.push(now);
+    if(tapTimes.length>=3){
+      tapTimes=[];
+      ev?.preventDefault?.();
+      ev?.stopPropagation?.();
+      toggleEditor();
+      navigator.vibrate?.(35);
+    }
+  }
+
+  function ensureTripleTapDelegate(){
+    if(tripleDelegateBound)return;
+    tripleDelegateBound=true;
+    document.addEventListener('pointerdown',registerTripleTap,{capture:true,passive:false});
+    document.addEventListener('touchstart',registerTripleTap,{capture:true,passive:false});
+  }
+
   function bindTripleTap(teddy){
-    if(teddy.dataset.roomMasterTripleBound)return;
+    if(!teddy)return;
     teddy.dataset.roomMasterTripleBound='1';
-    let lastHandled=0;
-    const handleTap=ev=>{
-      const now=Date.now();
-      // Ignore the synthetic compatibility event Safari can emit after a touch.
-      if(now-lastHandled<90)return;
-      lastHandled=now;
-      tapTimes=tapTimes.filter(t=>now-t<1250);
-      tapTimes.push(now);
-      if(tapTimes.length>=3){
-        tapTimes=[];
-        ev?.preventDefault?.();
-        ev?.stopPropagation?.();
-        toggleEditor();
-        navigator.vibrate?.(35);
-      }
-    };
-    if(window.PointerEvent)teddy.addEventListener('pointerup',handleTap,true);
-    else teddy.addEventListener('touchend',handleTap,{capture:true,passive:false});
+    ensureTripleTapDelegate();
   }
 
   function bindObjectEvents(el){
@@ -347,6 +353,6 @@
     reset:()=>{state=defaultState();save();render();}
   };
 
-  document.addEventListener('DOMContentLoaded',()=>{watch();mount();});
-  if(document.readyState!=='loading'){watch();mount();}
+  document.addEventListener('DOMContentLoaded',()=>{ensureTripleTapDelegate();watch();mount();});
+  if(document.readyState!=='loading'){ensureTripleTapDelegate();watch();mount();}
 })();

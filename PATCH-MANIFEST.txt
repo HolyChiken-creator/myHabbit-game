@@ -1,7 +1,6 @@
-myHabbit 12.21.2
+myHabbit 12.21.3
 
 Changed:
-- public/app.js
 - public/room-master-controller.js
 - public/index.html
 - public/boot.js
@@ -13,4 +12,4 @@ Changed:
 - public/VERSION.txt
 
 Added:
-- UPDATE-12.21.2.md
+- UPDATE-12.21.3.md
