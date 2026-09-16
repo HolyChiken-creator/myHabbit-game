@@ -1321,47 +1321,9 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   let roomStudioSlot='seat';
   let roomPreviewItemId='';
   let roomStudioScrollState={tabs:0,styles:0,studio:0};
-  const ROOM_STUDIO_GEOMETRY_KEY='myHabbitRoomStudioGeometryV2';
-  let roomStudioGeometry=(()=>{try{return JSON.parse(localStorage.getItem(ROOM_STUDIO_GEOMETRY_KEY)||'null')||null;}catch{return null;}})();
-  function saveRoomStudioGeometry(){try{roomStudioGeometry?localStorage.setItem(ROOM_STUDIO_GEOMETRY_KEY,JSON.stringify(roomStudioGeometry)):localStorage.removeItem(ROOM_STUDIO_GEOMETRY_KEY);}catch{}}
-  function clampRoomStudioGeometry(g){
-    const margin=8,maxW=Math.max(280,innerWidth-margin*2),maxH=Math.max(220,innerHeight-margin*2);
-    const width=Math.min(maxW,Math.max(280,Number(g?.width)||Math.min(760,maxW)));
-    const height=Math.min(maxH,Math.max(220,Number(g?.height)||Math.min(430,maxH)));
-    const left=Math.min(innerWidth-margin-width,Math.max(margin,Number(g?.left)||margin));
-    const top=Math.min(innerHeight-margin-height,Math.max(margin,Number(g?.top)||margin));
-    return {left,top,width,height};
-  }
-  function applyRoomStudioGeometry(){
-    const studio=document.querySelector('.room-live-studio');if(!studio)return;
-    if(!roomStudioGeometry){studio.classList.remove('is-user-positioned');studio.removeAttribute('style');return;}
-    const g=clampRoomStudioGeometry(roomStudioGeometry);roomStudioGeometry=g;
-    studio.classList.add('is-user-positioned');
-    studio.style.setProperty('left',g.left+'px','important');studio.style.setProperty('top',g.top+'px','important');studio.style.setProperty('width',g.width+'px','important');studio.style.setProperty('height',g.height+'px','important');studio.style.setProperty('right','auto','important');studio.style.setProperty('bottom','auto','important');studio.style.setProperty('transform','none','important');studio.style.setProperty('max-height','none','important');
-  }
-  function resetRoomStudioGeometry(){roomStudioGeometry=null;saveRoomStudioGeometry();applyRoomStudioGeometry();cozyHaptic('light');}
   function bindRoomStudioInteractions(){
     const studio=document.querySelector('.room-live-studio');if(!studio)return;
-    applyRoomStudioGeometry();
-    const begin=(event,mode)=>{
-      if(event.button!==undefined&&event.button!==0)return;event.preventDefault();
-      const rect=studio.getBoundingClientRect(),startX=event.clientX,startY=event.clientY;
-      const start={left:rect.left,top:rect.top,width:rect.width,height:rect.height};
-      roomStudioGeometry=clampRoomStudioGeometry(start);applyRoomStudioGeometry();
-      const pointerId=event.pointerId;try{event.currentTarget.setPointerCapture(pointerId);}catch{}
-      const move=e=>{
-        const dx=e.clientX-startX,dy=e.clientY-startY;
-        if(mode==='drag')roomStudioGeometry=clampRoomStudioGeometry({...start,left:start.left+dx,top:start.top+dy});
-        else roomStudioGeometry=clampRoomStudioGeometry({...start,width:start.width+dx,height:start.height+dy});
-        applyRoomStudioGeometry();
-      };
-      const end=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',end);document.removeEventListener('pointercancel',end);saveRoomStudioGeometry();};
-      document.addEventListener('pointermove',move,{passive:false});document.addEventListener('pointerup',end,{once:true});document.addEventListener('pointercancel',end,{once:true});
-    };
-    const drag=studio.querySelector('[data-room-studio-drag]'),resize=studio.querySelector('[data-room-studio-resize]');
-    if(drag)bindEvent(drag,'pointerdown',e=>begin(e,'drag'));
-    if(resize)bindEvent(resize,'pointerdown',e=>begin(e,'resize'));
-    [studio.querySelector('.room-live-tabs'),studio.querySelector('.room-live-styles')].filter(Boolean).forEach(scroller=>bindEvent(scroller,'wheel',e=>{
+    [studio.querySelector('.room-live-tabs')].filter(Boolean).forEach(scroller=>bindEvent(scroller,'wheel',e=>{
       if(scroller.scrollWidth<=scroller.clientWidth+2)return;
       const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;
       scroller.scrollLeft+=delta;e.preventDefault();
@@ -1466,10 +1428,12 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       <div class="room-corner-prop" aria-hidden="true">${cornerContent}</div>
       <div class="room-table-shape"><span class="room-tabletop-prop" aria-hidden="true">${tabletopContent}</span></div>
       ${roomCompanion(next,completed,total)}
-      <div class="room-label"><span>${tr('Кімната Тедіка','Teddy room')} · ${tr('етап','stage')} ${progress.stage}/4</span><strong>${tr(progress.stageCopy[0],progress.stageCopy[1])}</strong><small>${tr(progress.stageCopy[2],progress.stageCopy[3])}</small><div class="room-renovation-meter"><i style="width:${progress.percent}%"></i><small>${progress.percent}%</small></div><button class="room-decor-open" data-action="room-decor">💎 ${tr('Ремонтувати','Renovate')} · ${format(u.diamonds)}</button></div>
-      <div class="room-stage-badge" aria-hidden="true"><b>${progress.stage}</b><span>${tr(progress.stageCopy[0],progress.stageCopy[1])}</span></div>
       ${preview?`<div class="room-live-preview-badge"><span>👁</span><strong>${tr('Живе прев’ю','Live preview')}</strong><small>${escapeHtml(preview.title)} · ${tr('ще не застосовано','not applied yet')}</small></div>`:''}
     </section>`;
+  }
+  function roomStatusBar(u){
+    const progress=roomRenovationProgress(u);
+    return `<section class="room-status-bar"><div class="room-status-stage"><b>${progress.stage}</b><div><span>${tr('Кімната Тедіка','Teddy room')} · ${tr('етап','stage')} ${progress.stage}/4</span><strong>${tr(progress.stageCopy[0],progress.stageCopy[1])}</strong><small>${tr(progress.stageCopy[2],progress.stageCopy[3])}</small></div></div><div class="room-status-actions"><div class="room-status-meter"><i style="width:${progress.percent}%"></i><span>${progress.percent}%</span></div><button class="room-decor-open" data-action="room-decor">💎 ${tr('Ремонтувати','Renovate')} · ${format(u.diamonds)}</button></div></section>`;
   }
   function roomNextUpgrades(u){
     return Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>{
@@ -1497,15 +1461,12 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       confirm=`<div class="room-live-hint"><span>👆</span><div><strong>${tr('Приміряйте стиль наживо','Try a style live')}</strong><small>${tr('Торкніться будь-якого варіанта — кімната біля Тедіка зміниться одразу. Купівлі не буде, доки ви її не підтвердите.','Tap any option and Teddy’s room changes immediately. Nothing is purchased until you confirm it.')}</small></div></div>`;
     }
     const opening=roomStudioOpening;roomStudioOpening=false;
-    return `<aside class="room-live-studio" data-opening="${opening?'true':'false'}" role="dialog" aria-modal="false" aria-label="${tr('Жива майстерня кімнати','Live room studio')}">
-      <div class="room-studio-drag-handle" data-room-studio-drag role="button" tabindex="0" aria-label="${tr('Перетягнути майстерню','Drag studio')}"><span></span></div>
-      <div class="room-live-head"><div><span>${tr('Жива майстерня','Live studio')}</span><strong>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-studio-reset" data-action="room-studio-reset" aria-label="${tr('Повернути розмір і позицію','Reset size and position')}" title="${tr('Скинути позицію','Reset position')}">↺</button><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
+    return `<section class="room-live-studio room-inline-studio" data-opening="${opening?'true':'false'}" aria-label="${tr('Майстерня кімнати','Room studio')}">
+      <div class="room-live-head"><div><span>${tr('Майстерня кімнати','Room studio')}</span><strong>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
       <div class="room-live-tabs">${tabs}</div>
-      <div class="room-live-swipe-hint" aria-hidden="true">↔ ${tr('Гортай стилі пальцем','Swipe styles')}</div>
       <div class="room-live-styles">${cards}</div>
       ${confirm}
-      <button class="room-studio-resize-handle" data-room-studio-resize aria-label="${tr('Змінити розмір майстерні','Resize studio')}" title="${tr('Потягніть, щоб змінити розмір','Drag to resize')}">↘</button>
-    </aside>`;
+    </section>`;
   }
   async function chooseRoomDecor(itemId){
     const u=currentUser(),item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!u||!item)return;
@@ -1523,7 +1484,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const next=available[0],room=gameRoomStage(state.family.level),familyXp=Math.max(0,num(state.family.xp)-num(state.family.progressBaseXp))%1000,previewUser=roomPreviewUser(u);
     const tiles=available.slice(0,5).map(q=>{const st=questStatus(state,u,q);return `<button class="game-task ${st.joined?'is-active':''}" data-quest="${escapeHtml(q.id)}"><span class="game-task-icon">${escapeHtml(q.icon||'✨')}</span><strong>${escapeHtml(q.title)}</strong><small>+${num(q.rewardCoins)} 🪙 · +${num(q.rewardDiamonds??questDiamondReward(q))} 💎 · +${num(q.rewardXp)} XP</small><span class="task-action-label">${st.joined?tr('Завершити','Complete'):tr('Взяти','Start')}</span></button>`;}).join('');
     return shell(`<section class="home-hud"><div><small>${tr('Мій рівень','My level')}</small><strong>${u.level}</strong><span>${format(u.xp)} / ${format(xpRequiredForLevel(u.level))} XP</span></div><div><small>${tr('Монети','Coins')}</small><strong>${format(u.coins)} 🪙</strong></div><div><small>${tr('Діаманти','Diamonds')}</small><strong>${format(u.diamonds)} 💎</strong><span>${tr('для кімнати','for your room')}</span></div><div><small>${tr('Мій ритм','My streak')}</small><strong>${u.streak} ${tr('дн.','days')}</strong></div></section>
-    <section class="room-live-layout ${roomStudioOpen?'is-editing':''}"><div class="room-live-scene">${roomScene(previewUser,next,completed,today.length,room)}</div>${roomDecorStudio(u)}</section>
+    <section class="room-live-layout ${roomStudioOpen?'is-editing':''}"><div class="room-live-scene">${roomScene(previewUser,next,completed,today.length,room)}</div>${roomStatusBar(u)}${roomDecorStudio(u)}</section>
     <section class="next-step"><div><span class="eyebrow">${tr('Мій наступний крок','My next step')}</span><h2>${next?escapeHtml(next.title):tr('На сьогодні все готово','You are all set for today')}</h2><p>${next?escapeHtml(next.description||''):tr('Нагороди збережено. Можна відпочити.','Your rewards are safe. Time to rest.')}</p></div>${next?`<button class="btn primary" data-quest="${escapeHtml(next.id)}">${questStatus(state,u,next).joined?tr('Завершити','Complete'):tr('Взяти завдання','Start task')}</button>`:'<button class="btn soft" data-route="collections">'+tr('Мої колекції','My collections')+'</button>'}</section>
     <section class="today-section"><div class="section-head"><div><h2>${tr('Справи на сьогодні','Today’s tasks')}</h2><small>${tr('Виконано','Completed')} ${completed} / ${today.length}</small></div><button class="btn soft" data-route="quests">${tr('Усі справи','All tasks')} →</button></div><div class="game-task-strip">${tiles||'<p>'+tr('Усі справи виконані ✨','All tasks completed ✨')+'</p>'}</div></section>
     <section class="home-family"><div><span>🏡</span><strong>${tr('Спільний розвиток','Shared progress')}</strong><small>${format(familyXp)} / 1 000 XP · ${tr('до наступного рівня дому','until the next home level')}</small></div><div class="progress"><i style="width:${familyXp/10}%"></i></div><button class="btn soft" data-route="family">${tr('Наша сімʼя','Our family')} →</button></section>
@@ -2196,7 +2157,6 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(name==='room-decor-cancel-preview')cancelRoomDecorPreview();
     if(name==='room-decor-confirm')chooseRoomDecor(el?.dataset.itemId);
     if(name==='room-decor-close')closeRoomStudio();
-    if(name==='room-studio-reset')resetRoomStudioGeometry();
     if(name==='contribute-family-style') contributeFamilyStyle();
     if(name==='apply-family-theme') applyFamilyTheme(el?.dataset.theme);
     if(name==='start-match3') startMatch3();

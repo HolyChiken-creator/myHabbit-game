@@ -1,21 +1,21 @@
-myHabbit 12.10.0 update over 12.9.0
+myHabbit 12.11.0 update over 12.10.0
 
 Changed files:
 - public/app.js
 - public/home.css
 - home.css
-- worker.js
-- src/worker.js
-- VERSION
-- VERSION.txt
-- public/VERSION.txt
 - public/game-content.js
 - game-content.js
-- public/index.html
-- public/manifest.webmanifest
-- public/boot.js
-- public/sw.js
+- public/VERSION.txt
+- VERSION
+- VERSION.txt
 - package.json
 - scripts/test-room-decor.mjs
-- UPDATE-12.10.0.md
 - CHANGELOG.md
+- UPDATE-12.11.0.md
+
+What changed:
+- room status moved out of Teddy viewport
+- floating/modal decorator removed
+- inline expandable decorator pushes dashboard content down
+- native mobile page scroll + horizontal category tabs + full style grid

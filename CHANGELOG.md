@@ -1,3 +1,6 @@
+## 12.11.0
+- Inline Teddy-room editor and clean room viewport.
+
 ## 12.10.0
 - Teddy Room composition pass: coherent room geometry and protected Teddy safe zone.
 - Removed scene `+` hotspots.
