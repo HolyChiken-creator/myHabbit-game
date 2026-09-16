@@ -1,26 +1,27 @@
-myHabbit 12.5.0 update over 12.4.0
+myHabbit 12.6.0 update over 12.5.0
 
 Primary changes:
-- Original layered 3D Teddy renovation room; no baked room background image.
-- Almost-empty starter room with upgrade hotspots.
-- Tiered crystal-funded room decoration catalog.
-- Quest crystal rewards shown next to coins.
-- Match-3 crystal rewards retained; bosses pay more.
-- +5 crystals every 7-day streak milestone.
-- +2 crystals on each profile level-up.
-- Admin can grant coins and/or crystals together.
-- Existing paid room decoration is preserved during migration.
+- One persistent Teddy Room instead of room-background swapping.
+- 15 separately upgradeable renovation zones.
+- Sparse starter 2.5D room with stairs, upper railing, door, window and fireplace architecture.
+- Four visible renovation stages: Bare room, Getting cozy, Warm home, Dream room.
+- Sequential zone tiers: higher upgrades require the previous tier.
+- Room progress tracks highest unlocked tiers and never falls when an older visual choice is equipped.
+- Suggested next renovation steps in the room shop.
+- Transparent furniture assets used as separate room objects.
+- Mobile keeps the same room composition with scaled/simplified props.
+- Crystal economy from 12.5.0 remains the funding source for renovation.
+- Core room furniture is now included in offline PWA preload.
 
 Files changed/added:
 - CHANGELOG.md
-- UPDATE-12.5.0.md
+- UPDATE-12.6.0.md
 - VERSION
 - VERSION.txt
 - package.json
 - game-content.js
 - game-rules.js
 - home.css
-- worker.js
 - public/VERSION.txt
 - public/app.js
 - public/boot.js
@@ -31,8 +32,7 @@ Files changed/added:
 - public/manifest.webmanifest
 - public/sw.js
 - scripts/test-room-decor.mjs
-- scripts/test-crystal-economy.mjs
-- src/worker.js
+- scripts/release-audit.mjs
 
 Validation completed:
 - npm test

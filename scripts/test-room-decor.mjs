@@ -1,34 +1,56 @@
 import assert from 'node:assert/strict';
-import {normalizeGame,applyGameAction,ROOM_DECOR_CATALOG} from '../public/game-rules.js';
+import {normalizeGame,applyGameAction,ROOM_DECOR_CATALOG,roomDecorPrerequisite} from '../public/game-rules.js';
 
+const now=Date.parse('2026-09-16T12:00:00Z');
 const state={meta:{},family:{id:'f1',level:1,xp:0,coins:0},users:[{id:'u1',name:'Test',role:'owner',level:1,xp:0,coins:0}],quests:[],shop:[],history:[],questTemplateSettings:{}};
-normalizeGame(state,Date.parse('2026-09-16T12:00:00Z'));
+normalizeGame(state,now);
 const u=state.users[0];
+const slots=[...new Set(ROOM_DECOR_CATALOG.map(x=>x.slot))];
 assert.equal(u.diamonds,8);
-assert.equal(Object.keys(u.roomDecor).length,8);
-assert.equal(u.roomDecor.ceiling,'ceiling-basic');
-assert.equal(u.roomDecor.walls,'walls-basic');
-assert.equal(u.roomDecor.floor,'floor-basic');
-assert.equal(u.roomDecor.table,'table-none');
-assert.equal(u.roomDecor.tabletop,'tabletop-empty');
-assert.equal(u.roomDecor.rug,'rug-none');
-assert.equal(u.roomDecor.corner,'corner-empty');
-assert.equal(u.roomDecor.light,'light-basic');
-for(const slot of new Set(ROOM_DECOR_CATALOG.map(x=>x.slot)))assert.ok(u.roomDecor[slot]);
+assert.equal(slots.length,15);
+assert.equal(Object.keys(u.roomDecor).length,15);
+for(const slot of slots){
+  const starter=ROOM_DECOR_CATALOG.find(x=>x.slot===slot&&x.tier===0);
+  assert.ok(starter,`missing starter for ${slot}`);
+  assert.equal(u.roomDecor[slot],starter.id);
+  assert.ok(u.roomDecorOwned.includes(starter.id));
+}
+assert.equal(u.roomDecor.seat,'seat-none');
+assert.equal(u.roomDecor.storage,'storage-none');
+assert.equal(u.roomDecor.window,'window-bare');
+assert.equal(u.roomDecor.fireplace,'fireplace-cold');
 
 const item=ROOM_DECOR_CATALOG.find(x=>x.id==='walls-honey');
-const result=applyGameAction(state,u.id,{type:'room-decor-buy',itemId:item.id},Date.parse('2026-09-16T12:00:00Z'));
+const result=applyGameAction(state,u.id,{type:'room-decor-buy',itemId:item.id},now);
 assert.equal(result.itemId,item.id);
 assert.equal(u.diamonds,0);
 assert.equal(u.roomDecor.walls,item.id);
 assert.ok(u.roomDecorOwned.includes(item.id));
 assert.equal(u.stats.roomDecorPurchased,1);
 
-applyGameAction(state,u.id,{type:'room-decor-equip',itemId:'walls-basic'},Date.parse('2026-09-16T12:00:00Z'));
+applyGameAction(state,u.id,{type:'room-decor-equip',itemId:'walls-basic'},now);
 assert.equal(u.roomDecor.walls,'walls-basic');
-applyGameAction(state,u.id,{type:'room-decor-equip',itemId:item.id},Date.parse('2026-09-16T12:00:00Z'));
+applyGameAction(state,u.id,{type:'room-decor-equip',itemId:item.id},now);
 assert.equal(u.diamonds,0); // no repeat charge
 
-assert.throws(()=>applyGameAction(state,u.id,{type:'room-decor-buy',itemId:'table-round'},Date.parse('2026-09-16T12:00:00Z')),/Недостатньо діамантів/);
+assert.throws(()=>applyGameAction(state,u.id,{type:'room-decor-buy',itemId:'table-round'},now),/Недостатньо діамантів/);
 assert.equal(u.diamonds,0);
-console.log('PASS: bare 3D starter room, decoration purchase/equip and insufficient-crystal protection.');
+
+// Higher tiers cannot be skipped even if the player has enough crystals.
+u.diamonds=200;
+const sage=ROOM_DECOR_CATALOG.find(x=>x.id==='walls-sage');
+assert.equal(roomDecorPrerequisite(sage)?.id,'walls-honey');
+// honey is already owned, so tier 2 is valid now.
+applyGameAction(state,u.id,{type:'room-decor-buy',itemId:'walls-sage'},now);
+assert.equal(u.roomDecor.walls,'walls-sage');
+const night=ROOM_DECOR_CATALOG.find(x=>x.id==='walls-night');
+assert.equal(roomDecorPrerequisite(night)?.id,'walls-sage');
+
+const fresh={meta:{},family:{id:'f2',level:1,xp:0,coins:0},users:[{id:'u2',name:'Fresh',role:'owner',level:1,xp:0,coins:0,diamonds:200}],quests:[],shop:[],history:[],questTemplateSettings:{}};
+normalizeGame(fresh,now);
+assert.throws(()=>applyGameAction(fresh,'u2',{type:'room-decor-buy',itemId:'seat-loveseat'},now),/Спочатку відкрийте/);
+applyGameAction(fresh,'u2',{type:'room-decor-buy',itemId:'seat-armchair'},now);
+applyGameAction(fresh,'u2',{type:'room-decor-buy',itemId:'seat-loveseat'},now);
+assert.equal(fresh.users[0].roomDecor.seat,'seat-loveseat');
+
+console.log('PASS: 15-zone persistent Teddy room, sequential renovation tiers, purchase/equip and insufficient-crystal protection.');

@@ -6,36 +6,82 @@ export const ROOM_DECOR_CATALOG=[
   {id:'ceiling-basic',slot:'ceiling',title:'Базова стеля',price:0,icon:'▫️',theme:'basic',tier:0},
   {id:'ceiling-warm',slot:'ceiling',title:'Дерев’яні балки',price:10,icon:'🪵',theme:'warm',tier:1},
   {id:'ceiling-stars',slot:'ceiling',title:'Зоряна стеля',price:22,icon:'✨',theme:'stars',tier:2},
-  {id:'ceiling-glass',slot:'ceiling',title:'Скляний дах',price:34,icon:'🌌',theme:'glass',tier:3},
+  {id:'ceiling-glass',slot:'ceiling',title:'Скляний дах',price:38,icon:'🌌',theme:'glass',tier:3},
+
   {id:'walls-basic',slot:'walls',title:'Світла штукатурка',price:0,icon:'⬜',theme:'basic',tier:0},
   {id:'walls-honey',slot:'walls',title:'Теплі панелі',price:8,icon:'🟤',theme:'honey',tier:1},
   {id:'walls-sage',slot:'walls',title:'Шавлієві стіни',price:18,icon:'🌿',theme:'sage',tier:2},
-  {id:'walls-night',slot:'walls',title:'Нічна кімната',price:30,icon:'🌙',theme:'night',tier:3},
+  {id:'walls-night',slot:'walls',title:'Нічна кімната',price:32,icon:'🌙',theme:'night',tier:3},
+
   {id:'floor-basic',slot:'floor',title:'Чорнова підлога',price:0,icon:'◻️',theme:'basic',tier:0},
   {id:'floor-oak',slot:'floor',title:'Дубова підлога',price:8,icon:'🪵',theme:'oak',tier:1},
   {id:'floor-stone',slot:'floor',title:'Кам’яна плитка',price:18,icon:'🪨',theme:'stone',tier:2},
-  {id:'floor-checker',slot:'floor',title:'Шахова плитка',price:28,icon:'◫',theme:'checker',tier:3},
+  {id:'floor-checker',slot:'floor',title:'Візерункова плитка',price:30,icon:'◫',theme:'checker',tier:3},
+
+  {id:'window-bare',slot:'window',title:'Голе вікно',price:0,icon:'🪟',theme:'bare',tier:0},
+  {id:'window-linen',slot:'window',title:'Лляні штори',price:10,icon:'🪟',theme:'linen',tier:1},
+  {id:'window-cozy',slot:'window',title:'Теплі портьєри',price:22,icon:'🎀',theme:'cozy',tier:2},
+  {id:'window-grand',slot:'window',title:'Святкові штори',price:38,icon:'✨',theme:'grand',tier:3},
+
+  {id:'fireplace-cold',slot:'fireplace',title:'Холодний камін',price:0,icon:'▫️',theme:'cold',tier:0},
+  {id:'fireplace-lit',slot:'fireplace',title:'Живий вогонь',price:12,icon:'🔥',theme:'lit',tier:1},
+  {id:'fireplace-stone',slot:'fireplace',title:'Кам’яний камін',price:26,icon:'🪨',theme:'stone',tier:2},
+  {id:'fireplace-grand',slot:'fireplace',title:'Великий камін Тедіка',price:44,icon:'🔥',theme:'grand',tier:3},
+
+  {id:'seat-none',slot:'seat',title:'Порожня зона відпочинку',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'seat-armchair',slot:'seat',title:'Крісло Тедіка',price:12,icon:'🛋️',theme:'armchair',tier:1},
+  {id:'seat-loveseat',slot:'seat',title:'Затишний диванчик',price:28,icon:'🛋️',theme:'loveseat',tier:2},
+  {id:'seat-dream',slot:'seat',title:'Диван кімнати мрії',price:48,icon:'✨',theme:'dream',tier:3},
+
+  {id:'storage-none',slot:'storage',title:'Порожня стіна',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'storage-crates',slot:'storage',title:'Акуратні коробки',price:6,icon:'📦',theme:'crates',tier:1},
+  {id:'storage-bookcase',slot:'storage',title:'Книжкова шафа',price:20,icon:'📚',theme:'bookcase',tier:2},
+  {id:'storage-library',slot:'storage',title:'Домашня бібліотека',price:36,icon:'📚',theme:'library',tier:3},
+
+  {id:'wallart-none',slot:'wallart',title:'Порожні стіни',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'wallart-frame',slot:'wallart',title:'Перша рамка',price:8,icon:'🖼️',theme:'frame',tier:1},
+  {id:'wallart-gallery',slot:'wallart',title:'Сімейна галерея',price:18,icon:'🖼️',theme:'gallery',tier:2},
+  {id:'wallart-teddy',slot:'wallart',title:'Галерея Тедіка',price:34,icon:'🐻',theme:'teddy',tier:3},
+
+  {id:'plant-none',slot:'plant',title:'Без рослин',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'plant-pot',slot:'plant',title:'Перша рослина',price:8,icon:'🪴',theme:'pot',tier:1},
+  {id:'plant-pair',slot:'plant',title:'Зелений куточок',price:18,icon:'🌿',theme:'pair',tier:2},
+  {id:'plant-jungle',slot:'plant',title:'Домашній сад',price:34,icon:'🌿',theme:'jungle',tier:3},
+
+  {id:'collection-empty',slot:'collection',title:'Порожній куточок',price:0,icon:'＋',theme:'empty',tier:0},
+  {id:'collection-basket',slot:'collection',title:'Кошик іграшок',price:8,icon:'🧸',theme:'basket',tier:1},
+  {id:'collection-chest',slot:'collection',title:'Скриня знахідок',price:18,icon:'🧰',theme:'chest',tier:2},
+  {id:'collection-display',slot:'collection',title:'Колекція Тедіка',price:34,icon:'🏆',theme:'display',tier:3},
+
   {id:'table-none',slot:'table',title:'Без столу',price:0,icon:'＋',theme:'none',tier:0},
   {id:'table-round',slot:'table',title:'Круглий столик',price:10,icon:'☕',theme:'round',tier:1},
   {id:'table-workbench',slot:'table',title:'Майстерня Тедіка',price:22,icon:'🛠️',theme:'workbench',tier:2},
-  {id:'table-marble',slot:'table',title:'Мармуровий столик',price:36,icon:'🤍',theme:'marble',tier:3},
+  {id:'table-marble',slot:'table',title:'Святковий столик',price:38,icon:'🤍',theme:'marble',tier:3},
+
   {id:'tabletop-empty',slot:'tabletop',title:'Порожній стіл',price:0,icon:'▫️',theme:'empty',tier:0},
   {id:'tabletop-tea',slot:'tabletop',title:'Чайний набір',price:8,icon:'🍵',theme:'tea',tier:1},
   {id:'tabletop-books',slot:'tabletop',title:'Книги й лампа',price:16,icon:'📚',theme:'books',tier:2},
-  {id:'tabletop-games',slot:'tabletop',title:'Настільні ігри',price:24,icon:'🎲',theme:'games',tier:3},
+  {id:'tabletop-games',slot:'tabletop',title:'Настільні ігри',price:26,icon:'🎲',theme:'games',tier:3},
+
   {id:'rug-none',slot:'rug',title:'Без килима',price:0,icon:'＋',theme:'none',tier:0},
   {id:'rug-leaf',slot:'rug',title:'Листяний килим',price:8,icon:'🍃',theme:'leaf',tier:1},
   {id:'rug-sun',slot:'rug',title:'Сонячний килим',price:16,icon:'☀️',theme:'sun',tier:2},
-  {id:'rug-moon',slot:'rug',title:'Місячний килим',price:24,icon:'🌙',theme:'moon',tier:3},
+  {id:'rug-moon',slot:'rug',title:'Місячний килим',price:28,icon:'🌙',theme:'moon',tier:3},
+
   {id:'corner-empty',slot:'corner',title:'Порожній куток',price:0,icon:'＋',theme:'empty',tier:0},
-  {id:'corner-plant',slot:'corner',title:'Куточок з рослинами',price:8,icon:'🪴',theme:'plant',tier:1},
-  {id:'corner-library',slot:'corner',title:'Міні-бібліотека',price:20,icon:'📚',theme:'library',tier:2},
-  {id:'corner-fireplace',slot:'corner',title:'Камін',price:32,icon:'🔥',theme:'fireplace',tier:3},
+  {id:'corner-plant',slot:'corner',title:'Малий декор',price:8,icon:'🪴',theme:'plant',tier:1},
+  {id:'corner-library',slot:'corner',title:'Куточок для читання',price:20,icon:'📚',theme:'library',tier:2},
+  {id:'corner-fireplace',slot:'corner',title:'Колекційний куточок',price:34,icon:'🏆',theme:'fireplace',tier:3},
+
   {id:'light-basic',slot:'light',title:'Природне світло',price:0,icon:'☀️',theme:'basic',tier:0},
   {id:'light-day',slot:'light',title:'Тепле денне світло',price:8,icon:'🌤️',theme:'day',tier:1},
   {id:'light-evening',slot:'light',title:'Вечірні вогники',price:18,icon:'🏮',theme:'evening',tier:2},
-  {id:'light-magic',slot:'light',title:'Магічне сяйво',price:30,icon:'🔮',theme:'magic',tier:3}
-]
+  {id:'light-magic',slot:'light',title:'Магічне сяйво',price:32,icon:'🔮',theme:'magic',tier:3}
+];
+export function roomDecorPrerequisite(item){
+  if(!item||num(item.tier)<=1)return null;
+  return ROOM_DECOR_CATALOG.find(x=>x.slot===item.slot&&num(x.tier)===num(item.tier)-1)||null;
+}
 export const num=(v,min=0,max=1000000000)=>Math.max(min,Math.min(max,Number.isFinite(Number(v))?Number(v):min));
 export function questDiamondReward(q={}){const difficulty={easy:1,normal:2,hard:3}[q.difficulty||'normal']||2;const team=['pair','coop'].includes(q.type)?1:0;const limited=q.type==='limited'?1:0;return Math.max(1,difficulty+team+limited);}
 const copy=v=>JSON.parse(JSON.stringify(v));
@@ -82,8 +128,9 @@ function userDefaults(u){
   for(const key of skillKeys){u.skills[key]=num(u.skills[key]);u.skillXp[key]=num(u.skillXp[key]??u.skills[key]*100);}
   for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks','roomDecorOwned'])u[key]=Array.isArray(u[key])?u[key]:[];
   for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped','roomDecor'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
-  const defaults={ceiling:'ceiling-basic',walls:'walls-basic',floor:'floor-basic',table:'table-none',tabletop:'tabletop-empty',rug:'rug-none',corner:'corner-empty',light:'light-basic'};
+  const defaults={ceiling:'ceiling-basic',walls:'walls-basic',floor:'floor-basic',window:'window-bare',fireplace:'fireplace-cold',seat:'seat-none',storage:'storage-none',wallart:'wallart-none',plant:'plant-none',collection:'collection-empty',table:'table-none',tabletop:'tabletop-empty',rug:'rug-none',corner:'corner-empty',light:'light-basic'};
   if(!u.roomDecorStarterV2){const oldStarter={ceiling:'ceiling-warm',walls:'walls-honey',floor:'floor-oak',table:'table-round',tabletop:'tabletop-tea',rug:'rug-leaf',corner:'corner-plant',light:'light-day'};const noPaidRoom=!(num(u.stats?.roomDecorPurchased)>0);if(noPaidRoom){for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot]||u.roomDecor[slot]===oldStarter[slot])u.roomDecor[slot]=id;}}u.roomDecorStarterV2=true;}
+  if(!u.roomDecorStarterV3){for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;}u.roomDecorStarterV3=true;}
   for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;if(!u.roomDecorOwned.includes(id))u.roomDecorOwned.push(id);}
   u.roomDecorOwned=unique(u.roomDecorOwned.filter(id=>ROOM_DECOR_CATALOG.some(item=>item.id===id)));
   u.achievements=unique(u.achievements);u.stickerDust=num(u.stickerDust);if(u.totalXpEarned==null){let total=u.xp;for(let level=1;level<u.level;level++)total+=xpRequired(level);u.totalXpEarned=total;}u.streak=num(u.streak);u.bestStreak=Math.max(num(u.bestStreak),u.streak);
@@ -168,8 +215,12 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     const item=s.cosmeticsCatalog.find(i=>i.id===op.itemId);if(!item)fail('Предмет недоступний');if(!u.inventory.includes(item.id)){spend(u,item.price);grantItem(s,u,item.id);u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;}message='Предмет у колекції';
   }else if(op.type==='room-decor-buy'||op.type==='room-decor-equip'){
     const item=ROOM_DECOR_CATALOG.find(i=>i.id===op.itemId);if(!item)fail('Елемент кімнати недоступний');
-    if(op.type==='room-decor-buy'&&!u.roomDecorOwned.includes(item.id)){const price=Math.trunc(num(item.price));if(u.diamonds<price)fail('Недостатньо діамантів');u.diamonds-=price;u.roomDecorOwned.push(item.id);u.stats.roomDecorPurchased=num(u.stats.roomDecorPurchased)+1;}
-    if(!u.roomDecorOwned.includes(item.id))fail('Спочатку відкрийте цей декор');u.roomDecor[item.slot]=item.id;message=op.type==='room-decor-buy'?'Декор відкрито й встановлено':'Оформлення кімнати змінено';detail={itemId:item.id,slot:item.slot,diamonds:u.diamonds};
+    if(op.type==='room-decor-buy'&&!u.roomDecorOwned.includes(item.id)){
+      const prerequisite=roomDecorPrerequisite(item);
+      if(prerequisite&&!u.roomDecorOwned.includes(prerequisite.id))fail(`Спочатку відкрийте «${prerequisite.title}»`);
+      const price=Math.trunc(num(item.price));if(u.diamonds<price)fail('Недостатньо діамантів');u.diamonds-=price;u.roomDecorOwned.push(item.id);u.stats.roomDecorPurchased=num(u.stats.roomDecorPurchased)+1;
+    }
+    if(!u.roomDecorOwned.includes(item.id))fail('Спочатку відкрийте цей декор');u.roomDecor[item.slot]=item.id;message=op.type==='room-decor-buy'?'Покращення відкрито й встановлено':'Оформлення кімнати змінено';detail={itemId:item.id,slot:item.slot,diamonds:u.diamonds};
   }else if(op.type==='level-rewards'){
     const rewards=s.levelRewards.filter(r=>u.level>=r.level&&!u.claimedLevelRewards.includes(r.level));if(!rewards.length)return {message:'Нових подарунків поки немає'};for(const r of rewards){grantReward(s,u,r);u.claimedLevelRewards.push(r.level);}message='Подарунки рівня отримано';
   }else if(op.type==='sticker-box'){

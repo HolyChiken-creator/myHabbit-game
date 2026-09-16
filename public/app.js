@@ -1,4 +1,4 @@
-import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, applyMatch3Booster, ROOM_DECOR_CATALOG, questDiamondReward, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
+import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, applyMatch3Booster, ROOM_DECOR_CATALOG, roomDecorPrerequisite, questDiamondReward, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
 (() => {
   'use strict';
 
@@ -1304,27 +1304,104 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const [prop,uk,en]=moods[mode];
     return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
   }
-  const ROOM_DECOR_SLOT_NAMES={ceiling:['Стеля','Ceiling'],walls:['Стіни','Walls'],floor:['Підлога','Floor'],table:['Стіл','Table'],tabletop:['Наповнення столу','Table items'],rug:['Килим','Rug'],corner:['Куточок','Corner'],light:['Світло','Lighting']};
+  const ROOM_DECOR_SLOT_NAMES={
+    ceiling:['Стеля','Ceiling'],walls:['Стіни','Walls'],floor:['Підлога','Floor'],window:['Вікно й штори','Window & curtains'],
+    fireplace:['Камін','Fireplace'],seat:['Зона відпочинку','Seating'],storage:['Зберігання й книги','Storage & books'],wallart:['Настінний декор','Wall art'],
+    plant:['Рослини','Plants'],collection:['Колекційний куточок','Collection corner'],table:['Стіл','Table'],tabletop:['Наповнення столу','Table items'],
+    rug:['Килим','Rug'],corner:['Додатковий куточок','Extra corner'],light:['Світло','Lighting']
+  };
+  const ROOM_STAGE_COPY=[
+    ['Порожня кімната','Bare room','Майже порожній простір. Усе цікаве ще попереду.','An almost empty room. Everything interesting is still ahead.'],
+    ['Стає затишно','Getting cozy','З’явилися перші меблі, світло й власний характер.','Furniture, light and personality are starting to appear.'],
+    ['Теплий дім','Warm home','Кімната вже живе: більше зон, декору й занять для Тедіка.','The room feels alive with more zones, decor and things for Teddy to do.'],
+    ['Кімната мрії','Dream room','Насичений особистий простір із колекціями, світлом і деталями.','A rich personal space filled with collections, light and detail.']
+  ];
+  const ROOM_ASSET='/assets/generated/pack_00_style_lock/webp/';
   function roomDecorItem(u,slot){return ROOM_DECOR_CATALOG.find(item=>item.id===u?.roomDecor?.[slot])||ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&item.price===0);}
   function roomDecorTheme(u,slot){return roomDecorItem(u,slot)?.theme||'basic';}
-  function roomRenovationProgress(u){const slots=Object.keys(ROOM_DECOR_SLOT_NAMES),upgraded=slots.filter(slot=>(roomDecorItem(u,slot)?.tier||0)>0).length,purchases=Math.max(0,Number(u?.stats?.roomDecorPurchased||0));return {slots,upgraded,purchases,percent:Math.round(upgraded/slots.length*100),level:1+purchases};}
-  function roomHotspot(slot,label,icon){return `<button class="room-upgrade-hotspot hotspot-${slot}" data-action="room-decor-slot" data-slot="${slot}" aria-label="${escapeHtml(label)}"><span>${icon}</span><small>${escapeHtml(label)}</small></button>`;}
+  function roomDecorTier(u,slot){return Number(roomDecorItem(u,slot)?.tier||0);}
+  function roomOwnedTier(u,slot){return Math.max(0,...ROOM_DECOR_CATALOG.filter(item=>item.slot===slot&&u?.roomDecorOwned?.includes(item.id)).map(item=>Number(item.tier||0)));}
+  function roomRenovationProgress(u){
+    const slots=Object.keys(ROOM_DECOR_SLOT_NAMES),tiers=slots.map(slot=>roomOwnedTier(u,slot));
+    const current=tiers.reduce((a,b)=>a+b,0),max=slots.reduce((sum,slot)=>sum+Math.max(...ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>Number(item.tier||0))),0);
+    const upgraded=tiers.filter(Boolean).length,purchases=Math.max(0,Number(u?.stats?.roomDecorPurchased||0)),percent=max?Math.round(current/max*100):0;
+    const stage=percent>=74?4:percent>=42?3:percent>=15?2:1;
+    return {slots,upgraded,purchases,current,max,percent,stage,stageCopy:ROOM_STAGE_COPY[stage-1]};
+  }
+  function roomHotspot(slot,label,icon='＋'){return `<button class="room-upgrade-hotspot hotspot-${slot}" data-action="room-decor-slot" data-slot="${slot}" aria-label="${escapeHtml(label)}"><span>${icon}</span><small>${escapeHtml(label)}</small></button>`;}
+  function roomPictureFrames(tier){
+    if(tier<=0)return '';
+    const count=tier===1?1:tier===2?3:5;
+    return `<div class="room-wallart-prop tier-${tier}" aria-hidden="true">${Array.from({length:count},(_,i)=>`<span class="frame-${i+1}">${i===count-1&&tier>=3?'🐻':'✦'}</span>`).join('')}</div>`;
+  }
+  function roomSeatProp(tier){
+    if(tier<=0)return '';
+    const chair=`<img src="${ROOM_ASSET}furniture_armchair_v01.webp" alt="">`;
+    return `<div class="room-seat-prop tier-${tier}" aria-hidden="true">${chair}${tier>=2?chair:''}${tier>=3?'<span class="seat-pillow">♡</span>':''}</div>`;
+  }
+  function roomStorageProp(tier){
+    if(tier<=0)return '';
+    if(tier===1)return `<div class="room-storage-prop crates" aria-hidden="true"><span>📦</span><span>📦</span></div>`;
+    const book=`<img src="${ROOM_ASSET}furniture_bookcase_v01.webp" alt="">`;
+    return `<div class="room-storage-prop tier-${tier}" aria-hidden="true">${book}${tier>=3?book:''}</div>`;
+  }
+  function roomPlantProp(tier){
+    if(tier<=0)return '';
+    const plant=`<img src="${ROOM_ASSET}plant_potted_v01.webp" alt="">`;
+    return `<div class="room-plant-prop tier-${tier}" aria-hidden="true">${plant}${tier>=2?plant:''}${tier>=3?plant:''}</div>`;
+  }
+  function roomCollectionProp(tier){
+    if(tier<=0)return '';
+    if(tier===1)return `<div class="room-collection-prop basket" aria-hidden="true"><span>🧸</span><span>⚽</span></div>`;
+    return `<div class="room-collection-prop tier-${tier}" aria-hidden="true"><img src="${ROOM_ASSET}${tier>=3?'reward_chest_legendary_v01.webp':'reward_chest_common_v01.webp'}" alt=""><span>${tier>=3?'★ 🧸 ★':'🧸'}</span></div>`;
+  }
   function roomScene(u,next,completed,total,room){
-    const corner=roomDecorItem(u,'corner'),tabletop=roomDecorItem(u,'tabletop'),progress=roomRenovationProgress(u);
-    const classes=['game-room','room-depth','renovation-room',room.className,...Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>'decor-'+slot+'-'+roomDecorTheme(u,slot))].join(' ');
-    const cornerContent=(corner?.tier||0)>0?(corner?.icon||'🪴'):'';
-    const tabletopContent=(tabletop?.tier||0)>0?(tabletop?.icon||'🍵'):'';
-    return `<section class="${classes}"><div class="room-atmosphere"></div><div class="room-ceiling-layer"></div><div class="room-back-wall"></div><div class="room-side-wall left"></div><div class="room-side-wall right"></div><div class="room-wall-layer"></div><div class="room-floor-layer"></div><div class="room-window-frame"><i></i><b></b></div><div class="room-window-glow"></div><div class="room-rug-shape"></div><div class="room-corner-prop" aria-hidden="true">${cornerContent}</div><div class="room-table-shape"><span class="room-tabletop-prop" aria-hidden="true">${tabletopContent}</span></div>${roomCompanion(next,completed,total)}${roomHotspot('walls',tr('Змінити стіни','Change walls'),'＋')}${roomHotspot('floor',tr('Змінити підлогу','Change floor'),'＋')}${roomHotspot('table',tr('Додати меблі','Add furniture'),'＋')}${roomHotspot('corner',tr('Облаштувати куток','Decorate corner'),'＋')}<div class="room-label"><span>${tr('Кімната Тедіка','Teddy room')} · ${tr('рівень ремонту','renovation level')} ${progress.level}</span><strong>${progress.upgraded?tr('Простір поступово оживає','The room is coming to life'):tr('Почнімо з майже порожньої кімнати','Start with an almost empty room')}</strong><div class="room-renovation-meter"><i style="width:${progress.percent}%"></i><small>${progress.upgraded}/${progress.slots.length} ${tr('зон облаштовано','zones upgraded')}</small></div><button class="room-decor-open" data-action="room-decor">💎 ${tr('Покращити кімнату','Upgrade room')} · ${format(u.diamonds)}</button></div></section>`;
+    const progress=roomRenovationProgress(u),corner=roomDecorItem(u,'corner'),tabletop=roomDecorItem(u,'tabletop');
+    const classes=['game-room','room-depth','renovation-room','renovation-stage-'+progress.stage,room.className,...Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>'decor-'+slot+'-'+roomDecorTheme(u,slot))].join(' ');
+    const cornerContent=(corner?.tier||0)>0?(corner?.icon||'🪴'):'',tabletopContent=(tabletop?.tier||0)>0?(tabletop?.icon||'🍵'):'';
+    const seatTier=roomDecorTier(u,'seat'),storageTier=roomDecorTier(u,'storage'),plantTier=roomDecorTier(u,'plant'),wallartTier=roomDecorTier(u,'wallart'),collectionTier=roomDecorTier(u,'collection'),fireTier=roomDecorTier(u,'fireplace'),lightTier=roomDecorTier(u,'light');
+    return `<section class="${classes}">
+      <div class="room-atmosphere"></div>
+      <div class="room-ceiling-layer"></div><div class="room-back-wall"></div><div class="room-side-wall left"></div><div class="room-side-wall right"></div><div class="room-wall-layer"></div><div class="room-floor-layer"></div>
+      <div class="room-upper-landing" aria-hidden="true"><div class="room-upper-rail"></div></div>
+      <div class="room-staircase" aria-hidden="true"><i></i></div><div class="room-door" aria-hidden="true"><i></i></div>
+      <div class="room-window-frame"><i></i><b></b></div><div class="room-curtains" aria-hidden="true"><i></i><b></b></div><div class="room-window-glow"></div>
+      <div class="room-fireplace-shell" aria-hidden="true"><i class="mantel"></i><span class="fire">${fireTier?'🔥':''}</span></div>
+      ${roomPictureFrames(wallartTier)}
+      <div class="room-rug-shape"></div>
+      ${roomStorageProp(storageTier)}${roomSeatProp(seatTier)}${roomPlantProp(plantTier)}${roomCollectionProp(collectionTier)}
+      ${lightTier?`<img class="room-lamp-prop tier-${lightTier}" src="${ROOM_ASSET}furniture_lamp_table_v01.webp" alt="" aria-hidden="true">`:''}
+      <div class="room-corner-prop" aria-hidden="true">${cornerContent}</div>
+      <div class="room-table-shape"><span class="room-tabletop-prop" aria-hidden="true">${tabletopContent}</span></div>
+      ${roomCompanion(next,completed,total)}
+      ${roomHotspot('walls',tr('Стіни','Walls'))}${roomHotspot('floor',tr('Підлога','Floor'))}${roomHotspot('window',tr('Штори','Curtains'))}${roomHotspot('fireplace',tr('Камін','Fireplace'))}
+      ${roomHotspot('seat',tr('Місце відпочинку','Seating'))}${roomHotspot('storage',tr('Книжкова зона','Book zone'))}${roomHotspot('table',tr('Столик','Table'))}${roomHotspot('plant',tr('Рослини','Plants'))}
+      <div class="room-label"><span>${tr('Кімната Тедіка','Teddy room')} · ${tr('етап','stage')} ${progress.stage}/4</span><strong>${tr(progress.stageCopy[0],progress.stageCopy[1])}</strong><small>${tr(progress.stageCopy[2],progress.stageCopy[3])}</small><div class="room-renovation-meter"><i style="width:${progress.percent}%"></i><small>${progress.percent}%</small></div><button class="room-decor-open" data-action="room-decor">💎 ${tr('Ремонтувати','Renovate')} · ${format(u.diamonds)}</button></div>
+      <div class="room-stage-badge" aria-hidden="true"><b>${progress.stage}</b><span>${tr(progress.stageCopy[0],progress.stageCopy[1])}</span></div>
+    </section>`;
+  }
+  function roomNextUpgrades(u){
+    return Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>{
+      const current=roomOwnedTier(u,slot);
+      return ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&Number(item.tier||0)===current+1);
+    }).filter(Boolean).sort((a,b)=>a.price-b.price).slice(0,5);
   }
   function roomDecorModal(focusSlot=''){
     const u=currentUser();if(!u)return '';
     const slots=focusSlot&&ROOM_DECOR_SLOT_NAMES[focusSlot]?[focusSlot]:Object.keys(ROOM_DECOR_SLOT_NAMES),progress=roomRenovationProgress(u);
     const groups=slots.map(slot=>{
-      const items=ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>{const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,tier=item.tier||0;return `<button class="room-decor-card tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''}" data-action="room-decor-item" data-item-id="${item.id}" ${active?'disabled':''}><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${active?tr('Встановлено','Equipped'):owned?tr('Встановити','Equip'):item.price+' 💎'}</small>${tier?`<em>${tr('Покращення','Upgrade')} ${tier}</em>`:''}</button>`;}).join('');
+      const items=ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>{
+        const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,tier=item.tier||0,prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id));
+        const status=active?tr('Встановлено','Equipped'):owned?tr('Встановити','Equip'):locked?tr('Спочатку попередній рівень','Previous tier first'):item.price+' 💎';
+        return `<button class="room-decor-card tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''}" data-action="room-decor-item" data-item-id="${item.id}" ${(active||locked)?'disabled':''}><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Покращення','Upgrade')} ${tier}</em>`:''}${locked&&prereq?`<i>${tr('Потрібно: ','Requires: ')}${escapeHtml(prereq.title)}</i>`:''}</button>`;
+      }).join('');
       return `<section class="room-decor-group"><h3>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</h3><div class="room-decor-grid">${items}</div></section>`;
     }).join('');
-    const earning=`<div class="room-crystal-sources"><strong>${tr('Як отримувати кристали','How to earn crystals')}</strong><span>✓ ${tr('виконувати завдання: 1–4 💎 залежно від складності','complete tasks: 1–4 💎 based on difficulty')}</span><span>🧩 ${tr('проходити рівні «Три в ряд»: 1 💎, боси дають більше','beat Match-3 levels: 1 💎, bosses give more')}</span><span>🔥 ${tr('серія 7 днів: +5 💎','7-day streak: +5 💎')}</span><span>⭐ ${tr('новий рівень профілю: +2 💎','profile level-up: +2 💎')}</span></div>`;
-    return `<div class="modal-backdrop"><div class="modal room-decor-modal"><div class="modal-head"><div><h2>${focusSlot?tr('Покращення кімнати','Room upgrade'):tr('Ремонт кімнати Тедіка','Teddy room renovation')}</h2><p>${tr('Як у renovation-грі: починаємо з пустого простору й поступово облаштовуємо кожну зону.','Start with an empty space and gradually renovate each zone.')}</p></div><button class="close" data-close>×</button></div><div class="room-decor-balance"><span>💎</span><strong>${format(u.diamonds)}</strong><small>${tr('Кристали витрачаються тільки на кімнату.','Crystals are used only for room upgrades.')}</small><div class="room-progress-chip">${progress.percent}%</div></div>${earning}${groups}${focusSlot?'<button class="btn soft" style="width:100%" data-action="room-decor">'+tr('Показати всі зони','Show all zones')+'</button>':''}</div></div>`;
+    const next=roomNextUpgrades(u);
+    const nextMarkup=!focusSlot&&next.length?`<section class="room-next-section"><div><strong>${tr('Наступні логічні кроки','Suggested next upgrades')}</strong><small>${tr('Найдоступніші покращення, щоб кімната росла поступово.','Affordable upgrades that grow the room gradually.')}</small></div><div class="room-next-grid">${next.map(item=>`<button data-action="room-decor-item" data-item-id="${item.id}"><span>${item.icon}</span><b>${escapeHtml(item.title)}</b><small>${item.price} 💎</small></button>`).join('')}</div></section>`:'';
+    const roadmap=`<div class="room-roadmap">${ROOM_STAGE_COPY.map((s,i)=>`<div class="${progress.stage===i+1?'active':''} ${progress.stage>i+1?'done':''}"><b>${i+1}</b><span>${tr(s[0],s[1])}</span></div>`).join('')}</div>`;
+    const earning=`<div class="room-crystal-sources"><strong>${tr('Кристали = розвиток кімнати','Crystals = room progress')}</strong><span>✓ ${tr('завдання: 1–4 💎 залежно від складності','tasks: 1–4 💎 based on difficulty')}</span><span>🧩 ${tr('«Три в ряд»: 1 💎 за рівень, боси дають більше','Match-3: 1 💎 per level, bosses give more')}</span><span>🔥 ${tr('серія 7 днів: +5 💎','7-day streak: +5 💎')}</span><span>⭐ ${tr('новий рівень профілю: +2 💎','profile level-up: +2 💎')}</span></div>`;
+    return `<div class="modal-backdrop"><div class="modal room-decor-modal"><div class="modal-head"><div><h2>${focusSlot?tr('Покращення зони','Zone upgrade'):tr('Ремонт кімнати Тедіка','Teddy room renovation')}</h2><p>${tr('Одна постійна кімната: не міняємо фон, а поступово додаємо й покращуємо реальні зони.','One permanent room: no background swaps, only real zones that grow over time.')}</p></div><button class="close" data-close>×</button></div><div class="room-decor-balance"><span>💎</span><strong>${format(u.diamonds)}</strong><small>${tr('Витрачаються на ремонт, меблі й деталі кімнати.','Used for renovation, furniture and room details.')}</small><div class="room-progress-chip">${progress.percent}%</div></div>${roadmap}${nextMarkup}${earning}${groups}${focusSlot?'<button class="btn soft" style="width:100%" data-action="room-decor">'+tr('Показати весь план ремонту','Show full renovation plan')+'</button>':''}</div></div>`;
   }
   async function chooseRoomDecor(itemId){const u=currentUser(),item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!u||!item)return;const owned=u.roomDecorOwned?.includes(item.id);const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});if(result){document.querySelector('.room-decor-modal')?.closest('.modal-backdrop')?.remove();appendMarkup(document.body,roomDecorModal(item.slot));bindModal();render();}}
 
@@ -2358,7 +2435,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.5.0',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.6.0',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,

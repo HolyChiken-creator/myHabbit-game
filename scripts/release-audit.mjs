@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 const root=process.cwd();
-const required=['public/index.html','public/app.js','public/styles.css','public/sw.js','public/boot.js','public/game-rules.js','public/game-content.js','public/home.css','public/room.svg','public/manifest.webmanifest','src/worker.js','wrangler.jsonc','public/assets/game/room-1.webp','public/assets/game/room-5.webp','public/assets/game/room-20.webp','public/assets/game/room-50.webp'];
+const required=['public/index.html','public/app.js','public/styles.css','public/sw.js','public/boot.js','public/game-rules.js','public/game-content.js','public/home.css','public/room.svg','public/manifest.webmanifest','src/worker.js','wrangler.jsonc','public/assets/game/room-1.webp','public/assets/game/room-5.webp','public/assets/game/room-20.webp','public/assets/game/room-50.webp','public/assets/generated/pack_00_style_lock/webp/furniture_armchair_v01.webp','public/assets/generated/pack_00_style_lock/webp/furniture_bookcase_v01.webp','public/assets/generated/pack_00_style_lock/webp/furniture_lamp_table_v01.webp','public/assets/generated/pack_00_style_lock/webp/plant_potted_v01.webp','public/assets/generated/pack_00_style_lock/webp/reward_chest_common_v01.webp','public/assets/generated/pack_00_style_lock/webp/reward_chest_legendary_v01.webp'];
 const errors=[];
 for(const f of required) if(!fs.existsSync(path.join(root,f))) errors.push(`Missing: ${f}`);
 for(const f of fs.readdirSync(path.join(root,'public/content'),{recursive:true}).filter(x=>String(x).endsWith('.json'))){

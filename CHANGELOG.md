@@ -1,3 +1,14 @@
+# 12.6.0 — Teddy Room master renovation
+
+- Rebuilt Teddy Room around one persistent 2.5D room instead of background swaps.
+- Expanded renovation from 8 to 15 independently upgradeable zones.
+- Added a sparse starter room, staircase, upper rail, door, window, fireplace shell and perspective floor.
+- Added four renovation stages and suggested next upgrades.
+- Added sequential tier requirements so final furniture cannot be skipped directly.
+- Reused transparent furniture art for armchair, bookcase, lamp, plants and collection props.
+- Renovation progress tracks the best unlocked tier even when an older style is equipped.
+- Added the room art dependencies to the offline PWA cache and release audit.
+
 ## 12.5.0 — Teddy Room Renovation
 - Rebuilt Teddy’s room as a layered 3D renovation scene without a baked room background.
 - Added empty starter state, upgrade hotspots and tiered room decoration.
