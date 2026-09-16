@@ -1,4 +1,4 @@
-import { normalizeGame, applyGameAction, num, GAME_VERSION, evaluateGameAchievements } from '../public/game-rules.js';
+import { normalizeGame, applyGameAction, num, GAME_VERSION, evaluateGameAchievements, ROOM_DECOR_CATALOG } from '../public/game-rules.js';
 const APP_VERSION = GAME_VERSION;
 const DEPLOY_MARKER = 'myhabbit-12-1-0';
 const JSON_HEADERS = {
@@ -367,6 +367,7 @@ export class TelegramStateV2 {
       if (url.pathname === '/admin-reset-user' && request.method === 'POST') return this.adminResetUser(request, await request.json());
       if (url.pathname === '/admin-kick-user' && request.method === 'POST') return this.adminKickUser(request, await request.json());
       if (url.pathname === '/admin-grant-coins' && request.method === 'POST') return this.adminGrantCoins(request, await request.json());
+      if (url.pathname === '/admin-unlock-room-decor' && request.method === 'POST') return this.adminUnlockRoomDecor(request, await request.json());
       if (url.pathname === '/family-transfer-coins' && request.method === 'POST') return this.familyTransferCoins(request, await request.json());
       if (url.pathname === '/family-leave' && request.method === 'POST') return this.familyLeave(request);
       if (url.pathname === '/family-reset-session' && request.method === 'POST') return this.familyResetSession(request, await request.json());
@@ -930,6 +931,30 @@ export class TelegramStateV2 {
     auth.family.updatedAt = new Date().toISOString();
     await this.state.storage.put(`fq-family:${auth.family.id}`, auth.family);
     return json({ granted:true, userId:targetId, amount, diamonds, balance:member.coins, diamondBalance:member.diamonds, state:{ ...auth.family.state, currentUserId:auth.user.id } });
+  }
+
+  async adminUnlockRoomDecor(request, payload) {
+    const auth = await this.familyAuthorize(request);
+    if (!auth) return json({ error: 'Недійсна сімейна сесія' }, 401);
+    if (!['owner', 'admin'].includes(auth.user.role)) return json({ error: 'Лише адміністратор може відкривати декор' }, 403);
+    const targetId = text(payload?.userId, 80);
+    if (!targetId) return json({ error: 'Оберіть користувача' }, 400);
+    const target = await this.state.storage.get(`fq-user:${targetId}`);
+    if (!target || target.familyId !== auth.family.id) return json({ error: 'Учасника не знайдено' }, 404);
+    const member = (auth.family.state.users || []).find((item) => item.id === targetId);
+    if (!member) return json({ error: 'Профіль учасника не знайдено у сімʼї' }, 404);
+    const allIds = ROOM_DECOR_CATALOG.map((item) => item.id);
+    member.roomDecorOwned = [...new Set([...(Array.isArray(member.roomDecorOwned) ? member.roomDecorOwned : []), ...allIds])];
+    member.stats = member.stats || {};
+    member.stats.roomDecorAdminUnlocked = true;
+    member.activity = Array.isArray(member.activity) ? member.activity : [];
+    member.activity.unshift('Адміністратор відкрив весь декор кімнати 🎨');
+    auth.family.state.history = Array.isArray(auth.family.state.history) ? auth.family.state.history : [];
+    auth.family.state.history.unshift({ icon:'🎨', text:`${auth.user.name} відкрив(ла) весь декор кімнати для ${member.name}`, time:'Щойно' });
+    auth.family.revision = Number(auth.family.revision || 0) + 1;
+    auth.family.updatedAt = new Date().toISOString();
+    await this.state.storage.put(`fq-family:${auth.family.id}`, auth.family);
+    return json({ unlocked:true, userId:targetId, count:allIds.length, state:{ ...auth.family.state, currentUserId:auth.user.id } });
   }
 
   async familyResetSession(request, payload) {
@@ -2397,6 +2422,7 @@ export default {
       '/api/admin/reset-user': ['/admin-reset-user', 'POST'],
       '/api/admin/kick-user': ['/admin-kick-user', 'POST'],
       '/api/admin/grant-coins': ['/admin-grant-coins', 'POST'],
+      '/api/admin/unlock-room-decor': ['/admin-unlock-room-decor', 'POST'],
       '/api/family/transfer-coins': ['/family-transfer-coins', 'POST'],
       '/api/family/leave': ['/family-leave', 'POST'],
       '/api/family/reset-session': ['/family-reset-session', 'POST']

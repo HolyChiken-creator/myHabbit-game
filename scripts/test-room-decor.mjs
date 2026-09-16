@@ -70,6 +70,15 @@ assert.doesNotMatch(focusStudioSource,/scrollIntoView\(/);
 assert.match(appSource,/data-opening=/);
 assert.doesNotMatch(appSource,/function roomDecorModal\(/);
 
+assert.match(appSource,/data-room-studio-drag/);
+assert.match(appSource,/data-room-studio-resize/);
+assert.match(appSource,/ROOM_STUDIO_GEOMETRY_KEY/);
+assert.match(appSource,/bindRoomStudioInteractions/);
+assert.match(appSource,/admin-room-decorator/);
+const roomSceneSource=appSource.match(/function roomScene\([\s\S]*?function roomNextUpgrades/)?.[0]||'';
+assert.doesNotMatch(roomSceneSource,/roomHotspot\(/);
+assert.doesNotMatch(roomSceneSource,/room-upgrade-hotspot/);
+
 const homeCss=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
 assert.match(homeCss,/12\.8\.0 — corrected Teddy Room perspective/);
 assert.match(homeCss,/12\.9\.0 — floating glass renovation sheet/);
@@ -80,4 +89,15 @@ assert.match(homeCss,/scroll-snap-type:x mandatory/);
 assert.match(homeCss,/touch-action:pan-x/);
 assert.match(homeCss,/clip-path:polygon\(9% 0,91% 0,100% 100%,0 100%\)/);
 
-console.log('PASS: 15-zone Teddy room + fixed scene + floating tactile glass renovation sheet.');
+assert.match(homeCss,/12\.10\.0 — Teddy Room art-direction pass/);
+assert.match(homeCss,/room-studio-drag-handle/);
+assert.match(homeCss,/room-studio-resize-handle/);
+assert.match(homeCss,/room-live-studio\.is-user-positioned/);
+assert.match(homeCss,/background:linear-gradient\(180deg,rgba\(255,250,242,\.58\),rgba\(247,237,226,\.48\)\)/);
+assert.match(homeCss,/room-upgrade-hotspot\{display:none!important\}/);
+const workerSource=readFileSync(new URL('../worker.js',import.meta.url),'utf8');
+assert.match(workerSource,/adminUnlockRoomDecor/);
+assert.match(workerSource,/ROOM_DECOR_CATALOG\.map/);
+assert.match(workerSource,/\/api\/admin\/unlock-room-decor/);
+
+console.log('PASS: 15-zone Teddy room + clean Teddy-safe scene + draggable/resizable scrollable studio + admin decorator mode.');

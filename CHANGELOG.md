@@ -1,3 +1,9 @@
+## 12.10.0
+- Teddy Room composition pass: coherent room geometry and protected Teddy safe zone.
+- Removed scene `+` hotspots.
+- Draggable/resizable, more transparent renovation studio with repaired scrolling.
+- Admin command to unlock all room decor without progression.
+
 # 12.9.0 — Teddy Room floating renovation sheet
 
 - Renovation controls no longer resize or squeeze the Teddy Room scene.

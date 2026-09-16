@@ -1,22 +1,21 @@
-myHabbit 12.9.0 update over 12.8.0
+myHabbit 12.10.0 update over 12.9.0
 
 Changed files:
 - public/app.js
 - public/home.css
-- public/boot.js
-- public/index.html
-- public/manifest.webmanifest
-- public/sw.js
-- public/game-content.js
-- public/VERSION.txt
-- game-content.js
 - home.css
+- worker.js
+- src/worker.js
 - VERSION
 - VERSION.txt
+- public/VERSION.txt
+- public/game-content.js
+- game-content.js
+- public/index.html
+- public/manifest.webmanifest
+- public/boot.js
+- public/sw.js
 - package.json
-- CHANGELOG.md
-- UPDATE-12.9.0.md
-- PATCH-MANIFEST.txt
 - scripts/test-room-decor.mjs
-
-No files need to be deleted for this update.
+- UPDATE-12.10.0.md
+- CHANGELOG.md
