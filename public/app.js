@@ -1366,18 +1366,54 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
   function match3SaveKey(){return 'myHabbitMatch3V2:'+accountId();}
   async function startMatch3(){const result=await runGameAction('match3-start');if(!result?.session)return;match3Runtime={...result.session,day:localDay()};safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:match3Runtime});render();}
 
+
+  function match3Piece(value){
+    const shapes=[
+      '<path d="M19 53C6 22 36 10 64 12c4 28-8 52-32 49Z"/><path d="M19 64 53 27" fill="none" stroke="#d6ffb1" stroke-width="5" stroke-linecap="round"/>',
+      '<path d="M40 7C31 22 15 36 15 48a25 25 0 0 0 50 0C65 35 48 19 40 7Z"/>',
+      '<path d="m40 7 10 20 23 4-17 17 3 24-19-11-21 11 4-24L7 31l23-4Z"/>',
+      '<path d="M16 27Q40 14 64 27c8 19-12 42-24 45C27 68 9 44 16 27Z"/><path d="m23 23 9-12 8 11 10-11 9 14-19 7Z" fill="#63ad45" stroke="#3a8129" stroke-width="2"/><g fill="#ffe7a6" stroke="none"><ellipse cx="27" cy="40" rx="2" ry="3"/><ellipse cx="43" cy="38" rx="2" ry="3"/><ellipse cx="53" cy="45" rx="2" ry="3"/><ellipse cx="36" cy="54" rx="2" ry="3"/></g>',
+      '<path d="M12 30 27 12h27l15 18-29 43Z"/><path d="m12 30 57 0M27 12 25 30l15 43 14-43V12" fill="none" stroke="#ffe4bc" stroke-width="3" opacity=".7"/>',
+      '<path d="M40 69C-4 43 10 3 35 20l5 5 5-5C70 3 84 43 40 69Z"/>'
+    ];
+    return '<svg class="m3-piece piece-'+value+'" viewBox="0 0 80 80" aria-hidden="true"><g fill="currentColor" stroke="var(--piece-edge)" stroke-width="3" stroke-linejoin="round">'+(shapes[value]||shapes[0])+'</g><ellipse cx="31" cy="29" rx="10" ry="5" fill="white" opacity=".44" transform="rotate(-28 31 29)"/></svg>';
+  }
+  function match3Tiles(board,selected){const names=[tr('Листок','Leaf'),tr('Крапля','Drop'),tr('Зірка','Star'),tr('Полуниця','Strawberry'),tr('Кристал','Crystal'),tr('Серце','Heart')];return board.map((v,i)=>'<button class="match3-tile '+(selected===i?'selected':'')+'" data-m3-tile="'+i+'" aria-label="'+names[v]+', '+(i+1)+'" aria-pressed="'+(selected===i)+'">'+match3Piece(v)+'</button>').join('');}
+  const m3Animate=(element,frames,options)=>{if(!element?.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return Promise.resolve();return element.animate(frames,options).finished.catch(()=>{});};
+  async function animateMatch3(board,frames,size){
+    for(const frame of frames){if(!board?.isConnected)return;board.innerHTML=match3Tiles(frame.board,null);
+      if(frame.kind==='clear'){if(frame.combo>1){const badge=document.createElement('span');badge.className='match3-combo';badge.textContent='COMBO ×'+frame.combo;board.appendChild(badge);}await Promise.all(frame.hit.map(i=>m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{transform:'scale(1)',opacity:1},{transform:'scale(1.22)',offset:.35,opacity:1},{transform:'scale(.2)',opacity:0}],{duration:190,easing:'ease-in',fill:'forwards'})));}
+      else if(frame.kind==='drop'){const step=board.querySelector('.match3-tile')?.getBoundingClientRect().height+parseFloat(getComputedStyle(board).rowGap||0);await Promise.all(frame.drops.map((distance,i)=>distance?m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{transform:'translateY(-'+distance*step+'px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:Math.min(420,180+distance*35),easing:'cubic-bezier(.2,.65,.3,1)'}):Promise.resolve()));}
+      else await m3Animate(board,[{opacity:.3},{opacity:1}],{duration:220});
+    }
+  }
+
   function match3Screen(){
     const u=currentUser(),p=ensureMatch3Profile(u),left=Math.max(0,25-p.playedToday);
     if(!match3Runtime){const saved=safeJsonRead(match3SaveKey(),null);if(saved?.day===localDay()&&saved.runtime?.cfg?.level===p.level)match3Runtime=saved.runtime;}
     if(match3Runtime&&(match3Runtime.cfg.level!==p.level||match3Runtime.day!==localDay()))match3Runtime=null;
     const cfg=match3Runtime?.cfg||match3Config(p.level),rt=match3Runtime;
     const bossLabel=cfg.boss==='grand'?tr('Великий бос','Grand boss'):cfg.boss==='boss'?tr('Бос-рівень','Boss level'):cfg.boss==='mini'?tr('Складний рівень','Challenge level'):'';
-    const board=rt?`<div class="match3-board ${rt.busy?'is-resolving':''} ${rt.combo>1?'has-combo':''}" style="--m3-size:${cfg.size}">${rt.board.map((v,i)=>`<button class="match3-tile ${rt.selected===i?'selected':''} ${(rt.burst||[]).includes(i)?'is-burst':''}" data-m3-tile="${i}" aria-label="Фішка ${i+1}">${MATCH3_ICONS[v]??'✨'}</button>`).join('')}${rt.combo>1?`<span class="match3-combo">COMBO ×${rt.combo}</span>`:''}</div>`:`<div class="match3-ready"><span>◆</span><h2>Рівень ${p.level}</h2><p>${bossLabel||tr('Випадкове завдання','Random challenge')} · ${tr(`зібрати ${cfg.goal} фішок за ${cfg.moves} ходів`,`collect ${cfg.goal} tiles in ${cfg.moves} moves`)}</p><button class="btn primary" data-action="start-match3" ${left<=0?'disabled':''}>${left>0?'Почати рівень':'Денний ліміт вичерпано'}</button></div>`;
-    return shell(`<section class="match3-hud"><div><small>Рівень</small><strong>${p.level}${bossLabel?` · ${bossLabel}`:''}</strong></div><div><small>Сьогодні</small><strong>${p.playedToday}/25</strong></div><div><small>Ходи</small><strong>${rt?rt.moves:cfg.moves}</strong></div><div><small>Зібрано</small><strong>${rt?rt.score:0}/${cfg.goal}</strong></div></section><section class="match3-mode">${board}<p class="match3-note">Свайпніть фішку в потрібний бік або оберіть дві сусідні фішки. Нагорода видається один раз.</p></section>`,`Три в ряд`,tr(`Особливий режим заробітку · рівнів на сьогодні: ${left}`,`Reward mode · ${left} ${left===1?'level':'levels'} left today`));
+    const board=rt?'<div class="match3-board" style="--m3-size:'+cfg.size+'">'+match3Tiles(rt.board,rt.selected)+'</div>':'<div class="match3-ready"><div class="m3-preview">'+[0,2,1,3,4].map(match3Piece).join('')+'</div><span class="m3-kicker">'+tr('МАЛЕНЬКА ПРИГОДА','A LITTLE ADVENTURE')+'</span><h2>'+tr('Час для магії','Make a little magic')+'</h2><p>'+tr('Збирай однакові фішки та створюй каскади.','Match colorful pieces and create cascades.')+'</p><button class="btn primary m3-play" data-action="start-match3" '+(left<=0?'disabled':'')+'>'+tr(left>0?'Грати':'На сьогодні досить',left>0?'Let’s play':'Daily limit reached')+'</button></div>';
+    return shell('<section class="m3-world"><div class="m3-ribbon"><span>myHabbit · '+tr('Затишні комбінації','Cozy matches')+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+'</div></div><footer class="m3-footer"><span>'+tr('Обмінюй сусідні фішки • збирай від 3 однакових','Swap adjacent pieces • match 3 or more')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Маленька перерва, яскраві перемоги','A little break, colorful wins'));
   }
-  function tryMatch3Swap(a,b){const rt=match3Runtime;if(!rt||rt.busy||rt.won)return false;rt.selected=null;if(!applyMatch3Move(rt,a,b)){showToast('Цей хід не створює комбінацію');return false;}safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:rt});playCozySound('coin','full');if(rt.score>=rt.cfg.goal){rt.won=true;finishMatch3();}else if(rt.moves<=0){showToast('Ходи закінчилися. Можна повторити це поле.');localStorage.removeItem(match3SaveKey());match3Runtime=null;render();}else render();return true;}
 
-  function clickMatch3(index){const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;if(rt.selected==null){rt.selected=index;render();return;}const a=rt.selected;if(!tryMatch3Swap(a,index)){rt.selected=index;render();}}
+  async function tryMatch3Swap(a,b){
+    const rt=match3Runtime;if(!rt||rt.busy||rt.won)return false;
+    const size=rt.cfg.size;if(a===b||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
+    const candidate=JSON.parse(JSON.stringify(rt)),frames=[];const valid=applyMatch3Move(candidate,a,b,frame=>frames.push(frame));
+    rt.busy=true;rt.selected=null;
+    const board=document.querySelector('.match3-board'),first=board?.querySelector('[data-m3-tile="'+a+'"]'),second=board?.querySelector('[data-m3-tile="'+b+'"]');
+    board?.classList.add('m3-animating');
+    if(first&&second){const p=first.getBoundingClientRect(),q=second.getBoundingClientRect(),dx=q.left-p.left,dy=q.top-p.top;const opts={duration:180,easing:'ease-in-out',iterations:1};await Promise.all([m3Animate(first.querySelector('svg'),[{transform:'translate(0,0)'},{transform:'translate('+dx+'px,'+dy+'px)'}],{...opts,direction:valid?'normal':'alternate',iterations:valid?1:2}),m3Animate(second.querySelector('svg'),[{transform:'translate(0,0)'},{transform:'translate('+(-dx)+'px,'+(-dy)+'px)'}],{...opts,direction:valid?'normal':'alternate',iterations:valid?1:2})]);}
+    if(!valid){rt.busy=false;board?.classList.remove('m3-animating');showToast(tr('Спробуй іншу пару','Try another pair'));return false;}
+    // Persist the resolved move before visual playback; interruption cannot lose it.
+    Object.assign(rt,candidate,{busy:true,selected:null});safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:{...rt,busy:false}});
+    await animateMatch3(board,frames,size);if(match3Runtime!==rt)return true;rt.busy=false;
+    playCozySound('coin','full');
+    if(rt.score>=rt.cfg.goal){rt.won=true;finishMatch3();}else if(rt.moves<=0){showToast(tr('Ходи закінчилися. Можна повторити це поле.','No moves left. You can retry this board.'));localStorage.removeItem(match3SaveKey());match3Runtime=null;render();}else render();return true;
+  }
+  async function clickMatch3(index){const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;if(rt.selected==null){rt.selected=index;render();return;}const a=rt.selected;if(a===index){rt.selected=null;render();return;}if(!await tryMatch3Swap(a,index)&&match3Runtime===rt){rt.selected=index;render();}}
   function bindMatch3Controls(){
     const board=document.querySelector('.match3-board');if(!board||board.dataset.gestureBound)return;board.dataset.gestureBound='1';
     let gesture=null,suppressClickUntil=0;const threshold=18;
@@ -2256,7 +2292,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.2.2',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.0',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,
