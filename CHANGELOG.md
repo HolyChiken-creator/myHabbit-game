@@ -1,3 +1,8 @@
+## 12.5.0 — Teddy Room Renovation
+- Rebuilt Teddy’s room as a layered 3D renovation scene without a baked room background.
+- Added empty starter state, upgrade hotspots and tiered room decoration.
+- Added crystal rewards to quests, streak milestones and level-ups, plus admin crystal grants.
+
 ## 12.4.0 — Room Workshop and Match-3 variety
 
 - Restored diamonds as a dedicated room-decoration currency and added a safe 40-diamond migration balance for profiles that never had this field.

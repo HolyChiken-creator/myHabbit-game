@@ -2,7 +2,42 @@ import { GAME_VERSION, DAILY_QUEST_TEMPLATES, cosmeticDefaults, LEVEL_REWARDS, d
 
 export { GAME_VERSION };
 export const skillKeys=['home','care','health','growth','finance','family','relationship','sport','mind','reading','cinema','creativity','discipline'];
+export const ROOM_DECOR_CATALOG=[
+  {id:'ceiling-basic',slot:'ceiling',title:'Базова стеля',price:0,icon:'▫️',theme:'basic',tier:0},
+  {id:'ceiling-warm',slot:'ceiling',title:'Дерев’яні балки',price:10,icon:'🪵',theme:'warm',tier:1},
+  {id:'ceiling-stars',slot:'ceiling',title:'Зоряна стеля',price:22,icon:'✨',theme:'stars',tier:2},
+  {id:'ceiling-glass',slot:'ceiling',title:'Скляний дах',price:34,icon:'🌌',theme:'glass',tier:3},
+  {id:'walls-basic',slot:'walls',title:'Світла штукатурка',price:0,icon:'⬜',theme:'basic',tier:0},
+  {id:'walls-honey',slot:'walls',title:'Теплі панелі',price:8,icon:'🟤',theme:'honey',tier:1},
+  {id:'walls-sage',slot:'walls',title:'Шавлієві стіни',price:18,icon:'🌿',theme:'sage',tier:2},
+  {id:'walls-night',slot:'walls',title:'Нічна кімната',price:30,icon:'🌙',theme:'night',tier:3},
+  {id:'floor-basic',slot:'floor',title:'Чорнова підлога',price:0,icon:'◻️',theme:'basic',tier:0},
+  {id:'floor-oak',slot:'floor',title:'Дубова підлога',price:8,icon:'🪵',theme:'oak',tier:1},
+  {id:'floor-stone',slot:'floor',title:'Кам’яна плитка',price:18,icon:'🪨',theme:'stone',tier:2},
+  {id:'floor-checker',slot:'floor',title:'Шахова плитка',price:28,icon:'◫',theme:'checker',tier:3},
+  {id:'table-none',slot:'table',title:'Без столу',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'table-round',slot:'table',title:'Круглий столик',price:10,icon:'☕',theme:'round',tier:1},
+  {id:'table-workbench',slot:'table',title:'Майстерня Тедіка',price:22,icon:'🛠️',theme:'workbench',tier:2},
+  {id:'table-marble',slot:'table',title:'Мармуровий столик',price:36,icon:'🤍',theme:'marble',tier:3},
+  {id:'tabletop-empty',slot:'tabletop',title:'Порожній стіл',price:0,icon:'▫️',theme:'empty',tier:0},
+  {id:'tabletop-tea',slot:'tabletop',title:'Чайний набір',price:8,icon:'🍵',theme:'tea',tier:1},
+  {id:'tabletop-books',slot:'tabletop',title:'Книги й лампа',price:16,icon:'📚',theme:'books',tier:2},
+  {id:'tabletop-games',slot:'tabletop',title:'Настільні ігри',price:24,icon:'🎲',theme:'games',tier:3},
+  {id:'rug-none',slot:'rug',title:'Без килима',price:0,icon:'＋',theme:'none',tier:0},
+  {id:'rug-leaf',slot:'rug',title:'Листяний килим',price:8,icon:'🍃',theme:'leaf',tier:1},
+  {id:'rug-sun',slot:'rug',title:'Сонячний килим',price:16,icon:'☀️',theme:'sun',tier:2},
+  {id:'rug-moon',slot:'rug',title:'Місячний килим',price:24,icon:'🌙',theme:'moon',tier:3},
+  {id:'corner-empty',slot:'corner',title:'Порожній куток',price:0,icon:'＋',theme:'empty',tier:0},
+  {id:'corner-plant',slot:'corner',title:'Куточок з рослинами',price:8,icon:'🪴',theme:'plant',tier:1},
+  {id:'corner-library',slot:'corner',title:'Міні-бібліотека',price:20,icon:'📚',theme:'library',tier:2},
+  {id:'corner-fireplace',slot:'corner',title:'Камін',price:32,icon:'🔥',theme:'fireplace',tier:3},
+  {id:'light-basic',slot:'light',title:'Природне світло',price:0,icon:'☀️',theme:'basic',tier:0},
+  {id:'light-day',slot:'light',title:'Тепле денне світло',price:8,icon:'🌤️',theme:'day',tier:1},
+  {id:'light-evening',slot:'light',title:'Вечірні вогники',price:18,icon:'🏮',theme:'evening',tier:2},
+  {id:'light-magic',slot:'light',title:'Магічне сяйво',price:30,icon:'🔮',theme:'magic',tier:3}
+]
 export const num=(v,min=0,max=1000000000)=>Math.max(min,Math.min(max,Number.isFinite(Number(v))?Number(v):min));
+export function questDiamondReward(q={}){const difficulty={easy:1,normal:2,hard:3}[q.difficulty||'normal']||2;const team=['pair','coop'].includes(q.type)?1:0;const limited=q.type==='limited'?1:0;return Math.max(1,difficulty+team+limited);}
 const copy=v=>JSON.parse(JSON.stringify(v));
 const unique=values=>[...new Set(values||[])];
 const fail=message=>{throw new Error(message);};
@@ -35,17 +70,22 @@ export function dailyQuests(s,day=gameDay()){
   const selected=[...rotate(enabled.filter(t=>t[7])).slice(0,16),...rotate(enabled.filter(t=>!t[7])).slice(0,9)];
   const existing=new Map((s.quests||[]).filter(q=>q.dailyDay===day).map(q=>[q.templateKey,q]));
   return selected.map(t=>{const key=templateKey(t),o=s.questTemplateSettings?.[key]||{},old=existing.get(key);return {
-    ...old,id:old?.id||`daily-${day}-${key}`,templateKey:key,dailyDay:day,source:'daily',title:o.title||t[0],icon:o.icon||t[1],description:o.description||t[2],skill:o.skill||t[3],difficulty:o.difficulty||t[4],rewardCoins:num(o.rewardCoins??t[5]),rewardXp:num(o.rewardXp??t[6]),skillXp:Math.max(8,Math.round(num(o.rewardXp??t[6])/4)),type:o.type||'personal',participants:['coop','pair'].includes(o.type)?2:1,stock:(o.type==='limited'?num(old?.stock??1):undefined),status:'active',claimedBy:old?.claimedBy||[],progress:old?.progress||{},recurring:Boolean(t[7]),prerequisiteId:o.prerequisiteId||'',stage:o.stage||'',metrics:/^Прочитати 10/.test(t[0])?{pagesRead:10}:{}
+    ...old,id:old?.id||`daily-${day}-${key}`,templateKey:key,dailyDay:day,source:'daily',title:o.title||t[0],icon:o.icon||t[1],description:o.description||t[2],skill:o.skill||t[3],difficulty:o.difficulty||t[4],rewardCoins:num(o.rewardCoins??t[5]),rewardXp:num(o.rewardXp??t[6]),rewardDiamonds:num(o.rewardDiamonds??questDiamondReward({difficulty:o.difficulty||t[4],type:o.type||'personal'})),skillXp:Math.max(8,Math.round(num(o.rewardXp??t[6])/4)),type:o.type||'personal',participants:['coop','pair'].includes(o.type)?2:1,stock:(o.type==='limited'?num(old?.stock??1):undefined),status:'active',claimedBy:old?.claimedBy||[],progress:old?.progress||{},recurring:Boolean(t[7]),prerequisiteId:o.prerequisiteId||'',stage:o.stage||'',metrics:/^Прочитати 10/.test(t[0])?{pagesRead:10}:{}
   };});
 }
-function catalogQuest(q){const skills=q.rewards?.skills||{},skill=Object.keys(skills)[0]||q.category||'discipline';const pages=/Прочитай (\d+) сторінок/.exec(q.title||'');return {...q,catalog:true,source:'catalog',icon:({reading:'📖',sport:'💪',home:'🏠',health:'🌿',cinema:'🎬'})[q.category]||'✨',claimedBy:[],status:'active',participants:['pair','coop'].includes(q.type)?2:1,rewardCoins:num(q.rewards?.coins),rewardXp:num(q.rewards?.xp),skill,skillXp:num(skills[skill]),skillRewards:skills,metrics:pages?{pagesRead:Number(pages[1])}:q.category==='cinema'&&/фільм/i.test(q.title)?{filmsWatched:1}:{},stock:q.type==='limited'?1:undefined};}
+function catalogQuest(q){const skills=q.rewards?.skills||{},skill=Object.keys(skills)[0]||q.category||'discipline';const pages=/Прочитай (\d+) сторінок/.exec(q.title||'');return {...q,catalog:true,source:'catalog',icon:({reading:'📖',sport:'💪',home:'🏠',health:'🌿',cinema:'🎬'})[q.category]||'✨',claimedBy:[],status:'active',participants:['pair','coop'].includes(q.type)?2:1,rewardCoins:num(q.rewards?.coins),rewardXp:num(q.rewards?.xp),rewardDiamonds:num(q.rewards?.diamonds??questDiamondReward(q)),skill,skillXp:num(skills[skill]),skillRewards:skills,metrics:pages?{pagesRead:Number(pages[1])}:q.category==='cinema'&&/фільм/i.test(q.title)?{filmsWatched:1}:{},stock:q.type==='limited'?1:undefined};}
 export function xpRequired(level){const fixed=[0,1500,1800,2150,2550,3000,3500,4050,4650,5300];level=Math.trunc(num(level,1,1000));if(level<fixed.length)return fixed[level];let need=5300;for(let n=10;n<=level;n++)need=Math.min(1000000000,Math.round((need*1.105+140)/50)*50);return need;}
-export function grantXp(u,amount){amount=Math.trunc(num(amount));u.totalXpEarned=num(u.totalXpEarned)+amount;u.xp=num(u.xp)+amount;while(u.level<1000&&u.xp>=xpRequired(u.level)){u.xp-=xpRequired(u.level);u.level++;u.coins=num(u.coins)+50;}return amount;}
+export function grantXp(u,amount){amount=Math.trunc(num(amount));u.totalXpEarned=num(u.totalXpEarned)+amount;u.xp=num(u.xp)+amount;while(u.level<1000&&u.xp>=xpRequired(u.level)){u.xp-=xpRequired(u.level);u.level++;u.coins=num(u.coins)+50;u.diamonds=num(u.diamonds)+2;u.stats=u.stats||{};u.stats.diamondsEarned=num(u.stats.diamondsEarned)+2;}return amount;}
 function userDefaults(u){
   u.level=Math.trunc(num(u.level,1,1000));u.xp=num(u.xp);u.coins=num(u.coins);u.skills=u.skills||{};u.skillXp=u.skillXp||{};
+  if(u.diamonds==null)u.diamonds=8;else u.diamonds=Math.trunc(num(u.diamonds));
   for(const key of skillKeys){u.skills[key]=num(u.skills[key]);u.skillXp[key]=num(u.skillXp[key]??u.skills[key]*100);}
-  for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks'])u[key]=Array.isArray(u[key])?u[key]:[];
-  for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
+  for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks','roomDecorOwned'])u[key]=Array.isArray(u[key])?u[key]:[];
+  for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped','roomDecor'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
+  const defaults={ceiling:'ceiling-basic',walls:'walls-basic',floor:'floor-basic',table:'table-none',tabletop:'tabletop-empty',rug:'rug-none',corner:'corner-empty',light:'light-basic'};
+  if(!u.roomDecorStarterV2){const oldStarter={ceiling:'ceiling-warm',walls:'walls-honey',floor:'floor-oak',table:'table-round',tabletop:'tabletop-tea',rug:'rug-leaf',corner:'corner-plant',light:'light-day'};const noPaidRoom=!(num(u.stats?.roomDecorPurchased)>0);if(noPaidRoom){for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot]||u.roomDecor[slot]===oldStarter[slot])u.roomDecor[slot]=id;}}u.roomDecorStarterV2=true;}
+  for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;if(!u.roomDecorOwned.includes(id))u.roomDecorOwned.push(id);}
+  u.roomDecorOwned=unique(u.roomDecorOwned.filter(id=>ROOM_DECOR_CATALOG.some(item=>item.id===id)));
   u.achievements=unique(u.achievements);u.stickerDust=num(u.stickerDust);if(u.totalXpEarned==null){let total=u.xp;for(let level=1;level<u.level;level++)total+=xpRequired(level);u.totalXpEarned=total;}u.streak=num(u.streak);u.bestStreak=Math.max(num(u.bestStreak),u.streak);
 }
 export function normalizeGame(s,now=Date.now()){
@@ -58,6 +98,7 @@ export function normalizeGame(s,now=Date.now()){
   const day=gameDay(now);for(const u of s.users){if(u.lastHabitDay&&Date.parse(day)-Date.parse(u.lastHabitDay)>86400000)u.streak=0;}s.quests=[...s.quests.filter(q=>!q.dailyDay),...dailyQuests(s,day)];
   // Definition updates never overwrite per-user completion records.
   for(const q of QUEST_LIBRARY){const fresh={...catalogQuest(q),...(s.questOverrides?.[q.id]||{})},old=s.quests.find(x=>x.id===q.id);fresh.catalog=true;fresh.source='catalog';if(old)Object.assign(old,fresh,{progress:old.progress||{},claimedBy:old.claimedBy||[]});else s.quests.push(fresh);}
+  for(const q of s.quests)if(q.rewardDiamonds==null)q.rewardDiamonds=questDiamondReward(q);
   s.cosmeticsCatalog=copy(cosmeticDefaults).filter(i=>i.kind!=='stickerPack'||['cozy-cats','bunny-notes'].includes(i.asset));
   s.levelRewards=copy(LEVEL_REWARDS);s.stickerCollections=defaultStickerCollections();s.stickerBoxes=defaultStickerBoxes();
   s.achievements=s.achievements||[];
@@ -72,14 +113,15 @@ export function normalizeGame(s,now=Date.now()){
   s.profileStickers=s.profileStickers||[];s.giftHistory=s.giftHistory||[];
   // Purchased packs in old saves were sometimes not unpacked. Fulfil each once.
   for(const u of s.users)for(const id of u.inventory){const item=s.cosmeticsCatalog.find(i=>i.id===id);if(item?.kind==='stickerPack')fulfilPack(s,u,item);}
+  for(const q of s.quests){if(q.rewardDiamonds==null)q.rewardDiamonds=questDiamondReward(q);else q.rewardDiamonds=Math.trunc(num(q.rewardDiamonds));}
   s.meta.version=GAME_VERSION;
   return s;
 }
 function grantSkills(u,rewards){for(const [key,value] of Object.entries(rewards||{})){if(!skillKeys.includes(key))continue;u.skillXp[key]=num(u.skillXp[key])+num(value);u.skills[key]=Math.floor(u.skillXp[key]/100);}}
-function grantReward(s,u,reward){u.coins+=num(reward?.coins);u.stats.coinsEarned=num(u.stats.coinsEarned)+num(reward?.coins);grantXp(u,reward?.xp);grantSkills(u,reward?.skillXp||reward?.skills);if(reward?.item)grantItem(s,u,reward.item);}
+function grantReward(s,u,reward){u.coins+=num(reward?.coins);u.stats.coinsEarned=num(u.stats.coinsEarned)+num(reward?.coins);const diamonds=Math.trunc(num(reward?.diamonds));if(diamonds){u.diamonds=num(u.diamonds)+diamonds;u.stats.diamondsEarned=num(u.stats.diamondsEarned)+diamonds;}grantXp(u,reward?.xp);grantSkills(u,reward?.skillXp||reward?.skills);if(reward?.item)grantItem(s,u,reward.item);}
 function fulfilPack(s,u,item){if(u.fulfilledPacks.includes(item.id))return;const collection=s.stickerCollections.find(c=>c.id===({'cozy-cats':'cozy-cats','bunny-notes':'bunny-love'})[item.asset]);if(!collection)return;for(const st of collection.stickers.slice(0,5))u.stickerInventory[st.id]=num(u.stickerInventory[st.id])+1;u.fulfilledPacks.push(item.id);}
 function grantItem(s,u,id){const item=s.cosmeticsCatalog.find(i=>i.id===id);if(!item)fail('Цей предмет поки недоступний');u.inventory=unique([...u.inventory,id]);if(item.kind==='stickerPack')fulfilPack(s,u,item);}
-function metric(u,type){if(type==='levelReached')return u.level;if(type==='streakDays')return u.bestStreak;if(type==='totalXp'||type==='xpEarned')return Math.max(0,num(u.totalXpEarned)-num(u.achievementRewardXp));if(type==='coinsEarned')return Math.max(0,num(u.stats.coinsEarned)-num(u.achievementRewardCoins));return num(u.stats[type]);}
+function metric(u,type){if(type==='creativeQuestsCompleted')return num(u.stats.creativeQuestsCompleted)+num(u.stats.creativityQuestsCompleted);if(type==='levelReached')return u.level;if(type==='streakDays')return u.bestStreak;if(type==='totalXp'||type==='xpEarned')return Math.max(0,num(u.totalXpEarned)-num(u.achievementRewardXp));if(type==='coinsEarned')return Math.max(0,num(u.stats.coinsEarned)-num(u.achievementRewardCoins));return num(u.stats[type]);}
 const achievementKey=a=>a.condition?.type?`${a.condition.type}:${num(a.condition.value??a.target,1)}`:a.id;
 function achievementReward(s,u,reward){const before=num(u.totalXpEarned);grantReward(s,u,reward);u.achievementRewardXp=num(u.achievementRewardXp)+num(u.totalXpEarned)-before;u.achievementRewardCoins=num(u.achievementRewardCoins)+num(reward?.coins);}
 export function evaluateGameAchievements(s,u){
@@ -96,14 +138,14 @@ export function evaluateGameAchievements(s,u){
 }
 function questReward(s,u,q,now,day){
   const key=completionKey(q,day);if(u.questCompletions[key])return;
-  u.questCompletions[key]=now;grantReward(s,u,{coins:q.rewardCoins,xp:q.rewardXp,skills:q.skillRewards||{[q.skill]:q.skillXp}});
+  u.questCompletions[key]=now;const diamonds=Math.trunc(num(q.rewardDiamonds??questDiamondReward(q)));grantReward(s,u,{coins:q.rewardCoins,xp:q.rewardXp,diamonds,skills:q.skillRewards||{[q.skill]:q.skillXp}});
   u.stats.questsCompleted=num(u.stats.questsCompleted)+1;const category=q.category||q.skill||'discipline';u.stats[`${category}QuestsCompleted`]=num(u.stats[`${category}QuestsCompleted`])+1;
   for(const [key,value] of Object.entries(q.metrics||{}))u.stats[key]=num(u.stats[key])+num(value);
   if(q.rarity==='legendary')u.stats.legendaryQuestsCompleted=num(u.stats.legendaryQuestsCompleted)+1;
-  if(day>String(u.lastHabitDay||'')){const yesterday=new Date(day+'T12:00:00Z');yesterday.setUTCDate(yesterday.getUTCDate()-1);u.streak=u.lastHabitDay===yesterday.toISOString().slice(0,10)?u.streak+1:1;u.lastHabitDay=day;u.bestStreak=Math.max(u.bestStreak,u.streak);}
+  if(day>String(u.lastHabitDay||'')){const yesterday=new Date(day+'T12:00:00Z');yesterday.setUTCDate(yesterday.getUTCDate()-1);u.streak=u.lastHabitDay===yesterday.toISOString().slice(0,10)?u.streak+1:1;u.lastHabitDay=day;u.bestStreak=Math.max(u.bestStreak,u.streak);if(u.streak>0&&u.streak%7===0){grantReward(s,u,{diamonds:5});u.activity.unshift(`Серія ${u.streak} днів · +5 💎`);}}
   s.family.xp=num(s.family.xp)+num(q.rewardXp);s.family.coins=num(s.family.coins)+Math.round(num(q.rewardCoins)*.2);
   u.activity.unshift(`Виконано: ${q.title}`);
-  s.history.unshift({eventId:`quest:${u.id}:${key}`,kind:'quest_completed',userId:u.id,familyId:s.family.id,title:q.title,category,xp:num(q.rewardXp),coins:num(q.rewardCoins),createdAt:now,confirmed:true,icon:q.icon,text:`${u.name} виконав(ла) «${q.title}»`,time:day});
+  s.history.unshift({eventId:`quest:${u.id}:${key}`,kind:'quest_completed',userId:u.id,familyId:s.family.id,title:q.title,category,xp:num(q.rewardXp),coins:num(q.rewardCoins),diamonds:num(q.rewardDiamonds??questDiamondReward(q)),createdAt:now,confirmed:true,icon:q.icon,text:`${u.name} виконав(ла) «${q.title}»`,time:day});
 }
 function spend(u,amount){amount=num(amount);if(u.coins<amount)fail('Недостатньо монет');u.coins-=amount;}
 function seasonActive(season,now){const day=gameDay(now),md=Number(day.slice(5).replace('-',''));if(season==='always')return true;if(season==='christmas')return md>=1201||md<=107;if(season==='halloween')return md>=1015&&md<=1102;if(season==='easter'){const y=Number(day.slice(0,4)),a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),date=Date.UTC(y,Math.floor((h+l-7*m+114)/31)-1,(h+l-7*m+114)%31+1),today=Date.parse(day+'T00:00:00Z');return today>=date-14*864e5&&today<date+8*864e5;}return false;}
@@ -115,7 +157,7 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     if(!q)fail('Квест не знайдено');const st=questStatus(s,u,q,actionDay);if(st.done)return {message:'Нагороду вже отримано'};if(st.reason)fail(st.reason);
     q.progress=q.progress||{};const p=q.progress[periodFor(q,actionDay)]||{joined:[],finished:[]};q.progress[periodFor(q,actionDay)]=p;
     if(op.type==='quest-claim'){p.joined=unique([...p.joined,userId]);message='Квест додано до ваших справ';}
-    else {if(!p.joined.includes(userId))fail('Спочатку візьміть завдання');p.finished=unique([...p.finished,userId]);if(['pair','coop'].includes(q.type)&&p.finished.length<num(q.participants,2,25)){message='Вашу частину виконано. Чекаємо команду';}else {const recipients=['pair','coop'].includes(q.type)?p.finished:[userId];for(const id of recipients){const member=s.users.find(u=>u.id===id);if(member){questReward(s,member,q,now,actionDay);affected.add(member);}}if(q.type==='limited')q.stock=Math.max(0,num(q.stock)-1);message=`+${num(q.rewardCoins)} 🪙 · +${num(q.rewardXp)} XP`;}}
+    else {if(!p.joined.includes(userId))fail('Спочатку візьміть завдання');p.finished=unique([...p.finished,userId]);if(['pair','coop'].includes(q.type)&&p.finished.length<num(q.participants,2,25)){message='Вашу частину виконано. Чекаємо команду';}else {const recipients=['pair','coop'].includes(q.type)?p.finished:[userId];for(const id of recipients){const member=s.users.find(u=>u.id===id);if(member){questReward(s,member,q,now,actionDay);affected.add(member);}}if(q.type==='limited')q.stock=Math.max(0,num(q.stock)-1);message=`+${num(q.rewardCoins)} 🪙 · +${num(q.rewardDiamonds??questDiamondReward(q))} 💎 · +${num(q.rewardXp)} XP`;}}
     q.claimedBy=p.joined;
   }else if(op.type==='shop-buy'){
     const item=s.shop.find(i=>i.id===op.itemId);if(!item||num(item.stock)<=0)fail('Товар закінчився');const price=num(item.price);let purchased=false;
@@ -124,6 +166,10 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     if(purchased){item.stock=num(item.stock)-1;const order={id:op.id,sourceItemId:item.id,title:item.title,description:item.description,icon:item.icon,ownerId:u.id,startedAt:now,status:'available',kind:item.rewardKind||'permanent'};if(order.kind==='timed'){order.durationDays=num(item.durationDays,1,30);order.expiresAt=now+order.durationDays*864e5;}u.activeFeatures.push(order);u.purchaseHistory.push(copy(order));u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;s.history.unshift({eventId:op.id,userId:u.id,kind:'purchase',createdAt:now,icon:item.icon,text:`${u.name} придбав(ла) «${item.title}»`,time:day});}
   }else if(op.type==='cosmetic-buy'){
     const item=s.cosmeticsCatalog.find(i=>i.id===op.itemId);if(!item)fail('Предмет недоступний');if(!u.inventory.includes(item.id)){spend(u,item.price);grantItem(s,u,item.id);u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;}message='Предмет у колекції';
+  }else if(op.type==='room-decor-buy'||op.type==='room-decor-equip'){
+    const item=ROOM_DECOR_CATALOG.find(i=>i.id===op.itemId);if(!item)fail('Елемент кімнати недоступний');
+    if(op.type==='room-decor-buy'&&!u.roomDecorOwned.includes(item.id)){const price=Math.trunc(num(item.price));if(u.diamonds<price)fail('Недостатньо діамантів');u.diamonds-=price;u.roomDecorOwned.push(item.id);u.stats.roomDecorPurchased=num(u.stats.roomDecorPurchased)+1;}
+    if(!u.roomDecorOwned.includes(item.id))fail('Спочатку відкрийте цей декор');u.roomDecor[item.slot]=item.id;message=op.type==='room-decor-buy'?'Декор відкрито й встановлено':'Оформлення кімнати змінено';detail={itemId:item.id,slot:item.slot,diamonds:u.diamonds};
   }else if(op.type==='level-rewards'){
     const rewards=s.levelRewards.filter(r=>u.level>=r.level&&!u.claimedLevelRewards.includes(r.level));if(!rewards.length)return {message:'Нових подарунків поки немає'};for(const r of rewards){grantReward(s,u,r);u.claimedLevelRewards.push(r.level);}message='Подарунки рівня отримано';
   }else if(op.type==='sticker-box'){
@@ -148,20 +194,43 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
   }else if(op.type==='match3-start'){
     const p=ensureMatch3(u,day);if(p.playedToday>=25)fail('Денний ліміт вичерпано');if(!p.session)p.session=createMatch3(p.level,Math.floor(random()*4294967296)||1);detail={session:copy(p.session)};message='Рівень розпочато';
   }else if(op.type==='match3-finish'){
-    const p=ensureMatch3(u,day);if(!p.session||p.playedToday>=25)fail('Сесію гри не знайдено');const session=copy(p.session);if(!Array.isArray(op.moves)||op.moves.length>session.cfg.moves)fail('Некоректні ходи');for(const pair of op.moves){if(!Array.isArray(pair)||pair.length!==2||!applyMatch3Move(session,...pair))fail('Некоректний хід');}if(session.score<session.cfg.goal)fail('Мету ще не досягнуто');const mult=session.cfg.boss==='grand'?3:session.cfg.boss==='boss'?2.2:session.cfg.boss==='mini'?1.6:1;const coins=Math.round((1+Math.min(2,Math.floor(p.level/25)))*mult),xp=Math.round((6+Math.min(10,Math.floor(p.level/10)))*mult);grantReward(s,u,{coins,xp});p.level++;p.playedToday++;p.totalCompleted++;p.session=null;u.stats.match3Completed=p.totalCompleted;message=`Рівень пройдено · +${coins} 🪙 · +${xp} XP`;
+    const p=ensureMatch3(u,day);if(!p.session||p.playedToday>=25)fail('Сесію гри не знайдено');const session=copy(p.session);if(!Array.isArray(op.moves)||op.moves.length>session.cfg.moves+8)fail('Некоректні ходи');for(const command of op.moves){if(!applyMatch3Command(session,command))fail('Некоректний хід');}if(session.score<session.cfg.goal)fail('Мету ще не досягнуто');const mult=session.cfg.boss==='grand'?3:session.cfg.boss==='boss'?2.2:session.cfg.boss==='mini'?1.6:1;const coins=Math.round((2+Math.min(4,Math.floor(p.level/20)))*mult),xp=Math.round((8+Math.min(16,Math.floor(p.level/8)))*mult),diamonds=session.cfg.boss==='grand'?8:session.cfg.boss==='boss'?5:session.cfg.boss==='mini'?3:1;grantReward(s,u,{coins,xp,diamonds});p.level++;p.playedToday++;p.totalCompleted++;p.session=null;u.stats.match3Completed=p.totalCompleted;message=`Рівень пройдено · +${coins} 🪙 · +${xp} XP · +${diamonds} 💎`;
   }else fail('Невідома дія');
   for(const member of affected)evaluateGameAchievements(s,member);normalizeGame(s,now);return {message,...detail};
 }
-export function ensureMatch3(u,day=gameDay()){const p=u.match3||{};u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
-export function match3Config(level){const boss=level%50===0?'grand':level%25===0?'boss':level%10===0?'mini':null,tier=Math.min(12,Math.floor((level-1)/10));return {level,boss,size:level>=50?8:7,moves:Math.max(18,26-Math.floor(tier/2)+(boss?4:0)),goal:18+tier*3+(boss==='grand'?28:boss==='boss'?18:boss?10:0),colors:Math.min(6,5+Math.floor(level/30))};}
+export function ensureMatch3(u,day=gameDay()){const p=u.match3||{},validSession=p.session?.cfg?.schema===3;p.session=validSession?p.session:null;u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
+export function match3Config(level){
+  level=Math.max(1,Math.trunc(num(level,1)));const boss=level%50===0?'grand':level%25===0?'boss':level%10===0?'mini':null,tier=Math.min(20,Math.floor((level-1)/5)),cycle=(level-1)%6;
+  const size=[6,7,6,7,8,7][cycle],theme=['garden','berry','moon','ember'][Math.floor((level-1)/3)%4],difficulty=boss?'boss':tier>=8?'expert':tier>=3?'focus':'cozy';
+  const moves=Math.max(14,27-Math.floor(tier*.7)+(boss?5:0)),goal=Math.round(20+tier*4+size+(boss==='grand'?35:boss==='boss'?24:boss?14:0));
+  return {schema:3,level,boss,size,moves,goal,colors:Math.min(6,4+Math.floor((level+7)/15)),theme,difficulty,boosters:{hammer:1,shuffle:1,fire:level>=3?1:0}};
+}
 function rng(rt){let n=rt.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;rt.seed=n>>>0;return rt.seed/4294967296;}
 export function matches(board,size){const found=new Set();for(let r=0;r<size;r++)for(let c=0;c<size;c++){const i=r*size+c,v=board[i];if(v==null)continue;if(c+2<size&&board[i+1]===v&&board[i+2]===v){let n=c;while(n<size&&board[r*size+n]===v)found.add(r*size+n++);}if(r+2<size&&board[i+size]===v&&board[i+2*size]===v){let n=r;while(n<size&&board[n*size+c]===v)found.add(n++*size+c);}}return [...found];}
 function canMove(board,size){for(let i=0;i<board.length;i++)for(const j of [i%size<size-1?i+1:-1,i+size<board.length?i+size:-1]){if(j<0)continue;[board[i],board[j]]=[board[j],board[i]];const ok=matches(board,size).length>0;[board[i],board[j]]=[board[j],board[i]];if(ok)return true;}return false;}
 function generate(rt){const {size,colors}=rt.cfg;for(let attempt=0;attempt<100;attempt++){const b=[];for(let r=0;r<size;r++)for(let c=0;c<size;c++){const choices=Array.from({length:colors},(_,i)=>i).filter(v=>!(c>=2&&b[b.length-1]===v&&b[b.length-2]===v)&&!(r>=2&&b[b.length-size]===v&&b[b.length-size*2]===v));b.push(choices[Math.floor(rng(rt)*choices.length)]);}if(canMove(b,size))return b;}fail('Не вдалося підготувати поле');}
-export function createMatch3(level,seed){const rt={cfg:match3Config(level),seed:seed>>>0||1,score:0,moves:match3Config(level).moves,moveLog:[],selected:null};rt.board=generate(rt);return rt;}
-export function applyMatch3Move(rt,a,b){
-  const {size,colors}=rt.cfg;if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=rt.board.length||b>=rt.board.length||rt.moves<=0||rt.score>=rt.cfg.goal||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
+function refill(rt,hit,onFrame,kind='drop'){
+  const {size,colors}=rt.cfg,drops=[];hit.forEach(i=>rt.board[i]=null);
+  for(let c=0;c<size;c++){const kept=[],from=[];for(let r=size-1;r>=0;r--)if(rt.board[r*size+c]!=null){kept.push(rt.board[r*size+c]);from.push(r);}for(let r=size-1,k=0;r>=0;r--,k++){rt.board[r*size+c]=k<kept.length?kept[k]:Math.floor(rng(rt)*colors);drops[r*size+c]=r-(k<from.length?from[k]:-(k-from.length+1));}}
+  onFrame?.({kind,board:[...rt.board],drops,combo:rt.combo||1,score:rt.score});
+}
+export function createMatch3(level,seed){const cfg=match3Config(level),rt={cfg,seed:seed>>>0||1,score:0,moves:cfg.moves,moveLog:[],selected:null,boosters:{...cfg.boosters}};rt.board=generate(rt);return rt;}
+export function applyMatch3Move(rt,a,b,onFrame){
+  const {size}=rt.cfg;if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=rt.board.length||b>=rt.board.length||rt.moves<=0||rt.score>=rt.cfg.goal||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
   [rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];if(!matches(rt.board,size).length){[rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];return false;}rt.moves--;rt.moveLog.push([a,b]);rt.combo=0;
-  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.length;hit.forEach(i=>rt.board[i]=null);for(let c=0;c<size;c++){const kept=[];for(let r=size-1;r>=0;r--)if(rt.board[r*size+c]!=null)kept.push(rt.board[r*size+c]);for(let r=size-1,k=0;r>=0;r--,k++)rt.board[r*size+c]=k<kept.length?kept[k]:Math.floor(rng(rt)*colors);}}
-  if(matches(rt.board,size).length||!canMove(rt.board,size))rt.board=generate(rt);return true;
+  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.length;onFrame?.({kind:'clear',board:[...rt.board],hit,combo:rt.combo,score:rt.score});refill(rt,hit,onFrame);}
+  if(matches(rt.board,size).length||!canMove(rt.board,size)){rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});}return true;
+}
+export function applyMatch3Booster(rt,kind,index,onFrame){
+  if(!rt?.boosters||!['hammer','shuffle','fire'].includes(kind)||num(rt.boosters[kind])<=0||rt.score>=rt.cfg.goal)return false;
+  if(kind==='hammer'){
+    if(!Number.isInteger(index)||index<0||index>=rt.board.length)return false;rt.boosters.hammer--;rt.moveLog.push({type:'booster',kind,index});rt.combo=1;rt.score+=1;onFrame?.({kind:'hammer',board:[...rt.board],hit:[index],combo:1,score:rt.score});refill(rt,[index],onFrame);return true;
+  }
+  if(kind==='shuffle'){rt.boosters.shuffle--;rt.moveLog.push({type:'booster',kind});rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});return true;}
+  rt.boosters.fire--;rt.moveLog.push({type:'booster',kind});const hit=rt.board.map((_,i)=>i),bonus=Math.max(6,Math.round(rt.board.length*.18));rt.combo=1;rt.score+=bonus;onFrame?.({kind:'fire',board:[...rt.board],hit,combo:1,score:rt.score});rt.board=generate(rt);onFrame?.({kind:'rebirth',board:[...rt.board]});return true;
+}
+export function applyMatch3Command(rt,command,onFrame){
+  if(Array.isArray(command)&&command.length===2)return applyMatch3Move(rt,command[0],command[1],onFrame);
+  if(command&&command.type==='booster')return applyMatch3Booster(rt,command.kind,command.index,onFrame);
+  return false;
 }

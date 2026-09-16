@@ -908,23 +908,28 @@ export class TelegramStateV2 {
   async adminGrantCoins(request, payload) {
     const auth = await this.familyAuthorize(request);
     if (!auth) return json({ error: 'Недійсна сімейна сесія' }, 401);
-    if (!['owner', 'admin'].includes(auth.user.role)) return json({ error: 'Лише адміністратор може видавати монетки' }, 403);
+    if (!['owner', 'admin'].includes(auth.user.role)) return json({ error: 'Лише адміністратор може видавати валюту' }, 403);
     const targetId = text(payload?.userId, 80);
-    const amount = Math.trunc(Number(payload?.amount));
-    if (!targetId || !Number.isFinite(amount) || amount < 1 || amount > 1000000) return json({ error: 'Сума має бути від 1 до 1 000 000' }, 400);
+    const amount = Math.trunc(Number(payload?.amount || 0));
+    const diamonds = Math.trunc(Number(payload?.diamonds || 0));
+    if (!targetId || !Number.isFinite(amount) || !Number.isFinite(diamonds) || amount < 0 || diamonds < 0 || amount > 1000000 || diamonds > 100000 || (!amount && !diamonds)) return json({ error: 'Вкажіть монети та/або кристали' }, 400);
     const target = await this.state.storage.get(`fq-user:${targetId}`);
     if (!target || target.familyId !== auth.family.id) return json({ error: 'Учасника не знайдено' }, 404);
     const member = (auth.family.state.users || []).find((item) => item.id === targetId);
     if (!member) return json({ error: 'Профіль учасника не знайдено у сімʼї' }, 404);
     member.coins = Number(member.coins || 0) + amount;
+    member.diamonds = Number(member.diamonds || 0) + diamonds;
+    member.stats = member.stats || {};
+    if (diamonds) member.stats.diamondsEarned = Number(member.stats.diamondsEarned || 0) + diamonds;
     member.activity = member.activity || [];
-    member.activity.unshift(`Адміністратор подарував ${amount} монеток`);
+    const rewardText = `${amount ? amount+' 🪙' : ''}${amount && diamonds ? ' · ' : ''}${diamonds ? diamonds+' 💎' : ''}`;
+    member.activity.unshift(`Адміністратор подарував ${rewardText}`);
     auth.family.state.history = auth.family.state.history || [];
-    auth.family.state.history.unshift({ icon:'✦', text:`${auth.user.name} подарував(ла) ${amount} монеток для ${member.name}`, time:'Щойно' });
+    auth.family.state.history.unshift({ icon:diamonds?'💎':'🪙', text:`${auth.user.name} подарував(ла) ${rewardText} для ${member.name}`, time:'Щойно' });
     auth.family.revision = Number(auth.family.revision || 0) + 1;
     auth.family.updatedAt = new Date().toISOString();
     await this.state.storage.put(`fq-family:${auth.family.id}`, auth.family);
-    return json({ granted:true, userId:targetId, amount, balance:member.coins, state:{ ...auth.family.state, currentUserId:auth.user.id } });
+    return json({ granted:true, userId:targetId, amount, diamonds, balance:member.coins, diamondBalance:member.diamonds, state:{ ...auth.family.state, currentUserId:auth.user.id } });
   }
 
   async familyResetSession(request, payload) {

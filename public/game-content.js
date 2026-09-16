@@ -1,5 +1,5 @@
 // Shared, versioned definitions. The server never accepts these from players.
-export const GAME_VERSION='12.4.0';
+export const GAME_VERSION='12.5.0';
   const DAILY_QUEST_TEMPLATES = [
     ['Застелити ліжко','🛏️','Почати день з маленького порядку','home','easy',25,20,true],
     ['Прибрати після себе','🧽','Залишити спільний простір чистим','home','easy',30,25,true],
@@ -91,14 +91,14 @@ export const GAME_VERSION='12.4.0';
     ];
 
     const LEVEL_REWARDS=[
-      {level:5,coins:100,item:'cos_badge_cat',title:'Перший милий знак'},
-      {level:10,coins:250,item:'cos_frame_blush',title:'Тепла рамочка'},
-      {level:15,coins:300,item:'pack_cozy_cats',title:'Cozy Cats'},
-      {level:20,coins:400,item:'cos_theme_dark',title:'Темна тема'},
-      {level:25,coins:500,item:'cos_frame_night',title:'Рамка «Тиха ніч»'},
-      {level:30,coins:700,item:'cos_theme_lavender',title:'Лавандова тема'},
-      {level:40,coins:1000,item:'pack_bunny_notes',title:'Bunny Notes'},
-      {level:50,coins:1500,item:'cos_badge_bunny',title:'Легендарний кролик'}
+      {level:5,coins:100,diamonds:5,item:'cos_badge_cat',title:'Перший милий знак'},
+      {level:10,coins:250,diamonds:8,item:'cos_frame_blush',title:'Тепла рамочка'},
+      {level:15,coins:300,diamonds:10,item:'pack_cozy_cats',title:'Cozy Cats'},
+      {level:20,coins:400,diamonds:12,item:'cos_theme_dark',title:'Темна тема'},
+      {level:25,coins:500,diamonds:15,item:'cos_frame_night',title:'Рамка «Тиха ніч»'},
+      {level:30,coins:700,diamonds:18,item:'cos_theme_lavender',title:'Лавандова тема'},
+      {level:40,coins:1000,diamonds:24,item:'pack_bunny_notes',title:'Bunny Notes'},
+      {level:50,coins:1500,diamonds:30,item:'cos_badge_bunny',title:'Легендарний кролик'}
     ];
 
   function buildStickerSet(prefix,count,names,mediaFolder='',mediaExt='webm'){
