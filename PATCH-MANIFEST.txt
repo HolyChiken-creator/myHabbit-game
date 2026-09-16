@@ -1,14 +1,29 @@
-myHabbit 11.3.3 update over 11.3.2
+myHabbit 12.4.0 update over 12.3.2
 
 Changed:
 - public/app.js
-- public/styles.css
+- public/game-rules.js
+- public/home.css
+- public/game-content.js
+- public/index.html
+- public/boot.js
 - public/sw.js
+- public/manifest.webmanifest
 - public/VERSION.txt
-- public/assets/maintenance-splash.webp
-- src/worker.js
-- VERSION
+- scripts/test-match3.mjs
+- scripts/test-room-decor.mjs
+- scripts/release-audit.mjs
 - package.json
+- VERSION
+- VERSION.txt
 - CHANGELOG.md
 
-No files need deletion.
+Added:
+- UPDATE-12.4.0.md
+
+Delete obsolete root PWA duplicates:
+- index.html
+- app.js
+- styles.css
+- sw.js
+- manifest.webmanifest

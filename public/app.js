@@ -1,4 +1,4 @@
-import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
+import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, applyMatch3Booster, ROOM_DECOR_CATALOG, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
 (() => {
   'use strict';
 
@@ -1304,13 +1304,33 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const [prop,uk,en]=moods[mode];
     return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
   }
+  const ROOM_DECOR_SLOT_NAMES={ceiling:['Стеля','Ceiling'],walls:['Стіни','Walls'],floor:['Підлога','Floor'],table:['Стіл','Table'],tabletop:['Наповнення столу','Table items'],rug:['Килим','Rug'],corner:['Куточок','Corner'],light:['Світло','Lighting']};
+  function roomDecorItem(u,slot){return ROOM_DECOR_CATALOG.find(item=>item.id===u?.roomDecor?.[slot])||ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&item.price===0);}
+  function roomDecorTheme(u,slot){return roomDecorItem(u,slot)?.theme||'default';}
+  function roomScene(u,next,completed,total,room){
+    const light=roomDecorTheme(u,'light'),night=light!=='day'||roomDecorTheme(u,'walls')==='night';
+    const bg=night?'/assets/generated/pack_00_style_lock/webp/room_canonical_evening_v01.webp':'/assets/generated/pack_00_style_lock/webp/room_canonical_day_v01.webp';
+    const corner=roomDecorItem(u,'corner'),tabletop=roomDecorItem(u,'tabletop');
+    const classes=['game-room','room-depth',room.className,...Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>'decor-'+slot+'-'+roomDecorTheme(u,slot))].join(' ');
+    return `<section class="${classes}"><img class="room-scene" src="${bg}" alt="${tr('Затишна кімната з Тедиком','A cozy room with Teddy')}"><div class="room-atmosphere"></div><div class="room-ceiling-layer"></div><div class="room-wall-layer"></div><div class="room-floor-layer"></div><div class="room-window-glow"></div><div class="room-rug-shape"></div><div class="room-corner-prop" aria-hidden="true">${corner?.icon||'🪴'}</div><div class="room-table-shape"><span class="room-tabletop-prop" aria-hidden="true">${tabletop?.icon||'🍵'}</span></div>${roomCompanion(next,completed,total)}<div class="room-label"><span>${tr('Мій простір','My space')} · ${tr('рівень','level')} ${state.family.level}</span><strong>${tr(room.name,'A home that grows with you')}</strong><button class="room-decor-open" data-action="room-decor">🎨 ${tr('Прикрасити','Decorate')} · ${format(u.diamonds)} 💎</button></div></section>`;
+  }
+  function roomDecorModal(){
+    const u=currentUser();if(!u)return '';
+    const groups=Object.keys(ROOM_DECOR_SLOT_NAMES).map(slot=>{
+      const items=ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>{const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id;return `<button class="room-decor-card ${active?'is-active':''} ${owned?'is-owned':''}" data-action="room-decor-item" data-item-id="${item.id}" ${active?'disabled':''}><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${active?tr('Встановлено','Equipped'):owned?tr('Відкрити','Equip'):item.price+' 💎'}</small></button>`;}).join('');
+      return `<section class="room-decor-group"><h3>${tr(...ROOM_DECOR_SLOT_NAMES[slot])}</h3><div class="room-decor-grid">${items}</div></section>`;
+    }).join('');
+    return `<div class="modal-backdrop"><div class="modal room-decor-modal"><div class="modal-head"><div><h2>${tr('Майстерня кімнати','Room workshop')}</h2><p>${tr('Змінюй усе: від стелі до дрібниць на столі.','Change everything from the ceiling to the items on the table.')}</p></div><button class="close" data-close>×</button></div><div class="room-decor-balance"><span>💎</span><strong>${format(u.diamonds)}</strong><small>${tr('Діаманти повернуті в економіку. Нові можна отримувати у «Три в ряд».','Diamonds are back in the economy. Earn more in Match 3.')}</small></div>${groups}</div></div>`;
+  }
+  async function chooseRoomDecor(itemId){const u=currentUser(),item=ROOM_DECOR_CATALOG.find(x=>x.id===itemId);if(!u||!item)return;const owned=u.roomDecorOwned?.includes(item.id);const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});if(result){document.querySelector('.room-decor-modal')?.closest('.modal-backdrop')?.remove();appendMarkup(document.body,roomDecorModal());bindModal();render();}}
+
   function dashboard(){
     const u=currentUser(),today=state.quests.filter(q=>q.dailyDay===localDay()),completed=today.filter(q=>questStatus(state,u,q).done).length;
     const available=state.quests.filter(q=>{const st=questStatus(state,u,q);return !st.done&&!st.reason&&!st.waiting;}).sort((a,b)=>Number(questStatus(state,u,b).joined)-Number(questStatus(state,u,a).joined)||Number(Boolean(b.dailyDay))-Number(Boolean(a.dailyDay)));
     const next=available[0],room=gameRoomStage(state.family.level),familyXp=Math.max(0,num(state.family.xp)-num(state.family.progressBaseXp))%1000;
     const tiles=available.slice(0,5).map(q=>{const st=questStatus(state,u,q);return `<button class="game-task ${st.joined?'is-active':''}" data-quest="${escapeHtml(q.id)}"><span class="game-task-icon">${escapeHtml(q.icon||'✨')}</span><strong>${escapeHtml(q.title)}</strong><small>+${num(q.rewardXp)} XP · +${num(q.rewardCoins)} 🪙</small><span class="task-action-label">${st.joined?tr('Завершити','Complete'):tr('Взяти','Start')}</span></button>`;}).join('');
-    return shell(`<section class="home-hud"><div><small>${tr('Мій рівень','My level')}</small><strong>${u.level}</strong><span>${format(u.xp)} / ${format(xpRequiredForLevel(u.level))} XP</span></div><div><small>${tr('Монети','Coins')}</small><strong>${format(u.coins)} 🪙</strong></div><div><small>${tr('Мій ритм','My streak')}</small><strong>${u.streak} ${tr('дн.','days')}</strong></div></section>
-    <section class="game-room ${room.className}"><img class="room-scene" src="/room.svg" alt="${tr('Затишна кімната з Тедиком','A cozy room with Teddy')}">${roomCompanion(next,completed,today.length)}<div class="room-label"><span>${tr('Наш дім','Our home')} · ${tr('рівень','level')} ${state.family.level}</span><strong>${tr(room.name,'A home that grows with you')}</strong></div></section>
+    return shell(`<section class="home-hud"><div><small>${tr('Мій рівень','My level')}</small><strong>${u.level}</strong><span>${format(u.xp)} / ${format(xpRequiredForLevel(u.level))} XP</span></div><div><small>${tr('Монети','Coins')}</small><strong>${format(u.coins)} 🪙</strong></div><div><small>${tr('Діаманти','Diamonds')}</small><strong>${format(u.diamonds)} 💎</strong><span>${tr('для кімнати','for your room')}</span></div><div><small>${tr('Мій ритм','My streak')}</small><strong>${u.streak} ${tr('дн.','days')}</strong></div></section>
+    ${roomScene(u,next,completed,today.length,room)}
     <section class="next-step"><div><span class="eyebrow">${tr('Мій наступний крок','My next step')}</span><h2>${next?escapeHtml(next.title):tr('На сьогодні все готово','You are all set for today')}</h2><p>${next?escapeHtml(next.description||''):tr('Нагороди збережено. Можна відпочити.','Your rewards are safe. Time to rest.')}</p></div>${next?`<button class="btn primary" data-quest="${escapeHtml(next.id)}">${questStatus(state,u,next).joined?tr('Завершити','Complete'):tr('Взяти завдання','Start task')}</button>`:'<button class="btn soft" data-route="collections">'+tr('Мої колекції','My collections')+'</button>'}</section>
     <section class="today-section"><div class="section-head"><div><h2>${tr('Справи на сьогодні','Today’s tasks')}</h2><small>${tr('Виконано','Completed')} ${completed} / ${today.length}</small></div><button class="btn soft" data-route="quests">${tr('Усі справи','All tasks')} →</button></div><div class="game-task-strip">${tiles||'<p>'+tr('Усі справи виконані ✨','All tasks completed ✨')+'</p>'}</div></section>
     <section class="home-family"><div><span>🏡</span><strong>${tr('Спільний розвиток','Shared progress')}</strong><small>${format(familyXp)} / 1 000 XP · ${tr('до наступного рівня дому','until the next home level')}</small></div><div class="progress"><i style="width:${familyXp/10}%"></i></div><button class="btn soft" data-route="family">${tr('Наша сімʼя','Our family')} →</button></section>
@@ -1350,7 +1370,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   function referralStatsBlock(u){const refs=state.users.filter(x=>x.invitedBy===u.id),count=Number(u.stats?.invitedUsers||u.referrals?.length||0),active=refs.length,totalXp=refs.reduce((n,x)=>n+Number(x.totalXpEarned||0),0),best=refs.reduce((n,x)=>Math.max(n,Number(x.streak||0)),0),gifts=(state.giftHistory||[]).filter(g=>refs.some(x=>x.id===g.fromId)&&refs.some(x=>x.id===g.toId)).length;return `<details class="cozy-fold referral-secret"><summary><span>🔐</span><strong>Моя прихована статистика запрошень</strong><small>лише для вас</small></summary><div class="fold-body referral-stats-grid"><div><small>Запрошено</small><strong>${count}</strong></div><div><small>Зараз у сімʼї</small><strong>${active}</strong></div><div><small>XP запрошених</small><strong>${format(totalXp)}</strong></div><div><small>Найкраща серія</small><strong>${best} 🔥</strong></div><div><small>Подарунки між ними</small><strong>${gifts}</strong></div></div></details>`;}
 
   const MATCH3_ICONS=['🌿','💧','⭐','🍓','☕','💜'];
-  let match3Runtime=null;
+  let match3Runtime=null,match3BoosterMode=null;
   function match3Today(){return localDay();}
   function ensureMatch3Profile(u){return ensureMatch3(u,localDay());}
   function match3Config(level){return sharedMatch3Config(level);}
@@ -1372,7 +1392,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     }
     return [...Array(cfg.size*cfg.size)].map((_,i)=>i%cfg.colors);
   }
-  function match3SaveKey(){return 'myHabbitMatch3V2:'+accountId();}
+  function match3SaveKey(){return 'myHabbitMatch3V3:'+accountId();}
   async function startMatch3(){const result=await runGameAction('match3-start');if(!result?.session)return;match3Runtime={...result.session,day:localDay()};safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:match3Runtime});render();}
 
 
@@ -1396,7 +1416,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   const m3Animate=(element,frames,options)=>{if(!element?.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return Promise.resolve();return element.animate(frames,options).finished.catch(()=>{});};
   async function animateMatch3(board,frames,size){
     for(const frame of frames){if(!board?.isConnected)return;board.innerHTML=match3Tiles(frame.board,null);
-      if(frame.kind==='clear'){if(frame.combo>1){const badge=document.createElement('span');badge.className='match3-combo';badge.textContent='COMBO ×'+frame.combo;board.appendChild(badge);}await Promise.all(frame.hit.map(i=>m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{transform:'scale(1)',opacity:1},{transform:'scale(1.22)',offset:.35,opacity:1},{transform:'scale(.2)',opacity:0}],{duration:190,easing:'ease-in',fill:'forwards'})));}
+      if(frame.kind==='fire'){board.classList.add('is-burning');const flames=document.createElement('div');flames.className='m3-fire-wave';flames.innerHTML='<span>🔥</span><span>🔥</span><span>🔥</span><span>🔥</span><span>🔥</span>';board.appendChild(flames);await m3Animate(flames,[{transform:'translateY(45%) scale(.85)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1,offset:.25},{transform:'translateY(-18%) scale(1.08)',opacity:.95}],{duration:760,easing:'ease-out'});await Promise.all(frame.hit.map(i=>m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{filter:'brightness(1)',transform:'scale(1)'},{filter:'brightness(1.8) sepia(1)',transform:'scale(1.08)',offset:.45},{filter:'brightness(.35) sepia(1)',transform:'scale(.05)',opacity:0}],{duration:620,easing:'ease-in',fill:'forwards'})));board.classList.remove('is-burning');}
+      else if(frame.kind==='clear'||frame.kind==='hammer'){if(frame.combo>1){const badge=document.createElement('span');badge.className='match3-combo';badge.textContent='COMBO ×'+frame.combo;board.appendChild(badge);}await Promise.all(frame.hit.map(i=>m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{transform:'scale(1)',opacity:1},{transform:'scale(1.22)',offset:.35,opacity:1},{transform:'scale(.2)',opacity:0}],{duration:190,easing:'ease-in',fill:'forwards'})));}
       else if(frame.kind==='drop'){const step=board.querySelector('.match3-tile')?.getBoundingClientRect().height+parseFloat(getComputedStyle(board).rowGap||0);await Promise.all(frame.drops.map((distance,i)=>distance?m3Animate(board.querySelector('[data-m3-tile="'+i+'"] .m3-piece'),[{transform:'translateY(-'+distance*step+'px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:Math.min(420,180+distance*35),easing:'cubic-bezier(.2,.65,.3,1)'}):Promise.resolve()));}
       else await m3Animate(board,[{opacity:.3},{opacity:1}],{duration:220});
     }
@@ -1404,13 +1425,22 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
 
   function match3Screen(){
     const u=currentUser(),p=ensureMatch3Profile(u),left=Math.max(0,25-p.playedToday);
-    if(!match3Runtime){const saved=safeJsonRead(match3SaveKey(),null);if(saved?.day===localDay()&&saved.runtime?.cfg?.level===p.level)match3Runtime=saved.runtime;}
+    if(!match3Runtime){const saved=safeJsonRead(match3SaveKey(),null);if(saved?.day===localDay()&&saved.runtime?.cfg?.schema===3&&saved.runtime?.cfg?.level===p.level)match3Runtime=saved.runtime;}
     if(match3Runtime&&(match3Runtime.cfg.level!==p.level||match3Runtime.day!==localDay()))match3Runtime=null;
     const cfg=match3Runtime?.cfg||match3Config(p.level),rt=match3Runtime;
     const bossLabel=cfg.boss==='grand'?tr('Великий бос','Grand boss'):cfg.boss==='boss'?tr('Бос-рівень','Boss level'):cfg.boss==='mini'?tr('Складний рівень','Challenge level'):'';
-    const board=rt?'<div class="match3-board" style="--m3-size:'+cfg.size+'">'+match3Tiles(rt.board,rt.selected)+'</div>':'<div class="match3-ready"><div class="m3-preview">'+[0,2,1,3,4].map(match3Piece).join('')+'</div><span class="m3-kicker">'+tr('МАЛЕНЬКА ПРИГОДА','A LITTLE ADVENTURE')+'</span><h2>'+tr('Час для магії','Make a little magic')+'</h2><p>'+tr('Збирай однакові фішки та створюй каскади.','Match colorful pieces and create cascades.')+'</p><button class="btn primary m3-play" data-action="start-match3" '+(left<=0?'disabled':'')+'>'+tr(left>0?'Грати':'На сьогодні досить',left>0?'Let’s play':'Daily limit reached')+'</button></div>';
-    return shell('<section class="m3-world"><div class="m3-ribbon"><span>myHabbit · '+tr('Затишні комбінації','Cozy matches')+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+'</div></div><footer class="m3-footer">'+(rt?'<button class="btn soft m3-restart" data-action="restart-match3" '+(rt.busy||rt.won?'disabled':'')+'>'+tr('Почати рівень заново','Restart level')+'</button>':'')+'<span>'+tr('Клацни фішку, потім сусідню • обмін має скласти ряд із 3 однакових','Click a piece, then a neighbor • the swap must make a row of 3')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Маленька перерва, яскраві перемоги','A little break, colorful wins'));
+    const diffLabel={cozy:tr('Затишний','Cozy'),focus:tr('Фокус','Focus'),expert:tr('Експерт','Expert'),boss:tr('Бос','Boss')}[cfg.difficulty]||cfg.difficulty;
+    const boosterBar=rt?`<div class="m3-boosters"><button class="m3-booster ${match3BoosterMode==='hammer'?'is-active':''}" data-action="match3-booster" data-booster="hammer" ${!rt.boosters?.hammer||rt.busy?'disabled':''}>🔨 <span>${tr('Молоток','Hammer')}</span><b>${rt.boosters?.hammer||0}</b></button><button class="m3-booster" data-action="match3-booster" data-booster="shuffle" ${!rt.boosters?.shuffle||rt.busy?'disabled':''}>🔀 <span>${tr('Перемішати','Shuffle')}</span><b>${rt.boosters?.shuffle||0}</b></button><button class="m3-booster fire" data-action="match3-booster" data-booster="fire" ${!rt.boosters?.fire||rt.busy?'disabled':''}>🔥 <span>${tr('Спалити поле','Burn board')}</span><b>${rt.boosters?.fire||0}</b></button></div>`:'';
+    const board=rt?'<div class="match3-board theme-'+cfg.theme+' difficulty-'+cfg.difficulty+'" style="--m3-size:'+cfg.size+'">'+match3Tiles(rt.board,rt.selected)+'</div>':'<div class="match3-ready theme-'+cfg.theme+'"><div class="m3-preview">'+[0,2,1,3,4].map(match3Piece).join('')+'</div><span class="m3-kicker">'+tr('ПОЛЕ ЗМІНЮЄТЬСЯ З РІВНЕМ','THE BOARD CHANGES WITH EACH LEVEL')+'</span><h2>'+tr('Нова комбінація — нове поле','A new level, a new board')+'</h2><p>'+tr('Розмір, палітра, ціль і кількість ходів тепер змінюються. На складних рівнях з’являється вогняний бустер.','Board size, palette, goal and moves now change. Harder levels unlock the fire booster.')+'</p><button class="btn primary m3-play" data-action="start-match3" '+(left<=0?'disabled':'')+'>'+tr(left>0?'Грати':'На сьогодні досить',left>0?'Let’s play':'Daily limit reached')+'</button></div>';
+    return shell('<section class="m3-world theme-'+cfg.theme+'"><div class="m3-ribbon"><span>myHabbit · '+diffLabel+' · '+cfg.size+'×'+cfg.size+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+boosterBar+'</div></div><footer class="m3-footer">'+(rt?'<button class="btn soft m3-restart" data-action="restart-match3" '+(rt.busy||rt.won?'disabled':'')+'>'+tr('Почати рівень заново','Restart level')+'</button>':'')+'<span>'+tr('Збирай комбінації. Молоток прибирає одну фішку, перемішування рятує поле, а вогонь спалює весь стіл.','Make matches. Hammer removes one piece, shuffle rescues the board, and fire burns the whole table.')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+' · 💎 '+format(u.diamonds)+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Різні поля, справжня прогресія складності й спеціальні предмети','Different boards, real difficulty progression and special items'));
   }
+
+  async function useMatch3Booster(kind,index){
+    const rt=match3Runtime;if(!rt||rt.busy||rt.won)return false;const candidate=JSON.parse(JSON.stringify(rt)),frames=[];
+    if(!applyMatch3Booster(candidate,kind,index,frame=>frames.push(frame)))return false;
+    match3BoosterMode=null;rt.busy=true;rt.selected=null;const board=document.querySelector('.match3-board');board?.classList.add('m3-animating');Object.assign(rt,candidate,{busy:true,selected:null});safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:{...rt,busy:false}});await animateMatch3(board,frames,rt.cfg.size);if(match3Runtime!==rt)return true;rt.busy=false;playCozySound(kind==='fire'?'gift':'coin','full');cozyHaptic(kind==='fire'?'strong':'medium');if(rt.score>=rt.cfg.goal){rt.won=true;finishMatch3();}else render();return true;
+  }
+  function triggerMatch3Booster(kind){const rt=match3Runtime;if(!rt||rt.busy||!rt.boosters?.[kind])return;if(kind==='hammer'){match3BoosterMode=match3BoosterMode==='hammer'?null:'hammer';updateMatch3Selection();showToast(match3BoosterMode?tr('Оберіть фішку, яку розбити','Choose a piece to smash'):tr('Молоток скасовано','Hammer cancelled'));return;}useMatch3Booster(kind);}
 
   async function tryMatch3Swap(a,b){
     const rt=match3Runtime;if(!rt||rt.busy||rt.won)return false;
@@ -1432,6 +1462,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   }
   async function clickMatch3(index){
     const rt=match3Runtime;if(!rt||rt.busy||rt.won)return;
+    if(match3BoosterMode==='hammer'){await useMatch3Booster('hammer',index);return;}
     const a=rt.selected,size=rt.cfg.size;
     if(a==null||a===index||Math.abs(Math.floor(a/size)-Math.floor(index/size))+Math.abs(a%size-index%size)!==1){rt.selected=a===index?null:index;updateMatch3Selection();return;}
     await tryMatch3Swap(a,index);
@@ -1716,6 +1747,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       return `<div class="modal-backdrop"><div class="modal family-style-modal"><div class="modal-head"><h2>Оформлення сімʼї</h2><button class="close" data-close>×</button></div><p>Нові стилі відкриваються лише спільно: потрібна загальна сума і внесок кожного учасника.</p><div class="family-style-summary"><strong>Рівень ${fp.level} · ${escapeHtml(familyStyleLevelInfo().title)}</strong><span>${format(total)} 🪙 у спільному прогресі</span></div>${next?`<div class="progress"><i style="width:${Math.min(100,total/next.goal*100)}%"></i></div><small>Наступний рівень: ${escapeHtml(next.title)} · ${format(next.goal)} загалом · мінімум ${format(next.minEach)} від кожного</small>`:'<div class="empty-soft">Максимальний рівень оформлення вже відкрито.</div>'}<div class="family-contribution-list">${members}</div>${next?`<div class="field"><label>Мій внесок (${format(u?.coins||0)} 🪙 доступно)</label><input id="familyStyleContribution" type="number" inputmode="numeric" min="1" max="${Math.max(1,Number(u?.coins||0))}" placeholder="Наприклад, 100"></div><button class="btn primary" style="width:100%;margin-top:10px" data-action="contribute-family-style">Зробити внесок</button>`:''}<h3>Відкриті оформлення</h3><div class="family-theme-grid">${themes}</div><p class="auth-help">Змінити активне оформлення може адміністратор сімʼї. Внески не повертаються й працюють лише всередині цієї сімʼї.</p></div></div>`;
     }
 
+    if(type==='room-decor') return roomDecorModal();
     if(type==='leave-family') return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Вийти із сімʼї?</h2><button class="close" data-close>×</button></div><p>Ваш профіль буде від’єднано від цієї сімʼї. Пароль або PIN не потрібні. Локальну копію цього профілю буде прибрано з поточного PWA.</p><div class="modal-actions"><button class="btn" data-close>Залишитися</button><button class="btn danger" data-action="confirm-leave-family">Вийти</button></div></div></div>`;
     if(type?.startsWith('kick-user:')) { const userId=type.split(':')[1]; const u=state.users.find(x=>x.id===userId); return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Виключити ${u?.name||'учасника'}?</h2><button class="close" data-close>×</button></div><p>Учасник втратить доступ до цієї сімʼї на всіх пристроях. Його поточні сімейні сесії буде анульовано.</p><div class="modal-actions"><button class="btn" data-close>Скасувати</button><button class="btn danger" data-action="confirm-kick-user" data-user-id="${userId}">Виключити</button></div></div></div>`; }
     if(type==='grant-coins') return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Видати монетки</h2><button class="close" data-close>×</button></div><p>Оберіть учасника та введіть довільну додатну суму.</p><div class="form-grid"><div class="field full"><label>Кому</label><select id="grantCoinsUser">${state.users.map(u=>`<option value="${u.id}">${escapeHtml(u.name)} · ${format(u.coins)} 🪙</option>`).join('')}</select></div><div class="field full"><label>Сума</label><input id="grantCoinsAmount" type="number" inputmode="numeric" min="1" max="1000000" step="1" placeholder="Наприклад, 250"></div></div><div class="modal-actions"><button class="btn" data-close>Скасувати</button><button class="btn primary" data-action="confirm-grant-coins">Видати</button></div></div></div>`;
@@ -1963,10 +1995,13 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(name==='spin-daily-roulette') spinDailyRoulette();
     if(name==='claim-level-rewards') claimLevelRewards();
     if(name==='family-style'){appendMarkup(document.body,modal('family-style'));bindModal();}
+    if(name==='room-decor'){appendMarkup(document.body,modal('room-decor'));bindModal();}
+    if(name==='room-decor-item')chooseRoomDecor(el?.dataset.itemId);
     if(name==='contribute-family-style') contributeFamilyStyle();
     if(name==='apply-family-theme') applyFamilyTheme(el?.dataset.theme);
     if(name==='start-match3') startMatch3();
     if(name==='restart-match3') restartMatch3();
+    if(name==='match3-booster') triggerMatch3Booster(el?.dataset.booster);
     if(name==='exchange-dust')exchangeStickerDust(el?.dataset.collectionId);
     if(name==='sync-now')pushLocalStateNow().then(()=>flushGameActions()).then(()=>pullRemoteAndRender({force:true}));
     if(name==='send-profile-gift') sendProfileGift();
@@ -2317,7 +2352,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.3.2',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register('/sw.js?v=12.4.0',{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,

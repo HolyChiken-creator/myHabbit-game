@@ -9,9 +9,11 @@ for(const f of fs.readdirSync(path.join(root,'public/content'),{recursive:true})
 }
 const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'public/manifest.webmanifest'),'utf8'));
+const version=fs.readFileSync(path.join(root,'VERSION'),'utf8').trim();
+const publicVersion=fs.readFileSync(path.join(root,'public/VERSION.txt'),'utf8').trim();
 if(pkg.name!=='myhabbit-game') errors.push('package name mismatch');
-if(pkg.version!=='12.1.0') errors.push('package version mismatch');
-if(manifest.x_myhabbit_version!=='12.1.0') errors.push('manifest version mismatch');
+if(pkg.version!==version||publicVersion!==version) errors.push(`version mismatch: package=${pkg.version}, VERSION=${version}, public=${publicVersion}`);
+if(manifest.x_myhabbit_version!==version) errors.push(`manifest version mismatch: ${manifest.x_myhabbit_version} != ${version}`);
 const wrangler=fs.readFileSync(path.join(root,'wrangler.jsonc'),'utf8');
 if(!wrangler.includes('"name": "myhabbit-game"')) errors.push('worker name mismatch');
 if(errors.length){console.error(errors.join('\n'));process.exit(1)}

@@ -2,6 +2,32 @@ import { GAME_VERSION, DAILY_QUEST_TEMPLATES, cosmeticDefaults, LEVEL_REWARDS, d
 
 export { GAME_VERSION };
 export const skillKeys=['home','care','health','growth','finance','family','relationship','sport','mind','reading','cinema','creativity','discipline'];
+export const ROOM_DECOR_CATALOG=[
+  {id:'ceiling-warm',slot:'ceiling',title:'Тепла стеля',price:0,icon:'🪵',theme:'warm'},
+  {id:'ceiling-stars',slot:'ceiling',title:'Зоряна стеля',price:18,icon:'✨',theme:'stars'},
+  {id:'ceiling-glass',slot:'ceiling',title:'Скляний дах',price:28,icon:'🌌',theme:'glass'},
+  {id:'walls-honey',slot:'walls',title:'Медові стіни',price:0,icon:'🟤',theme:'honey'},
+  {id:'walls-sage',slot:'walls',title:'Шавлієва кімната',price:14,icon:'🌿',theme:'sage'},
+  {id:'walls-night',slot:'walls',title:'Нічна кімната',price:24,icon:'🌙',theme:'night'},
+  {id:'floor-oak',slot:'floor',title:'Дубова підлога',price:0,icon:'🪵',theme:'oak'},
+  {id:'floor-stone',slot:'floor',title:'Кам’яна підлога',price:16,icon:'🪨',theme:'stone'},
+  {id:'floor-checker',slot:'floor',title:'Шахова підлога',price:22,icon:'◫',theme:'checker'},
+  {id:'table-round',slot:'table',title:'Круглий столик',price:0,icon:'☕',theme:'round'},
+  {id:'table-workbench',slot:'table',title:'Майстерня Тедіка',price:20,icon:'🛠️',theme:'workbench'},
+  {id:'table-marble',slot:'table',title:'Мармуровий столик',price:32,icon:'🤍',theme:'marble'},
+  {id:'tabletop-tea',slot:'tabletop',title:'Чайний набір',price:0,icon:'🍵',theme:'tea'},
+  {id:'tabletop-books',slot:'tabletop',title:'Книги й лампа',price:12,icon:'📚',theme:'books'},
+  {id:'tabletop-games',slot:'tabletop',title:'Настільні ігри',price:18,icon:'🎲',theme:'games'},
+  {id:'rug-leaf',slot:'rug',title:'Листяний килим',price:0,icon:'🍃',theme:'leaf'},
+  {id:'rug-sun',slot:'rug',title:'Сонячний килим',price:14,icon:'☀️',theme:'sun'},
+  {id:'rug-moon',slot:'rug',title:'Місячний килим',price:18,icon:'🌙',theme:'moon'},
+  {id:'corner-plant',slot:'corner',title:'Куточок з рослинами',price:0,icon:'🪴',theme:'plant'},
+  {id:'corner-library',slot:'corner',title:'Міні-бібліотека',price:20,icon:'📚',theme:'library'},
+  {id:'corner-fireplace',slot:'corner',title:'Камін',price:30,icon:'🔥',theme:'fireplace'},
+  {id:'light-day',slot:'light',title:'Денне світло',price:0,icon:'☀️',theme:'day'},
+  {id:'light-evening',slot:'light',title:'Вечірні вогники',price:14,icon:'🏮',theme:'evening'},
+  {id:'light-magic',slot:'light',title:'Магічне сяйво',price:26,icon:'🔮',theme:'magic'}
+];
 export const num=(v,min=0,max=1000000000)=>Math.max(min,Math.min(max,Number.isFinite(Number(v))?Number(v):min));
 const copy=v=>JSON.parse(JSON.stringify(v));
 const unique=values=>[...new Set(values||[])];
@@ -43,9 +69,13 @@ export function xpRequired(level){const fixed=[0,1500,1800,2150,2550,3000,3500,4
 export function grantXp(u,amount){amount=Math.trunc(num(amount));u.totalXpEarned=num(u.totalXpEarned)+amount;u.xp=num(u.xp)+amount;while(u.level<1000&&u.xp>=xpRequired(u.level)){u.xp-=xpRequired(u.level);u.level++;u.coins=num(u.coins)+50;}return amount;}
 function userDefaults(u){
   u.level=Math.trunc(num(u.level,1,1000));u.xp=num(u.xp);u.coins=num(u.coins);u.skills=u.skills||{};u.skillXp=u.skillXp||{};
+  if(u.diamonds==null)u.diamonds=40;else u.diamonds=Math.trunc(num(u.diamonds));
   for(const key of skillKeys){u.skills[key]=num(u.skills[key]);u.skillXp[key]=num(u.skillXp[key]??u.skills[key]*100);}
-  for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks'])u[key]=Array.isArray(u[key])?u[key]:[];
-  for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
+  for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks','roomDecorOwned'])u[key]=Array.isArray(u[key])?u[key]:[];
+  for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped','roomDecor'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
+  const defaults={ceiling:'ceiling-warm',walls:'walls-honey',floor:'floor-oak',table:'table-round',tabletop:'tabletop-tea',rug:'rug-leaf',corner:'corner-plant',light:'light-day'};
+  for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot])u.roomDecor[slot]=id;if(!u.roomDecorOwned.includes(id))u.roomDecorOwned.push(id);}
+  u.roomDecorOwned=unique(u.roomDecorOwned.filter(id=>ROOM_DECOR_CATALOG.some(item=>item.id===id)));
   u.achievements=unique(u.achievements);u.stickerDust=num(u.stickerDust);if(u.totalXpEarned==null){let total=u.xp;for(let level=1;level<u.level;level++)total+=xpRequired(level);u.totalXpEarned=total;}u.streak=num(u.streak);u.bestStreak=Math.max(num(u.bestStreak),u.streak);
 }
 export function normalizeGame(s,now=Date.now()){
@@ -124,6 +154,10 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     if(purchased){item.stock=num(item.stock)-1;const order={id:op.id,sourceItemId:item.id,title:item.title,description:item.description,icon:item.icon,ownerId:u.id,startedAt:now,status:'available',kind:item.rewardKind||'permanent'};if(order.kind==='timed'){order.durationDays=num(item.durationDays,1,30);order.expiresAt=now+order.durationDays*864e5;}u.activeFeatures.push(order);u.purchaseHistory.push(copy(order));u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;s.history.unshift({eventId:op.id,userId:u.id,kind:'purchase',createdAt:now,icon:item.icon,text:`${u.name} придбав(ла) «${item.title}»`,time:day});}
   }else if(op.type==='cosmetic-buy'){
     const item=s.cosmeticsCatalog.find(i=>i.id===op.itemId);if(!item)fail('Предмет недоступний');if(!u.inventory.includes(item.id)){spend(u,item.price);grantItem(s,u,item.id);u.stats.purchasesCompleted=num(u.stats.purchasesCompleted)+1;}message='Предмет у колекції';
+  }else if(op.type==='room-decor-buy'||op.type==='room-decor-equip'){
+    const item=ROOM_DECOR_CATALOG.find(i=>i.id===op.itemId);if(!item)fail('Елемент кімнати недоступний');
+    if(op.type==='room-decor-buy'&&!u.roomDecorOwned.includes(item.id)){const price=Math.trunc(num(item.price));if(u.diamonds<price)fail('Недостатньо діамантів');u.diamonds-=price;u.roomDecorOwned.push(item.id);u.stats.roomDecorPurchased=num(u.stats.roomDecorPurchased)+1;}
+    if(!u.roomDecorOwned.includes(item.id))fail('Спочатку відкрийте цей декор');u.roomDecor[item.slot]=item.id;message=op.type==='room-decor-buy'?'Декор відкрито й встановлено':'Оформлення кімнати змінено';detail={itemId:item.id,slot:item.slot,diamonds:u.diamonds};
   }else if(op.type==='level-rewards'){
     const rewards=s.levelRewards.filter(r=>u.level>=r.level&&!u.claimedLevelRewards.includes(r.level));if(!rewards.length)return {message:'Нових подарунків поки немає'};for(const r of rewards){grantReward(s,u,r);u.claimedLevelRewards.push(r.level);}message='Подарунки рівня отримано';
   }else if(op.type==='sticker-box'){
@@ -148,20 +182,43 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
   }else if(op.type==='match3-start'){
     const p=ensureMatch3(u,day);if(p.playedToday>=25)fail('Денний ліміт вичерпано');if(!p.session)p.session=createMatch3(p.level,Math.floor(random()*4294967296)||1);detail={session:copy(p.session)};message='Рівень розпочато';
   }else if(op.type==='match3-finish'){
-    const p=ensureMatch3(u,day);if(!p.session||p.playedToday>=25)fail('Сесію гри не знайдено');const session=copy(p.session);if(!Array.isArray(op.moves)||op.moves.length>session.cfg.moves)fail('Некоректні ходи');for(const pair of op.moves){if(!Array.isArray(pair)||pair.length!==2||!applyMatch3Move(session,...pair))fail('Некоректний хід');}if(session.score<session.cfg.goal)fail('Мету ще не досягнуто');const mult=session.cfg.boss==='grand'?3:session.cfg.boss==='boss'?2.2:session.cfg.boss==='mini'?1.6:1;const coins=Math.round((1+Math.min(2,Math.floor(p.level/25)))*mult),xp=Math.round((6+Math.min(10,Math.floor(p.level/10)))*mult);grantReward(s,u,{coins,xp});p.level++;p.playedToday++;p.totalCompleted++;p.session=null;u.stats.match3Completed=p.totalCompleted;message=`Рівень пройдено · +${coins} 🪙 · +${xp} XP`;
+    const p=ensureMatch3(u,day);if(!p.session||p.playedToday>=25)fail('Сесію гри не знайдено');const session=copy(p.session);if(!Array.isArray(op.moves)||op.moves.length>session.cfg.moves+8)fail('Некоректні ходи');for(const command of op.moves){if(!applyMatch3Command(session,command))fail('Некоректний хід');}if(session.score<session.cfg.goal)fail('Мету ще не досягнуто');const mult=session.cfg.boss==='grand'?3:session.cfg.boss==='boss'?2.2:session.cfg.boss==='mini'?1.6:1;const coins=Math.round((2+Math.min(4,Math.floor(p.level/20)))*mult),xp=Math.round((8+Math.min(16,Math.floor(p.level/8)))*mult),diamonds=session.cfg.boss==='grand'?8:session.cfg.boss==='boss'?5:session.cfg.boss==='mini'?3:1;grantReward(s,u,{coins,xp});u.diamonds+=diamonds;p.level++;p.playedToday++;p.totalCompleted++;p.session=null;u.stats.match3Completed=p.totalCompleted;u.stats.diamondsEarned=num(u.stats.diamondsEarned)+diamonds;message=`Рівень пройдено · +${coins} 🪙 · +${xp} XP · +${diamonds} 💎`;
   }else fail('Невідома дія');
   for(const member of affected)evaluateGameAchievements(s,member);normalizeGame(s,now);return {message,...detail};
 }
-export function ensureMatch3(u,day=gameDay()){const p=u.match3||{};u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
-export function match3Config(level){const boss=level%50===0?'grand':level%25===0?'boss':level%10===0?'mini':null,tier=Math.min(12,Math.floor((level-1)/10));return {level,boss,size:level>=50?8:7,moves:Math.max(18,26-Math.floor(tier/2)+(boss?4:0)),goal:18+tier*3+(boss==='grand'?28:boss==='boss'?18:boss?10:0),colors:Math.min(6,5+Math.floor(level/30))};}
+export function ensureMatch3(u,day=gameDay()){const p=u.match3||{},validSession=p.session?.cfg?.schema===3;p.session=validSession?p.session:null;u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
+export function match3Config(level){
+  level=Math.max(1,Math.trunc(num(level,1)));const boss=level%50===0?'grand':level%25===0?'boss':level%10===0?'mini':null,tier=Math.min(20,Math.floor((level-1)/5)),cycle=(level-1)%6;
+  const size=[6,7,6,7,8,7][cycle],theme=['garden','berry','moon','ember'][Math.floor((level-1)/3)%4],difficulty=boss?'boss':tier>=8?'expert':tier>=3?'focus':'cozy';
+  const moves=Math.max(14,27-Math.floor(tier*.7)+(boss?5:0)),goal=Math.round(20+tier*4+size+(boss==='grand'?35:boss==='boss'?24:boss?14:0));
+  return {schema:3,level,boss,size,moves,goal,colors:Math.min(6,4+Math.floor((level+7)/15)),theme,difficulty,boosters:{hammer:1,shuffle:1,fire:level>=3?1:0}};
+}
 function rng(rt){let n=rt.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;rt.seed=n>>>0;return rt.seed/4294967296;}
 export function matches(board,size){const found=new Set();for(let r=0;r<size;r++)for(let c=0;c<size;c++){const i=r*size+c,v=board[i];if(v==null)continue;if(c+2<size&&board[i+1]===v&&board[i+2]===v){let n=c;while(n<size&&board[r*size+n]===v)found.add(r*size+n++);}if(r+2<size&&board[i+size]===v&&board[i+2*size]===v){let n=r;while(n<size&&board[n*size+c]===v)found.add(n++*size+c);}}return [...found];}
 function canMove(board,size){for(let i=0;i<board.length;i++)for(const j of [i%size<size-1?i+1:-1,i+size<board.length?i+size:-1]){if(j<0)continue;[board[i],board[j]]=[board[j],board[i]];const ok=matches(board,size).length>0;[board[i],board[j]]=[board[j],board[i]];if(ok)return true;}return false;}
 function generate(rt){const {size,colors}=rt.cfg;for(let attempt=0;attempt<100;attempt++){const b=[];for(let r=0;r<size;r++)for(let c=0;c<size;c++){const choices=Array.from({length:colors},(_,i)=>i).filter(v=>!(c>=2&&b[b.length-1]===v&&b[b.length-2]===v)&&!(r>=2&&b[b.length-size]===v&&b[b.length-size*2]===v));b.push(choices[Math.floor(rng(rt)*choices.length)]);}if(canMove(b,size))return b;}fail('Не вдалося підготувати поле');}
-export function createMatch3(level,seed){const rt={cfg:match3Config(level),seed:seed>>>0||1,score:0,moves:match3Config(level).moves,moveLog:[],selected:null};rt.board=generate(rt);return rt;}
+function refill(rt,hit,onFrame,kind='drop'){
+  const {size,colors}=rt.cfg,drops=[];hit.forEach(i=>rt.board[i]=null);
+  for(let c=0;c<size;c++){const kept=[],from=[];for(let r=size-1;r>=0;r--)if(rt.board[r*size+c]!=null){kept.push(rt.board[r*size+c]);from.push(r);}for(let r=size-1,k=0;r>=0;r--,k++){rt.board[r*size+c]=k<kept.length?kept[k]:Math.floor(rng(rt)*colors);drops[r*size+c]=r-(k<from.length?from[k]:-(k-from.length+1));}}
+  onFrame?.({kind,board:[...rt.board],drops,combo:rt.combo||1,score:rt.score});
+}
+export function createMatch3(level,seed){const cfg=match3Config(level),rt={cfg,seed:seed>>>0||1,score:0,moves:cfg.moves,moveLog:[],selected:null,boosters:{...cfg.boosters}};rt.board=generate(rt);return rt;}
 export function applyMatch3Move(rt,a,b,onFrame){
-  const {size,colors}=rt.cfg;if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=rt.board.length||b>=rt.board.length||rt.moves<=0||rt.score>=rt.cfg.goal||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
+  const {size}=rt.cfg;if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=rt.board.length||b>=rt.board.length||rt.moves<=0||rt.score>=rt.cfg.goal||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
   [rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];if(!matches(rt.board,size).length){[rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];return false;}rt.moves--;rt.moveLog.push([a,b]);rt.combo=0;
-  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.length;onFrame?.({kind:'clear',board:[...rt.board],hit,combo:rt.combo,score:rt.score});const drops=[];hit.forEach(i=>rt.board[i]=null);for(let c=0;c<size;c++){const kept=[],from=[];for(let r=size-1;r>=0;r--)if(rt.board[r*size+c]!=null){kept.push(rt.board[r*size+c]);from.push(r);}for(let r=size-1,k=0;r>=0;r--,k++){rt.board[r*size+c]=k<kept.length?kept[k]:Math.floor(rng(rt)*colors);drops[r*size+c]=r-(k<from.length?from[k]:-(k-from.length+1));}}onFrame?.({kind:'drop',board:[...rt.board],drops,combo:rt.combo,score:rt.score});}
+  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.length;onFrame?.({kind:'clear',board:[...rt.board],hit,combo:rt.combo,score:rt.score});refill(rt,hit,onFrame);}
   if(matches(rt.board,size).length||!canMove(rt.board,size)){rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});}return true;
+}
+export function applyMatch3Booster(rt,kind,index,onFrame){
+  if(!rt?.boosters||!['hammer','shuffle','fire'].includes(kind)||num(rt.boosters[kind])<=0||rt.score>=rt.cfg.goal)return false;
+  if(kind==='hammer'){
+    if(!Number.isInteger(index)||index<0||index>=rt.board.length)return false;rt.boosters.hammer--;rt.moveLog.push({type:'booster',kind,index});rt.combo=1;rt.score+=1;onFrame?.({kind:'hammer',board:[...rt.board],hit:[index],combo:1,score:rt.score});refill(rt,[index],onFrame);return true;
+  }
+  if(kind==='shuffle'){rt.boosters.shuffle--;rt.moveLog.push({type:'booster',kind});rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});return true;}
+  rt.boosters.fire--;rt.moveLog.push({type:'booster',kind});const hit=rt.board.map((_,i)=>i),bonus=Math.max(6,Math.round(rt.board.length*.18));rt.combo=1;rt.score+=bonus;onFrame?.({kind:'fire',board:[...rt.board],hit,combo:1,score:rt.score});rt.board=generate(rt);onFrame?.({kind:'rebirth',board:[...rt.board]});return true;
+}
+export function applyMatch3Command(rt,command,onFrame){
+  if(Array.isArray(command)&&command.length===2)return applyMatch3Move(rt,command[0],command[1],onFrame);
+  if(command&&command.type==='booster')return applyMatch3Booster(rt,command.kind,command.index,onFrame);
+  return false;
 }

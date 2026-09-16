@@ -1,0 +1,6 @@
+# Delete these obsolete root-level PWA duplicates if they exist in the target repository.
+index.html
+app.js
+styles.css
+sw.js
+manifest.webmanifest

@@ -1,3 +1,12 @@
+## 12.4.0 — Room Workshop and Match-3 variety
+
+- Restored diamonds as a dedicated room-decoration currency and added a safe 40-diamond migration balance for profiles that never had this field.
+- Added 24 room decorations across ceiling, walls, floor, table, tabletop, rug, corner props, and lighting.
+- Rebuilt Teddy’s dashboard room as a deeper layered scene with perspective, lighting, props, and larger companion presentation.
+- Added Match-3 board size/theme/difficulty progression plus hammer, shuffle, and full-board fire boosters.
+- Added the full-table burn/rebirth animation and diamond rewards for completed Match-3 levels.
+- Added deterministic booster replay tests, room economy tests, schema migration for old Match-3 sessions, and dynamic release-version audit checks.
+
 ## 11.3.2 — session persistence and maintenance hotfix
 
 - Removed the duplicate “Replay introduction” Teddy action; one manual tour remains.
