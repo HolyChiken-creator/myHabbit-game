@@ -1,0 +1,15 @@
+{
+  "collectionId": "step-three-hi-tech-collection",
+  "title": "step three hi-tech collection",
+  "description": "Premium warm hi-tech Teddy Room assets.",
+  "version": "12.15.0",
+  "items": [
+    {"id": "window-hitech", "title": "Вікно hi-tech", "file": "вікно_хайтек.png", "role": "window"},
+    {"id": "armchair-hitech", "title": "Крісло hi-tech", "file": "крісло_хайтек.png", "role": "armchair"},
+    {"id": "table-hitech", "title": "Столик hi-tech", "file": "столик_хайтек.png", "role": "table"},
+    {"id": "bookshelf-hitech", "title": "Книжкова шафа hi-tech", "file": "книжкова_шафа_хайтек.png", "role": "bookshelf"},
+    {"id": "fireplace-hitech", "title": "Камін hi-tech", "file": "камін_хайтек.png", "role": "fireplace"},
+    {"id": "rug-hitech", "title": "Килим hi-tech", "file": "килим_хайтек.png", "role": "rug"},
+    {"id": "plant-hitech", "title": "Рослина hi-tech", "file": "рослина_хайтек.png", "role": "plant"}
+  ]
+}
