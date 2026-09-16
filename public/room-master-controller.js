@@ -137,18 +137,25 @@
   function bindTripleTap(teddy){
     if(teddy.dataset.roomMasterTripleBound)return;
     teddy.dataset.roomMasterTripleBound='1';
-    teddy.addEventListener('pointerup',ev=>{
+    let lastHandled=0;
+    const handleTap=ev=>{
+      if(!isAdminRoom(room()))return;
       const now=Date.now();
-      tapTimes=tapTimes.filter(t=>now-t<850);
+      // Ignore the synthetic compatibility event Safari can emit after a touch.
+      if(now-lastHandled<90)return;
+      lastHandled=now;
+      tapTimes=tapTimes.filter(t=>now-t<1250);
       tapTimes.push(now);
       if(tapTimes.length>=3){
         tapTimes=[];
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev?.preventDefault?.();
+        ev?.stopPropagation?.();
         toggleEditor();
         navigator.vibrate?.(35);
       }
-    },true);
+    };
+    if(window.PointerEvent)teddy.addEventListener('pointerup',handleTap,true);
+    else teddy.addEventListener('touchend',handleTap,{capture:true,passive:false});
   }
 
   function bindObjectEvents(el){

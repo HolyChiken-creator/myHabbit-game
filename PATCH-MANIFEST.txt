@@ -1,10 +1,7 @@
-myHabbit 12.21.0
+myHabbit 12.21.1 hotfix
 
 Changed:
 - public/app.js
-- public/game-rules.js
-- game-rules.js
-- public/home.css
 - public/room-master-controller.js
 - public/index.html
 - public/boot.js
@@ -16,4 +13,4 @@ Changed:
 - public/VERSION.txt
 
 Added:
-- UPDATE-12.21.0.md
+- UPDATE-12.21.1.md

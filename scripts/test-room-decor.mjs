@@ -71,3 +71,11 @@ assert.match(css,/room-inline-studio/);
 assert.match(css,/room-live-style>img/);
 
 console.log('PASS: 8-slot per-object Teddy room shop + Step 0 defaults + admin global layout editor.');
+
+const fixedApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
+assert.match(fixedApp,/let roomStudioSlot='background'/);
+assert.match(fixedApp,/ROOM_DECOR_SLOT_NAMES\[roomStudioSlot\]\?roomStudioSlot:'background'/);
+assert.doesNotMatch(fixedApp,/roomStudioSlot='seat'/);
+const fixedController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
+assert.match(fixedController,/now-t<1250/);
+assert.match(fixedController,/isAdminRoom\(room\(\)\)/);
