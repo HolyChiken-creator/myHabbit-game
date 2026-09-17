@@ -12,6 +12,8 @@
   let drag=null;
   let observer=null;
   let lastVisualState={};
+  let ownerRoomMaster={revision:0,configured:false,layouts:null,updatedAt:''};
+  let ownerRoomPollTimer=0;
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function defaultState(){
@@ -53,7 +55,30 @@
   function isAdminRoom(el){return el?.dataset?.roomAdmin==='true';}
 
   function serverLayouts(el){
+    if(ownerRoomMaster.configured&&ownerRoomMaster.layouts&&Object.keys(ownerRoomMaster.layouts).length)return ownerRoomMaster.layouts;
     try{if(el?.dataset?.roomLayoutVersion!=='2')return {};return JSON.parse(el?.dataset?.roomLayout||'{}')||{};}catch{return {};}
+  }
+  async function pullOwnerRoomLayout(force=false){
+    try{
+      const response=await fetch('/api/app-room-layout',{cache:'no-store'});
+      if(!response.ok)return false;
+      const data=await response.json();
+      const revision=Number(data?.revision||0);
+      const configured=Boolean(data?.configured&&data?.layouts&&typeof data.layouts==='object');
+      const changed=force||revision!==ownerRoomMaster.revision||configured!==ownerRoomMaster.configured;
+      ownerRoomMaster={revision,configured,layouts:configured?data.layouts:null,updatedAt:data?.updatedAt||''};
+      if(changed&&configured){
+        Object.keys(data.layouts).forEach(n=>{state.layouts[n]={...(CFG.defaults[n]||CFG.defaults[0]),...(data.layouts[n]||{})};});
+        save();
+        if(!editorOpen&&room())render();
+      }
+      return changed;
+    }catch{return false;}
+  }
+  function startOwnerRoomPolling(){
+    if(ownerRoomPollTimer)return;
+    ownerRoomPollTimer=setInterval(()=>{if(document.visibilityState!=='hidden')pullOwnerRoomLayout(false);},1500);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullOwnerRoomLayout(true);});
   }
   function hiddenSlot(el,slot){return (el?.dataset?.roomHidden||'').split(',').includes(slot);}
   function sourceFor(el,slot){
@@ -355,14 +380,6 @@
     render();
   }
 
-  async function persistGlobal(){
-    try{
-      save();
-      const result=await window.myHabbitSaveRoomLayout?.(state.layouts);
-      return Boolean(result);
-    }catch{return false;}
-  }
-
   function normalizeImportedState(payload){
     const raw=payload?.roomMaster||payload||{};
     const layouts=raw.layouts||payload?.roomLayoutMaster||((payload&&typeof payload==='object'&&Object.keys(payload).some(k=>/^[0-4]$/.test(k)))?payload:null);
@@ -438,6 +455,7 @@
     if(editorOpen)ensureEditor();
     else document.querySelector('.room-master-editor')?.remove();
     save();render();
+    if(!editorOpen)pullOwnerRoomLayout(true);
   }
 
   function ensureEditor(){
@@ -473,15 +491,10 @@
         <button type="button" data-rm-nudge="down">↓</button>
       </div>
       <div class="room-master-actions">
-        <button type="button" data-rm-reset-one>Скинути предмет</button>
-        <button type="button" data-rm-reset-level>Скинути рівень</button>
-        <button type="button" data-rm-save-global>Зберегти для всіх</button>
-        <button type="button" data-rm-load-global>Підвантажити загальний</button>
-        <button type="button" data-rm-export>Завантажити JSON</button>
-        <button type="button" data-rm-import>Імпортувати JSON</button>
+        <button type="button" data-rm-reset-one>Скинути предмет локально</button>
+        <button type="button" data-rm-reset-level>Скинути рівень локально</button>
       </div>
-      <div class="room-master-presets">${[1,2,3].map(n=>`<div><strong>Варіант ${n}</strong><button type="button" data-rm-preset-save="${n}">Зберегти</button><button type="button" data-rm-preset-load="${n}">Підвантажити</button></div>`).join('')}</div>
-      <p>Перетягуй предмети пальцем. Координати зберігаються у відсотках від єдиного полотна 16:7, тому ПК і телефон використовують один план. «Зберегти для всіх» робить його загальним для всіх пристроїв.</p>`;
+      <p>Це прихований локальний режим перевірки. Глобальний стандарт розміщення для всіх користувачів публікується тільки через <strong>/owner-console</strong>. Після закриття режиму серверний master-layout знову має пріоритет.</p>`;
     document.body.appendChild(panel);
 
     const levels=panel.querySelector('.room-master-levels');
@@ -508,15 +521,6 @@
     panel.querySelectorAll('[data-rm-nudge]').forEach(b=>b.onclick=()=>nudge(b.dataset.rmNudge));
     panel.querySelector('[data-rm-reset-one]').onclick=resetOne;
     panel.querySelector('[data-rm-reset-level]').onclick=resetLevel;
-    panel.querySelector('[data-rm-save-global]').onclick=async()=>{
-      const ok=await persistGlobal();
-      toast(ok?'Розташування збережено для всіх':'Не вдалося зберегти для всіх');
-    };
-    panel.querySelector('[data-rm-load-global]').onclick=()=>loadServerLayout();
-    panel.querySelector('[data-rm-export]').onclick=downloadJSON;
-    panel.querySelector('[data-rm-import]').onclick=importJSON;
-    panel.querySelectorAll('[data-rm-preset-save]').forEach(b=>b.onclick=()=>savePreset(b.dataset.rmPresetSave));
-    panel.querySelectorAll('[data-rm-preset-load]').forEach(b=>b.onclick=()=>loadPreset(b.dataset.rmPresetLoad));
     return panel;
   }
 
@@ -579,15 +583,10 @@
     close:()=>toggleEditor(false),
     getState:()=>clone(state),
     setLevel,
-    saveGlobal:persistGlobal,
-    loadServer:loadServerLayout,
-    downloadJSON,
-    importJSON,
-    savePreset,
-    loadPreset,
-    reset:()=>{state=defaultState();save();render();}
+    refreshMaster:()=>pullOwnerRoomLayout(true),
+    reset:()=>{state=defaultState();save();render();pullOwnerRoomLayout(true);}
   };
 
-  document.addEventListener('DOMContentLoaded',()=>{ensureTripleTapDelegate();watch();mount();});
-  if(document.readyState!=='loading'){ensureTripleTapDelegate();watch();mount();}
+  document.addEventListener('DOMContentLoaded',()=>{ensureTripleTapDelegate();watch();mount();pullOwnerRoomLayout(true);startOwnerRoomPolling();});
+  if(document.readyState!=='loading'){ensureTripleTapDelegate();watch();mount();pullOwnerRoomLayout(true);startOwnerRoomPolling();}
 })();

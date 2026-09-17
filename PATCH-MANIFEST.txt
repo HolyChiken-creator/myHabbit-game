@@ -1,15 +1,16 @@
-myHabbit 12.22.7 — Teddy magic decor update
+myHabbit 12.22.8 — Owner Console live room master
 
 Changed:
 - public/app.js
 - public/room-master-controller.js
-- public/room-master.css
 - public/room-master.config.js
 - public/index.html
 - public/boot.js
 - public/sw.js
 - public/manifest.webmanifest
 - public/game-content.js
+- src/worker.js
+- worker.js
 - scripts/test-room-decor.mjs
 - package.json
 - VERSION
@@ -19,12 +20,14 @@ Changed:
 - game-content.js
 
 Added:
-- UPDATE-12.22.7.md
-- public/UPDATE-12.22.7.md
+- UPDATE-12.22.8.md
+- public/UPDATE-12.22.8.md
 
 Behavior:
-- Previewing decor remains smooth and does not spam Teddy gestures.
-- Confirming/equipping decor makes Teddy wave once as a magic-cast gesture.
-- The confirmed room object transforms with glow, scale/morph motion, and spark particles.
-- Teddy returns to the normal idle lifecycle after the cast.
-- Canonical 16:7 desktop/mobile layout and owner layout tools from 12.22.6 remain intact.
+- Global Teddy Room placement is managed only from /owner-console, not the family admin panel.
+- Owner Console has a 16:7 visual editor for all objects and Teddy, size, z-index, nudging, reset, JSON import/export and 3 preset slots.
+- Dragging publishes throttled live revisions to the server; pointer release publishes a committed revision.
+- Active clients fetch the canonical owner revision every ~1.5 s and apply it without page reload.
+- Desktop and mobile share the same percentage-based master layout.
+- Hidden triple-tap movement remains a local inspection tool and cannot publish the global standard.
+- Teddy wave + magic decor transform from 12.22.7 remains unchanged.

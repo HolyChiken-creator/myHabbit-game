@@ -55,15 +55,15 @@ assert.match(appSource,/class="room-live-studio room-inline-studio"/);
 assert.match(appSource,/data-action="room-decor-preview"/);
 assert.match(appSource,/data-action="room-decor-confirm"/);
 assert.match(appSource,/\$\{roomStatusBar\(u\)\}\$\{roomDecorStudio\(u\)\}/);
-assert.match(appSource,/window\.myHabbitSaveRoomLayout/);
+assert.doesNotMatch(appSource,/window\.myHabbitSaveRoomLayout/);
 assert.match(appSource,/data-room-source-\$\{slot\}/);
 assert.doesNotMatch(appSource,/\$\{roomThemeShopMarkup\(currentUser\(\)\)\}/);
 
 const controller=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
 assert.match(controller,/ensureTripleTapDelegate/);
 assert.match(controller,/isAdminRoom/);
-assert.match(controller,/persistGlobal/);
-assert.match(controller,/myHabbitSaveRoomLayout/);
+assert.doesNotMatch(controller,/saveGlobal:persistGlobal/);
+assert.match(controller,/\/api\/app-room-layout/);
 assert.match(controller,/sourceFor/);
 
 const css=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
@@ -71,7 +71,7 @@ assert.match(css,/12\.21\.0 — per-object Teddy room upgrades/);
 assert.match(css,/room-inline-studio/);
 assert.match(css,/room-live-style>img/);
 
-console.log('PASS: 11-slot per-object Teddy room shop + Step 0 defaults + admin global layout editor.');
+console.log('PASS: 11-slot per-object Teddy room shop + Step 0 defaults + owner-console global layout path.');
 
 const fixedApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
 assert.match(fixedApp,/let roomStudioSlot='background'/);
@@ -101,7 +101,7 @@ assert.match(secretController,/closest\?\.\('\.site-version-trigger'\)/);
 
 const smoothController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
 assert.doesNotMatch(smoothController,/bindTripleTap\(companion\)/);
-assert.match(smoothController,/data-rm-save-global/);
+assert.doesNotMatch(smoothController,/data-rm-save-global/);
 assert.match(smoothController,/if\(!editorOpen\)\{/);
 assert.match(smoothController,/sizeInput\.oninput/);
 assert.doesNotMatch(smoothController,/save\(\);persistGlobal\(\);\s*render\(\);/);
@@ -109,20 +109,24 @@ assert.doesNotMatch(smoothController,/save\(\);persistGlobal\(\);\s*render\(\);/
 
 // 12.22.7 regressions: preview stays smooth; confirmed decor triggers Teddy wave + magic item transform.
 assert.match(appSource,/dispatchEvent\(new CustomEvent\('teddy-room-upgraded'/);
-assert.match(appSource,/data-action="owner-room-edit"/);
-assert.match(appSource,/data-action="owner-room-save-global"/);
-assert.match(appSource,/data-action="owner-room-import"/);
+assert.doesNotMatch(appSource,/data-action="owner-room-edit"/);
+assert.doesNotMatch(appSource,/data-action="owner-room-save-global"/);
+assert.doesNotMatch(appSource,/data-action="owner-room-import"/);
+const workerSource=readFileSync(new URL('../src/worker.js',import.meta.url),'utf8');
+assert.match(workerSource,/\/api\/owner\/room-layout/);
+assert.match(workerSource,/\/api\/app-room-layout/);
+assert.match(workerSource,/id="room-layout-section"/);
+assert.match(workerSource,/Live master-layout|master-layout/);
 assert.match(controller,/room-item-glide/);
 assert.match(controller,/playMagicTransform/);
 assert.match(controller,/pose='wave'/);
-assert.match(controller,/downloadJSON/);
-assert.match(controller,/importJSON/);
-assert.match(controller,/savePreset/);
-assert.match(controller,/loadPreset/);
+assert.match(workerSource,/ownerRoomExport/);
+assert.match(workerSource,/ownerRoomImport/);
+assert.match(workerSource,/owner-room-preset-save|ownerRoomPresetKey/);
 const roomCss=readFileSync(new URL('../public/room-master.css',import.meta.url),'utf8');
 assert.match(roomCss,/aspect-ratio:16\/7/);
 assert.match(roomCss,/@keyframes room-item-glide/);
 assert.match(roomCss,/@keyframes teddy-magic-wave/);
 assert.match(roomCss,/@keyframes room-item-magic/);
 assert.match(roomCss,/@keyframes room-magic-spark/);
-console.log('PASS: Teddy wave + magic decor transform + canonical desktop/mobile layout + owner import/export/presets.');
+console.log('PASS: Teddy wave + magic decor transform + live owner-console canonical desktop/mobile layout.');

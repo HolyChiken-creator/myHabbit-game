@@ -3,7 +3,7 @@
   const A='/assets/room-master/';
   const assetSet=n=>({window:A+`level-${n}/window.webp`,armchair:A+`level-${n}/${n===4?'armchair-perspective.png':'armchair.webp'}`,table:A+`level-${n}/table.webp`,bookshelf:A+`level-${n}/${n===1?'bookshelf-perspective.png':'bookshelf.webp'}`,fireplace:A+`level-${n}/${n===3?'fireplace-perspective.png':'fireplace.webp'}`,rug:A+`level-${n}/rug.webp`,plant:A+`level-${n}/plant.webp`,painting:A+`level-${n}/painting.png`,lamp:A+`level-${n}/lamp.png`,clock:A+`level-${n}/clock.png`});
   window.ROOM_MASTER_CONFIG={
-    version:'12.22.7',
+    version:'12.22.8',
     storageKey:'myhabbit:teddy-room-master:v4',
     slots:['window','armchair','table','bookshelf','fireplace','rug','plant','painting','lamp','clock'],
     labels:{window:'Вікно',armchair:'Крісло',table:'Столик',bookshelf:'Книжкова шафа',fireplace:'Камін',rug:'Килим',plant:'Рослина',painting:'Картина',lamp:'Торшер',clock:'Годинник',teddy:'Тедик'},
