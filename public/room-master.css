@@ -187,3 +187,40 @@
 .room-master-presets button{min-width:0;border:1px solid #dfcfbf;background:#fff;color:#5d493d;border-radius:9px;padding:6px 5px;font-size:9px;font-weight:800}
 @media(max-width:520px){.room-master-presets{grid-template-columns:1fr}.room-master-actions{grid-template-columns:repeat(2,1fr)}}
 @media(prefers-reduced-motion:reduce){.room-item-glide{animation:none!important}}
+
+
+/* 12.22.7 — Teddy casts decor changes: wave + magical item transformation */
+.room-master-teddy[data-activity="wave"] .bear-arm-right{
+  transform-origin:50% 12%;
+  animation:teddy-magic-wave .34s ease-in-out 6 alternate!important
+}
+.room-master-teddy[data-activity="wave"] .bear-arm-left{transform:rotate(-12deg)}
+.room-master-teddy[data-activity="wave"] .bear-head{transform:rotate(-7deg)}
+@keyframes teddy-magic-wave{
+  from{transform:translate(8px,-18px) rotate(-38deg)}
+  to{transform:translate(18px,-34px) rotate(-88deg)}
+}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-object.room-item-magic,
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-bg.room-item-magic{
+  animation:room-item-magic .82s cubic-bezier(.2,.85,.22,1) both!important
+}
+@keyframes room-item-magic{
+  0%{opacity:.35;transform:scale(.88);filter:brightness(1.8) saturate(1.35) drop-shadow(0 0 0 rgba(255,220,120,0))}
+  35%{opacity:1;transform:scale(1.075);filter:brightness(1.45) saturate(1.25) drop-shadow(0 0 18px rgba(255,215,105,.92))}
+  68%{transform:scale(.985);filter:brightness(1.12) saturate(1.08) drop-shadow(0 0 11px rgba(255,238,170,.65))}
+  100%{opacity:1;transform:scale(1);filter:drop-shadow(0 7px 10px rgba(44,28,18,.18))}
+}
+.room-magic-burst{position:absolute;width:0;height:0;z-index:60;pointer-events:none;transform:translate(-50%,-50%)}
+.room-magic-burst i{--a:0deg;--d:42px;--delay:0ms;position:absolute;left:-3px;top:-3px;width:7px;height:7px;border-radius:50%;background:#fff7bf;box-shadow:0 0 7px #ffd66d,0 0 13px #fff3b0;opacity:0;animation:room-magic-spark .72s ease-out var(--delay) both}
+.room-magic-burst i:nth-child(3n){width:4px;height:4px;left:-2px;top:-2px}
+.room-magic-burst i:nth-child(2n){background:#fff;box-shadow:0 0 7px #fff,0 0 13px #ffd66d}
+@keyframes room-magic-spark{
+  0%{opacity:0;transform:rotate(var(--a)) translateY(0) scale(.25)}
+  18%{opacity:1}
+  100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.05)}
+}
+@media(prefers-reduced-motion:reduce){
+  .room-master-teddy[data-activity="wave"] .bear-arm-right{animation:none!important;transform:rotate(-52deg)}
+  .room-item-magic,.room-magic-burst i{animation:none!important}
+  .room-magic-burst{display:none!important}
+}

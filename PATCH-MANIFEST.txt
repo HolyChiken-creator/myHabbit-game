@@ -1,4 +1,4 @@
-myHabbit 12.22.6 — Teddy Room canonical layout
+myHabbit 12.22.7 — Teddy magic decor update
 
 Changed:
 - public/app.js
@@ -19,19 +19,12 @@ Changed:
 - game-content.js
 
 Added:
-- UPDATE-12.22.6.md
-- public/UPDATE-12.22.6.md
+- UPDATE-12.22.7.md
+- public/UPDATE-12.22.7.md
 
-Delete obsolete root-level PWA duplicates (already listed in DELETE-FILES.txt):
-- index.html
-- app.js
-- styles.css
-- sw.js
-- manifest.webmanifest
-
-Main behavior changes:
-- Teddy no longer reacts/waves on every decor selection.
-- Changed decor glides in smoothly during preview.
-- Owner/Admin can edit, globally save/load, import/export, and keep 3 quick room-layout variants.
-- One canonical 16:7 percentage layout is used on desktop and mobile.
-- Room layout is included in live state signatures so layout-only updates repaint on other devices.
+Behavior:
+- Previewing decor remains smooth and does not spam Teddy gestures.
+- Confirming/equipping decor makes Teddy wave once as a magic-cast gesture.
+- The confirmed room object transforms with glow, scale/morph motion, and spark particles.
+- Teddy returns to the normal idle lifecycle after the cast.
+- Canonical 16:7 desktop/mobile layout and owner layout tools from 12.22.6 remain intact.

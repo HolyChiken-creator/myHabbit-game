@@ -180,8 +180,8 @@
       teddy.dataset.facing=segment===1?'left':'right';
       if(age>=5400)applyBox(teddy,{...h,z:20},'teddy');
       if(age>=8500){actor={mode:'idle',started:now};pose='idle';}
-    }else if(actor.mode==='reaction'&&age<6500){
-      const a=activities[actor.slot];pose=a.pose==='sit'?'sit':a.pose;
+    }else if(actor.mode==='reaction'&&age<2800){
+      const a=activities[actor.slot];pose='wave';
       caption=a.uk[actor.variant%a.uk.length];english=a.en[actor.variant%a.en.length];
     }else{
       if(actor.mode==='reaction')actor={mode:'idle',started:now};
@@ -199,9 +199,40 @@
   }
   setInterval(()=>{const el=room();if(el&&!document.hidden)applyActivity(el,el.querySelector('.room-master-teddy'));},120);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)actor={mode:'idle',started:Date.now()};});
+  function playMagicTransform(el,slot){
+    if(!el||!slot)return;
+    const target=slot==='background'?el.querySelector('[data-room-master-bg]'):el.querySelector(`[data-room-master-object="${slot}"]`);
+    if(!target||target.hidden)return;
+    target.classList.remove('room-item-glide','room-item-magic');
+    void target.offsetWidth;
+    target.classList.add('room-item-magic');
+    setTimeout(()=>target.classList.remove('room-item-magic'),900);
+
+    const roomRect=el.getBoundingClientRect(),targetRect=target.getBoundingClientRect();
+    const burst=document.createElement('span');
+    burst.className='room-magic-burst';
+    const centerX=slot==='background'?50:((targetRect.left+targetRect.width/2-roomRect.left)/Math.max(1,roomRect.width))*100;
+    const centerY=slot==='background'?50:((targetRect.top+targetRect.height/2-roomRect.top)/Math.max(1,roomRect.height))*100;
+    burst.style.left=`${centerX}%`;burst.style.top=`${centerY}%`;
+    for(let i=0;i<10;i++){
+      const spark=document.createElement('i');
+      spark.style.setProperty('--a',`${i*36}deg`);
+      spark.style.setProperty('--d',`${28+(i%4)*10}px`);
+      spark.style.setProperty('--delay',`${(i%3)*35}ms`);
+      burst.appendChild(spark);
+    }
+    el.querySelector('.room-master-layer')?.appendChild(burst);
+    setTimeout(()=>burst.remove(),950);
+  }
   window.addEventListener('teddy-room-upgraded',e=>{
     if(!activities[e.detail?.slot])return;
-    requestAnimationFrame(()=>{mount();actor={mode:'reaction',slot:e.detail.slot,variant:Math.max(0,(e.detail.tier||1)-1),started:Date.now()};const el=room();if(el)applyActivity(el,el.querySelector('.room-master-teddy'));});
+    requestAnimationFrame(()=>{
+      mount();
+      actor={mode:'reaction',slot:e.detail.slot,variant:Math.max(0,(e.detail.tier||1)-1),started:Date.now()};
+      const el=room();if(!el)return;
+      applyActivity(el,el.querySelector('.room-master-teddy'));
+      playMagicTransform(el,e.detail.slot);
+    });
   });
 
   function applyBox(el,b={},slot){

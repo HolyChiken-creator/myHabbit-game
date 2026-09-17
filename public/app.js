@@ -1446,7 +1446,10 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const owned=u.roomDecorOwned?.includes(item.id);
     cozyHaptic('medium');
     const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});
-    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();}
+    if(result){
+      roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();
+      requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('teddy-room-upgraded',{detail:{slot:item.slot,tier:Number(item.tier||0),itemId:item.id}})));
+    }
   }
 
   window.myHabbitSaveRoomLayout=layout=>isAdmin()?runGameAction('room-layout-save',{layout}):Promise.resolve(null);
