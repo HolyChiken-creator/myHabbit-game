@@ -1,24 +1,27 @@
-myHabbit structured room workshop update 12.23.2
-Base: 12.23.1
+myHabbit 12.23.3 — Wider mobile workshop cards
+
+Apply over 12.23.2.
 
 Changed files:
-VERSION.txt
-VERSION
-game-content.js
-worker.js
-boot.js
-package.json
-PATCH-MANIFEST.txt
-UPDATE-12.23.2.md
-CHANGELOG.md
-public/VERSION.txt
-public/app.js
-public/game-content.js
-public/sw.js
-public/manifest.webmanifest
-public/home.css
-public/boot.js
-public/UPDATE-12.23.2.md
-public/index.html
-src/worker.js
-scripts/test-room-decor.mjs
+- VERSION
+- VERSION.txt
+- package.json
+- CHANGELOG.md
+- UPDATE-12.23.3.md
+- public/VERSION.txt
+- public/index.html
+- public/home.css
+- public/boot.js
+- public/sw.js
+- public/manifest.webmanifest
+- public/game-content.js
+- public/UPDATE-12.23.3.md
+- boot.js
+- game-content.js
+- src/worker.js
+- worker.js
+
+Behavior:
+- mobile workshop and item frames are slightly wider;
+- item previews have a little more room on phones;
+- the empty-state hint is a dedicated non-blocking footer and cannot cover item selection.

@@ -1,3 +1,8 @@
+## 12.23.3 — Wider mobile room workshop
+- Gave the mobile workshop and item cards a little more horizontal space.
+- Enlarged mobile item previews slightly while keeping the compact independent scroller.
+- Made the empty-state preview hint non-blocking and fixed to its own footer row.
+
 ## 12.23.2 — Compact room workshop
 
 - Teddy room stays visible while the structured decor workshop uses its own vertical scroller.

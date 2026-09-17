@@ -720,3 +720,56 @@
   .room-workshop-slot-head{padding:7px 8px 6px}
   .room-workshop-confirm{margin:6px!important}
 }
+
+
+/* 12.23.3 — mobile workshop breathing room + non-blocking empty-state footer. */
+.room-workshop-structured>.room-workshop-hint{
+  position:static!important;
+  inset:auto!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  box-shadow:none!important;
+  border-top:1px solid rgba(115,80,58,.09)!important;
+  background:rgba(255,253,249,.92)!important;
+}
+.room-workshop-structured>.room-workshop-scroll{grid-row:3!important;min-height:0!important}
+.room-workshop-structured>.room-workshop-confirm,
+.room-workshop-structured>.room-workshop-hint{grid-row:4!important}
+
+@media(max-width:520px){
+  .room-live-layout.is-editing>.room-live-studio[data-workshop="true"]{
+    width:calc(100% + 10px)!important;
+    margin-left:-5px!important;
+    margin-right:-5px!important;
+    height:clamp(265px,43svh,345px)!important;
+    max-height:clamp(265px,43svh,345px)!important;
+  }
+  .room-workshop-browser{border-radius:17px!important}
+  .room-live-studio[data-workshop="true"]{padding:7px!important}
+  .room-live-studio[data-workshop="true"] .room-workshop-jumps{padding:6px 4px 7px!important}
+  .room-workshop-slot-head{padding:8px 7px 7px!important}
+  .room-workshop-structured .room-workshop-scroll{padding:7px 5px 8px!important}
+  .room-workshop-styles{gap:7px!important}
+  .room-workshop-styles .room-workshop-tile{
+    min-height:146px!important;
+    padding:7px!important;
+    grid-template-rows:72px auto auto auto!important;
+    border-radius:15px!important;
+  }
+  .room-workshop-styles .room-workshop-tile>img,
+  .room-workshop-styles .room-workshop-tile>.room-empty-preview{height:72px!important;border-radius:11px!important}
+  .room-workshop-structured>.room-workshop-hint{margin:6px 5px 5px!important;padding:7px 8px!important}
+}
+
+@media(max-width:380px){
+  .room-live-layout.is-editing>.room-live-studio[data-workshop="true"]{
+    width:calc(100% + 6px)!important;
+    margin-left:-3px!important;
+    margin-right:-3px!important;
+  }
+  .room-workshop-structured .room-workshop-scroll{padding-left:4px!important;padding-right:4px!important}
+  .room-workshop-styles{gap:5px!important}
+  .room-workshop-styles .room-workshop-tile{padding:6px!important;grid-template-rows:68px auto auto auto!important}
+  .room-workshop-styles .room-workshop-tile>img,
+  .room-workshop-styles .room-workshop-tile>.room-empty-preview{height:68px!important}
+}
