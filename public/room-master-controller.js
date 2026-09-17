@@ -93,7 +93,8 @@
       companion.dataset.roomMasterObject='teddy';
     }
 
-    activity=null;
+    actor={mode:'idle',started:Date.now()};
+    bindTeddy(companion);
     bindObjectEvents(el);
     render();
   }
@@ -122,13 +123,13 @@
     const teddy=el.querySelector('.room-master-teddy');
     if(teddy){
       const tl=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]).teddy;
-      applyBox(teddy,tl,'teddy');if(!editorOpen)applyActivity(el,teddy);teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
+      applyBox(teddy,tl,'teddy');applyActivity(el,teddy);teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
     }
     el.classList.toggle('room-master-editing',editorOpen);syncEditor();
   }
 
 
-  let activity=null, pendingReaction=null, activityIndex=0;
+  let actor={mode:'idle',started:Date.now()};
   const activities={
     armchair:{pose:'sit',prop:'',uk:['Оце крісло! Влаштуюся зручніше.','Мій улюблений куточок для відпочинку.'],en:['What a chair! Time to get comfortable.','My favourite place to rest.']},
     table:{pose:'sip',prop:'☕',uk:['Час для чаю за моїм столиком.','Тепер є де поставити какао!'],en:['Time for tea at my table.','A place for my cocoa!']},
@@ -142,43 +143,57 @@
     clock:{pose:'admire',prop:'',uk:['Тік-так… час на маленьку перемогу!','З таким годинником не забуду про відпочинок.'],en:['Tick-tock… time for a small victory!','A reminder to take a little rest.']},
     background:{pose:'cheer',prop:'✨',uk:['Ого! Наче зовсім новий дім!','Яка зміна! Хочеться обійняти всю кімнату.'],en:['Wow! It feels like a new home!','What a change! I love this room.']}
   };
+  function bindTeddy(teddy){
+    if(!teddy)return;
+    const activate=()=>{
+      if(editorOpen||room()?.dataset.roomPreview==='true'||actor.mode==='walk')return;
+      actor={mode:'walk',started:Date.now(),home:{x:parseFloat(teddy.style.left)||42,y:parseFloat(teddy.style.top)||40,w:parseFloat(teddy.style.width)||18}};
+      applyActivity(room(),teddy);
+    };
+    teddy.addEventListener('click',activate);
+    teddy.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
+  }
   function applyActivity(el,teddy){
-    if(el.dataset.roomPreview==='true'){teddy.removeAttribute('data-activity');return;}
-    if(!activity)return;
-    const a=activities[activity.slot];if(!a)return;
-    const level=sourceFor(el,'background'),layout=state.layouts[level]||CFG.defaults[level];
-    const b=layout[activity.slot]||CFG.defaults[level][activity.slot];
-    if(b){
-      const item=el.querySelector(`[data-room-master-object="${activity.slot}"]`);
-      const h=b.h||(item?.naturalWidth?b.w*item.naturalHeight/item.naturalWidth*el.clientWidth/Math.max(1,el.clientHeight):b.w);
-      const w=activity.slot==='armchair'?b.w*.78:18;
-      const teddyHeight=w*1150/900*el.clientWidth/Math.max(1,el.clientHeight);
-      let x=b.x+b.w*.5-w*.5,y=b.y+h*.84-teddyHeight*.9;
-      if(['painting','clock','window','bookshelf','lamp'].includes(activity.slot)){x=b.x-w*.65;y=Math.max(38,b.y+h-teddyHeight*.65);}
-      if(['table','plant','fireplace'].includes(activity.slot)){x=b.x-w*.8;y=b.y+h-teddyHeight*.9;}
-      applyBox(teddy,{x:pct(x,1,80),y:pct(y,5,Math.max(5,94-teddyHeight)),w,z:20},'teddy');
+    if(!el||!teddy)return;
+    if(editorOpen||el.dataset.roomPreview==='true'){
+      actor={mode:'idle',started:Date.now()};teddy.dataset.activity='idle';return;
     }
-    teddy.dataset.activity=a.pose;
-    const english=document.documentElement.lang?.startsWith('en');
-    const words=a[english?'en':'uk'],text=words[activity.variant%words.length];
-    const caption=teddy.querySelector('.companion-caption');if(caption&&caption.textContent!==text)caption.textContent=text;
+    const now=Date.now(),age=now-actor.started;
+    let pose='idle',caption='Натисни — прогуляємося!',english='Tap me for a walk!';
+    if(actor.mode==='walk'){
+      const h=actor.home,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const right=Math.min(95-h.w,h.x+12),left=Math.max(1,h.x-12);
+      const points=[h.x,right,left,h.x],segment=Math.min(2,Math.floor(age/1800));
+      const t=Math.min(1,(age-segment*1800)/1800);
+      const x=reduced?h.x:points[segment]+(points[segment+1]-points[segment])*t;
+      applyBox(teddy,{...h,x,z:20},'teddy');
+      pose=age<5400?'walk':'think';caption=age<5400?'Трохи розімну лапки.':'Хм… яку історію почитати?';english=age<5400?'Time to stretch my legs.':'Hmm… which story should I read?';
+      teddy.dataset.facing=segment===1?'left':'right';
+      if(age>=5400)applyBox(teddy,{...h,z:20},'teddy');
+      if(age>=8500){actor={mode:'idle',started:now};pose='idle';}
+    }else if(actor.mode==='reaction'&&age<6500){
+      const a=activities[actor.slot];pose=a.pose==='sit'?'sit':a.pose;
+      caption=a.uk[actor.variant%a.uk.length];english=a.en[actor.variant%a.en.length];
+    }else{
+      if(actor.mode==='reaction')actor={mode:'idle',started:now};
+      const idle=now-actor.started;
+      pose=idle>=20000?'read':idle>=18000?'sit':'idle';
+      if(pose==='sit'){caption='Влаштуюся зручніше…';english='Getting comfortable…';}
+      if(pose==='read'){caption='Ще одну сторінку…';english='Just one more page…';}
+    }
+    teddy.dataset.activity=pose;
+    teddy.classList.toggle('room-new-joy',actor.mode==='reaction');
+    const text=document.documentElement.lang?.startsWith('en')?english:caption;
+    const c=teddy.querySelector('.companion-caption');if(c&&c.textContent!==text)c.textContent=text;
     teddy.setAttribute('aria-label',text);
-    const prop=teddy.querySelector('.companion-prop');if(prop&&prop.textContent!==a.prop)prop.textContent=a.prop;
-    teddy.classList.toggle('room-new-joy',Boolean(activity.reaction));
+    const prop=teddy.querySelector('.companion-prop');if(prop&&prop.textContent)prop.textContent='';
   }
-  function nextActivity(){
-    const el=room();if(!el||editorOpen||document.hidden||el.dataset.roomPreview==='true')return;
-    if(pendingReaction&&Date.now()-pendingReaction.at<12000){activity={...pendingReaction,reaction:true};pendingReaction=null;}
-    else if(activity?.reaction&&Date.now()-activity.at<9000)return;
-    else {const available=SLOTS.filter(s=>sourceFor(el,s)>0&&!hiddenSlot(el,s));if(!available.length)return;const slot=available[activityIndex++%available.length];activity={slot,variant:Math.floor(activityIndex/Math.max(1,available.length)),at:Date.now()};}
-    const teddy=el.querySelector('.room-master-teddy');if(teddy)applyActivity(el,teddy);
-  }
+  setInterval(()=>{const el=room();if(el&&!document.hidden)applyActivity(el,el.querySelector('.room-master-teddy'));},120);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)actor={mode:'idle',started:Date.now()};});
   window.addEventListener('teddy-room-upgraded',e=>{
     if(!activities[e.detail?.slot])return;
-    pendingReaction={slot:e.detail.slot,variant:Math.max(0,(e.detail.tier||1)-1),at:Date.now()};
-    requestAnimationFrame(()=>{mount();nextActivity();});
+    requestAnimationFrame(()=>{mount();actor={mode:'reaction',slot:e.detail.slot,variant:Math.max(0,(e.detail.tier||1)-1),started:Date.now()};const el=room();if(el)applyActivity(el,el.querySelector('.room-master-teddy'));});
   });
-  setInterval(nextActivity,11000);
 
   function applyBox(el,b={},slot){
     const x=pct(b.x,0,95), y=pct(b.y,0,95), w=pct(b.w,5,80);
@@ -330,9 +345,10 @@
         <div><small>ROOM MASTER</small><strong>Розстановка кімнати</strong></div>
         <button type="button" data-rm-close>×</button>
       </div>
-      <div class="room-master-levels">
+      <div class="room-master-level-nav"><button type="button" data-rm-scroll="-1" aria-label="Попередні стилі">‹</button><div class="room-master-levels">
         ${[0,1,2,3,4].map(n=>`<button type="button" data-rm-level="${n}">${n} · ${CFG.levels[n].title}</button>`).join('')}
       </div>
+      <button type="button" data-rm-scroll="1" aria-label="Наступні стилі">›</button></div>
       <div class="room-master-select-row">
         <label>Обʼєкт<select data-rm-slot>
           ${[...SLOTS,'teddy'].map(s=>`<option value="${s}">${CFG.labels[s]}</option>`).join('')}
@@ -343,7 +359,7 @@
         </select></label>
       </div>
       <label class="room-master-range">Розмір <span data-rm-size-value></span>
-        <input data-rm-size type="range" min="6" max="55" step=".5">
+        <input data-rm-size type="range" min="5" max="80" step=".5">
       </label>
       <div class="room-master-nudge">
         <button type="button" data-rm-nudge="up">↑</button>
@@ -360,6 +376,9 @@
       <p>Перетягуй предмети пальцем. Розстановка не оновлює сторінку під час редагування. Збереження для всіх — окремою кнопкою.</p>`;
     document.body.appendChild(panel);
 
+    const levels=panel.querySelector('.room-master-levels');
+    panel.querySelectorAll('[data-rm-scroll]').forEach(b=>b.onclick=()=>levels.scrollBy({left:Number(b.dataset.rmScroll)*180,behavior:'smooth'}));
+    levels.addEventListener('wheel',e=>{if(levels.scrollWidth<=levels.clientWidth)return;e.preventDefault();levels.scrollLeft+=e.deltaY||e.deltaX;},{passive:false});
     panel.querySelector('[data-rm-close]').onclick=()=>toggleEditor(false);
     panel.querySelectorAll('[data-rm-level]').forEach(b=>b.onclick=()=>setLevel(Number(b.dataset.rmLevel)));
     panel.querySelector('[data-rm-slot]').onchange=e=>{selected=e.target.value;render();};
@@ -371,7 +390,7 @@
     const sizeInput=panel.querySelector('[data-rm-size]');
     sizeInput.oninput=e=>{
       const l=currentLayout()[selected];if(!l)return;
-      l.w=Number(e.target.value);
+      const next=Number(e.target.value);if(Number.isFinite(l.h))l.h=pct(l.h*next/l.w,3,95);l.w=next;
       const node=selected==='teddy'?room()?.querySelector('.room-master-teddy'):room()?.querySelector(`[data-room-master-object="${selected}"]`);
       if(node)applyBox(node,l,selected);
       const value=panel.querySelector('[data-rm-size-value]');

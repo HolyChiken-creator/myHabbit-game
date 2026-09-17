@@ -142,3 +142,31 @@
 @media(max-width:600px){.renovation-room.room-master-enabled>.room-companion[data-activity] .companion-caption{font-size:8px;max-width:100px;padding:5px 7px}}
 
 .room-empty-preview{height:105px;display:grid;place-items:center;border:2px dashed #d6c5b2;border-radius:14px;font-size:42px;color:#a18a71;background:#f6efe5}.room-live-styles{grid-template-columns:repeat(6,minmax(125px,1fr))}@media(max-width:600px){.room-live-styles{grid-template-columns:repeat(6,140px)}}
+
+/* Desktop editor navigation and proportional resize. */
+.room-master-level-nav{display:grid;grid-template-columns:30px minmax(0,1fr) 30px;gap:5px;align-items:start}
+.room-master-level-nav>[data-rm-scroll]{height:41px;border:1px solid #dfcfbf;border-radius:10px;background:#fffaf4;color:#604a3c;font-size:24px;cursor:pointer}
+.room-master-levels{scrollbar-width:thin;overscroll-behavior-x:contain}.room-master-levels button{flex:0 0 auto}
+.room-master-range{grid-template-columns:minmax(0,1fr) auto}.room-master-range input{grid-column:1/-1;width:100%;min-width:0;cursor:ew-resize;touch-action:pan-y}
+.room-master-teddy[role=button]{cursor:pointer}.room-master-teddy:focus-visible{outline:2px solid #a97d43;outline-offset:5px;border-radius:24px}
+.room-master-teddy[data-activity]{transition:left .12s linear,top .2s ease,width .2s ease}
+.room-master-teddy[data-activity] .bear-part,.room-master-teddy[data-activity] .bear-head{transition:transform .65s ease}
+.room-master-teddy[data-activity="idle"] .bear-leg-left,.room-master-teddy[data-activity="idle"] .bear-leg-right,.room-master-teddy[data-activity="think"] .bear-leg-left,.room-master-teddy[data-activity="think"] .bear-leg-right{transform:none}
+.room-master-teddy[data-activity="sit"] .bear-body,.room-master-teddy[data-activity="read"] .bear-body{animation:none!important;transform:translateY(110px)}
+.room-master-teddy[data-activity="sit"] .bear-leg-left,.room-master-teddy[data-activity="read"] .bear-leg-left{transform:translate(-15px,-75px) rotate(70deg)}
+.room-master-teddy[data-activity="sit"] .bear-leg-right,.room-master-teddy[data-activity="read"] .bear-leg-right{transform:translate(15px,-75px) rotate(-70deg)}
+.room-master-teddy[data-activity="read"] .bear-head{transform:translateY(12px) rotate(7deg)}
+.room-master-teddy[data-activity="read"] .bear-arm-left{transform:rotate(-36deg)}
+.room-master-teddy[data-activity="read"] .bear-arm-right{transform:rotate(36deg)}
+.teddy-book{opacity:0;transform:scaleX(.02);transition:opacity .3s,transform .7s}.room-master-teddy[data-activity="read"] .teddy-book{opacity:1;transform:scaleX(1)}
+.teddy-book-page{opacity:0}.room-master-teddy[data-activity="read"] .teddy-book-page{animation:teddy-page-turn 7s ease-in-out infinite}
+@keyframes teddy-page-turn{0%,75%,100%{opacity:0;transform:scaleX(1)}80%{opacity:1;transform:scaleX(1)}95%{opacity:1;transform:scaleX(-1)}}
+.room-master-teddy[data-activity="think"] .bear-arm-right{transform:translate(65px,-55px) rotate(140deg)}
+.room-master-teddy[data-activity="think"] .bear-head{transform:rotate(-9deg)}
+.room-master-teddy[data-activity="walk"] .bear-leg-left,.room-master-teddy[data-activity="walk"] .bear-arm-right{animation:bear-step .35s ease-in-out infinite alternate!important}
+.room-master-teddy[data-activity="walk"] .bear-leg-right,.room-master-teddy[data-activity="walk"] .bear-arm-left{animation:bear-step .35s ease-in-out infinite alternate-reverse!important}
+.room-master-teddy[data-activity="walk"] .bear-body{animation:teddy-walk-bob .35s ease-in-out infinite!important}
+@keyframes teddy-walk-bob{50%{transform:translateY(-12px)}}
+.room-master-teddy[data-activity="walk"][data-facing="left"] .bear-head{transform:rotate(-6deg)}
+.room-master-teddy[data-activity="walk"][data-facing="right"] .bear-head{transform:rotate(6deg)}
+@media(prefers-reduced-motion:reduce){.room-master-teddy[data-activity],.room-master-teddy[data-activity] .bear-part,.room-master-teddy[data-activity] .bear-head,.teddy-book{transition:none!important}.room-master-teddy[data-activity] .bear-rig g{animation:none!important}}

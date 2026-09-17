@@ -1294,15 +1294,11 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
  const part = p => `<g class="bear-part bear-${p.name}" style="transform-origin:${p.pivot[0]}px ${p.pivot[1]}px">${image(p)}</g>`;
  const head = BEAR_RIG.parts.find(p=>p.name==='head');
  const closed = BEAR_RIG.parts.find(p=>p.name==='head-closed');
- return `<svg class="bear-rig" viewBox="180 60 900 1150" aria-hidden="true"><g class="bear-body">${BEAR_RIG.parts.filter(p=>!p.name.startsWith('head')).map(part).join('')}<g class="bear-head" style="transform-origin:${head.pivot[0]}px ${head.pivot[1]}px"><g class="bear-eyes-open">${image(head)}</g><g class="bear-eyes-closed">${image(closed)}</g></g></g></svg>`;
+ return `<svg class="bear-rig" viewBox="180 60 900 1150" aria-hidden="true"><g class="bear-body">${BEAR_RIG.parts.filter(p=>!p.name.startsWith('head')).map(part).join('')}<g class="bear-head" style="transform-origin:${head.pivot[0]}px ${head.pivot[1]}px"><g class="bear-eyes-open">${image(head)}</g><g class="bear-eyes-closed">${image(closed)}</g></g><g class="teddy-book" style="transform-origin:625px 835px"><path d="M410 747Q520 716 625 774Q730 716 840 747L824 925Q724 895 625 946Q526 895 426 925Z" fill="#83502e" stroke="#573720" stroke-width="12"/><path d="M426 748Q530 733 621 785V926Q527 883 440 908Z" fill="#fff2cc"/><path d="M629 785Q726 733 824 748L810 908Q720 883 629 926Z" fill="#f4dfa9"/><g stroke="#b99c6d" stroke-width="6" fill="none"><path d="M454 784q78-8 137 25m-135 4q76-6 135 25m-132 4q73-4 132 25M657 809q67-29 139-25m-139 54q67-28 136-25m-136 54q64-25 133-25"/></g><path class="teddy-book-page" d="M629 785Q726 733 824 748L810 908Q720 883 629 926Z" fill="#fff5d9" style="transform-origin:629px 835px"/></g></g></svg>`;
 }
 
-  function roomCompanion(next,completed,total){
-    const done=completed>0&&completed===total;
-    const mode=done?'celebrate':!next?'rest':({reading:'read',mind:'read',growth:'read',sport:'move',health:'move',home:'tidy',finance:'plan',care:'care',family:'care',relationship:'care',creativity:'create'}[next.skill||next.category]||'plan');
-    const moods={read:['📖','Пізнаємо щось нове?','Let’s learn something new!'],move:['🏃','Трохи руху разом?','Let’s get moving!'],tidy:['🧹','Зробімо дім затишнішим','Let’s make home cozy'],plan:['📝','Один маленький крок','One small step'],care:['💛','Подаруймо трохи тепла','Let’s share some kindness'],create:['🎨','Час для натхнення','Time to create'],rest:['☕','Відпочинок теж важливий','Rest matters too'],celebrate:['✨','Ми впоралися!','We did it!']};
-    const [prop,uk,en]=moods[mode];
-    return '<div class="room-companion mood-'+mode+'" role="img" aria-label="'+escapeHtml(tr(uk,en))+'"><div class="companion-caption">'+tr(uk,en)+'</div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true">'+prop+'</span></div>';
+  function roomCompanion(){
+    return '<div class="room-companion" role="button" tabindex="0" aria-label="'+tr('Тедик: натисніть, щоб погуляти','Teddy: press to take a walk')+'"><div class="companion-caption"></div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true"></span></div>';
   }
   const ROOM_DECOR_SLOT_NAMES={
     background:['Фон','Background'],window:['Вікно','Window'],armchair:['Крісло','Armchair'],table:['Столик','Side table'],
