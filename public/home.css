@@ -958,5 +958,5 @@
   .room-live-studio[data-workshop="true"] .room-workshop-styles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 
-/* 12.23.8 — achievements live inside Museum */
+/* 12.23.9 — achievements live inside Museum */
 .achievement-list-head{display:flex;align-items:center;gap:14px;margin:0 0 14px}.achievement-list-head h2{margin:0 0 3px}.achievement-list{display:grid;grid-template-columns:1fr;gap:9px}.achievement-list .achievement-card{width:100%;grid-template-columns:52px minmax(0,1fr);min-height:76px}.achievement-list .achievement-card h3{white-space:normal}.achievement-list .achievement-card p{-webkit-line-clamp:2}.museum-achievement-preview{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}.museum-achievements .section-head>div{min-width:0}.museum-achievements .section-head small{display:block;color:var(--muted);margin-top:2px}@media(max-width:700px){.achievement-list-head{align-items:flex-start;flex-direction:column}.achievement-list-head .btn{width:auto}.achievement-list .achievement-card{grid-template-columns:46px minmax(0,1fr)}.museum-achievement-preview .achievement-card:nth-child(n+4){display:none}.museum-achievements .section-head{align-items:center}.museum-achievements .section-head .btn{white-space:nowrap}}

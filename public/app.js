@@ -1902,33 +1902,40 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Default"><Alignment ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="11"/></Style><Style ss:ID="sTitle"><Font ss:Bold="1" ss:Size="16"/><Interior ss:Color="#F4EBDD" ss:Pattern="Solid"/></Style><Style ss:ID="sSubtitle"><Font ss:Bold="1" ss:Size="12"/></Style><Style ss:ID="sHeader"><Font ss:Bold="1"/><Interior ss:Color="#E8F0E8" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style><Style ss:ID="sText"><Alignment ss:WrapText="1"/></Style><Style ss:ID="sNumber"><Alignment ss:Horizontal="Center"/></Style><Style ss:ID="sDate"><Alignment ss:Horizontal="Center"/></Style><Style ss:ID="sBar"><Font ss:Color="#6D8B74"/></Style></Styles>${worksheets.join('')}</Workbook>`;
     downloadBlobFile(new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'}),`myHabbit-family-report-${localDay()}.xls`);showToast(`Звіт створено: ${events.length} виконаних справ`);
   }
+  const FAMILY_HOME_MILESTONES=[
+    {familyLevel:1,stage:1,icon:'🏠',title:'Перша оселя',detail:'Тут починається ваша спільна історія.'},
+    {familyLevel:5,stage:2,icon:'🏡',title:'Затишний куточок',detail:'Дім стає теплішим разом із сімейними звичками.'},
+    {familyLevel:10,stage:3,icon:'🏡🌿',title:'Сімейний сад',detail:'У спільному просторі зʼявляється більше життя.'},
+    {familyLevel:20,stage:4,icon:'🏡✨',title:'Живий простір',detail:'Ваш прогрес уже видно в атмосфері всього дому.'},
+    {familyLevel:35,stage:5,icon:'🏰',title:'Дім мрії',detail:'Фінальний етап сімейного простору відкрито.'}
+  ];
+  function familyHomeProgress(level=state.family?.level||1){
+    const value=Math.max(1,Math.trunc(Number(level)||1));
+    let index=0;
+    for(let i=0;i<FAMILY_HOME_MILESTONES.length;i++)if(value>=FAMILY_HOME_MILESTONES[i].familyLevel)index=i;
+    const current=FAMILY_HOME_MILESTONES[index],next=FAMILY_HOME_MILESTONES[index+1]||null;
+    const from=current.familyLevel,to=next?.familyLevel||from;
+    const pct=next?Math.max(0,Math.min(100,Math.round((value-from)/Math.max(1,to-from)*100))):100;
+    return {index,current,next,pct,familyLevel:value};
+  }
   function familyHomeStage(){
-    const level=ensureFamilyStyle().level;
-    const stages=[
-      {level:1,icon:'🏠',title:'Теплий вогник',detail:'Базовий вигляд',teddy:'🐻'},
-      {level:2,icon:'🏡',title:'Затишний куточок',detail:'Шарфик',teddy:'🐻🧣'},
-      {level:3,icon:'🏡🌿',title:'Сімейний сад',detail:'Книжка',teddy:'🐻📖'},
-      {level:4,icon:'🏡🌙',title:'Зоряний дах',detail:'Ліхтарик',teddy:'🐻🏮'},
-      {level:5,icon:'🏰',title:'Золота оселя',detail:'Корона сімʼї',teddy:'🐻👑'}
-    ];
-    return stages[Math.max(0,Math.min(stages.length-1,level-1))];
+    return familyHomeProgress().current;
   }
   function familyHallBlock(users){
-    const cards=users.map(u=>`<button class="family-hall-member" data-open-profile="${u.id}"><span class="avatar">${u.avatar}</span><strong translate="no">${escapeHtml(u.name)}</strong><small>${u.role==='owner'?'Власник':u.role==='admin'?'Адміністратор':'Учасник'} · ${format(familyStyleMemberContribution(u.id))} 🪙</small><i style="width:${Math.min(100,(u.level||1)*5)}%"></i></button>`).join('');
-    return `<section class="card family-hall-card"><div class="section-head compact"><div><span class="eyebrow">Приватна сімейна зала</span><h2>Сімейна зала</h2><p>Тут зібрані всі учасники та їхній внесок у спільний розвиток.</p></div></div><div class="family-hall-grid">${cards||'<div class="empty">У видимому списку поки немає учасників</div>'}</div></section>`;
+    const cards=users.map(u=>`<button class="family-hall-member" data-open-profile="${u.id}"><span class="avatar">${u.avatar}</span><strong translate="no">${escapeHtml(u.name)}</strong><small>${u.role==='owner'?'Власник':u.role==='admin'?'Адміністратор':'Учасник'} · ${format(u.xp||0)} XP · ${u.level||1} рівень</small><i style="width:${Math.min(100,(u.level||1)*5)}%"></i></button>`).join('');
+    return `<section class="card family-hall-card"><div class="section-head compact"><div><span class="eyebrow">Приватна сімейна зала</span><h2>Сімейна зала</h2><p>Тут зібрані всі учасники та їхній прогрес у спільному просторі.</p></div></div><div class="family-hall-grid">${cards||'<div class="empty">У видимому списку поки немає учасників</div>'}</div></section>`;
   }
   function familyHouseBlock(){
-    const stage=familyHomeStage(),next=familyStyleNextInfo(),total=familyStyleTotal();
-    const unlocked=FAMILY_STYLE_LEVELS.slice(0,ensureFamilyStyle().level).map(x=>`<span class="family-unlock-chip">${escapeHtml(x.icon)} ${escapeHtml(x.title)}</span>`).join('');
-    return `<section class="card family-house-card family-house-level-${ensureFamilyStyle().level}"><div class="family-house-scene"><div class="family-house-sky"></div><div class="family-house-building">${stage.icon}</div><div class="family-house-teddy" title="Тедик сімʼї">${stage.teddy}</div></div><div class="family-house-copy"><span class="eyebrow">Сімейний дім · рівень ${ensureFamilyStyle().level}</span><h2>${escapeHtml(stage.title)}</h2><p>Цей простір змінюється лише завдяки спільним внескам.</p><div class="family-house-status"><strong>${next?'Наступне покращення':'Усі покращення відкрито'}</strong><span>${next?`${format(total)} / ${format(next.goal)} 🪙`:'✓'}</span></div><div class="family-unlocks">${unlocked}</div><small>Тедик: ${escapeHtml(stage.detail)}. Новий вигляд Тедика відкривається разом із сімейним рівнем.</small></div></section>`;
+    const p=familyHomeProgress(),stage=p.current;
+    const unlocked=FAMILY_HOME_MILESTONES.slice(0,p.index+1).map(x=>`<span class="family-unlock-chip">✓ ${escapeHtml(x.title)}</span>`).join('');
+    const nextLabel=p.next?`Рівень сімʼї ${p.next.familyLevel} · ${escapeHtml(p.next.title)}`:'Фінальний вигляд відкрито';
+    return `<section class="card family-house-card family-house-level-${stage.stage}"><div class="family-house-scene"><div class="family-house-sky"></div><div class="family-house-building">${stage.icon}</div></div><div class="family-house-copy"><span class="eyebrow">Сімейний дім · етап ${stage.stage}/${FAMILY_HOME_MILESTONES.length}</span><h2>${escapeHtml(stage.title)}</h2><p>${escapeHtml(stage.detail)} Дім змінюється автоматично разом із рівнем сімʼї.</p><div class="family-house-status"><strong>${p.next?'Наступна сцена':'Усі сцени відкрито'}</strong><span>${nextLabel}</span></div><div class="progress family-style-progress"><i style="width:${p.pct}%"></i></div><div class="family-unlocks">${unlocked}</div><small>Це окремий сімейний простір. Особиста кімната Теда та її кастомізація працюють незалежно й не змінюються.</small></div></section>`;
   }
 
   function familyScreen(){
-    const visibleUsers=visibleFamilyUsers(),familyActivity=familyActivityItems(),fp=ensureFamilyStyle(),current=familyStyleLevelInfo(),next=familyStyleNextInfo(),total=familyStyleTotal();
-    const themeClass=`family-theme-${fp.activeTheme}`;
-    const progress=next?Math.min(100,Math.round(total/next.goal*100)):100;
-    const contributionRows=visibleUsers.map(u=>`<div class="family-contribution-row"><span>${escapeHtml(u.name)}</span><strong>${format(familyStyleMemberContribution(u.id))} 🪙</strong>${next?`<small>мінімум ${format(next.minEach)}</small>`:'<small>максимальний рівень</small>'}</div>`).join('');
-    return shell(`<section class="card family-identity-card ${themeClass}"><div class="family-style-glow"></div><div class="profile-hero"><span class="avatar family-emblem">${escapeHtml(current.icon)}</span><div><span class="eyebrow">Сімейний стиль · рівень ${fp.level}</span><div class="profile-level">${escapeHtml(state.family.name)}</div><div class="meta">Код сімʼї: <strong>${escapeHtml(state.family.code)}</strong> · ${visibleUsers.length}/${familyMax()} учасників · ${escapeHtml(current.title)}</div><div class="progress family-style-progress" style="margin-top:10px"><i style="width:${progress}%"></i></div>${next?`<small class="family-style-hint">До «${escapeHtml(next.title)}»: ${format(total)} / ${format(next.goal)} 🪙 · внесок кожного від ${format(next.minEach)}</small>`:'<small class="family-style-hint">Відкрито максимальний рівень оформлення</small>'}</div><div class="profile-actions"><button class="btn primary" data-action="invite">Запросити</button><button class="btn soft" data-action="family-style">🎨 Оформлення сімʼї</button>${isAdmin()?'<button class="btn soft" data-action="family-monthly-report">📊 Звіт за 30 днів</button>':''}<button class="btn danger" data-action="leave-family">Вийти із сімʼї</button></div></div><div class="family-contribution-mini">${contributionRows}</div></section>${familyHouseBlock()}${familyHallBlock(visibleUsers)}<div class="section-head"><h2>Сімейна активність</h2></div><div class="card family-activity-window">${familyActivity.length?familyActivity.map(h=>`<div class="activity"><span class="activity-icon">${activityIconHtml(h.icon)}</span><div><p>${escapeHtml(h.text||'Подія')}</p><small>${escapeHtml(h.time||'')}</small></div></div>`).join(''):'<div class="empty">Поки немає нових подій учасників</div>'}</div>`,`Сімʼя`,`Приватний простір лише для учасників цієї сімʼї.`)}
+    const visibleUsers=visibleFamilyUsers(),familyActivity=familyActivityItems(),home=familyHomeProgress();
+    const nextHome=home.next?`наступний вигляд на рівні ${home.next.familyLevel}`:'відкрито фінальний вигляд';
+    return shell(`<section class="card family-identity-card family-theme-classic"><div class="family-style-glow"></div><div class="profile-hero"><span class="avatar family-emblem">🏡</span><div><span class="eyebrow">Сімейний прогрес · рівень ${state.family.level}</span><div class="profile-level">${escapeHtml(state.family.name)}</div><div class="meta">Код сімʼї: <strong>${escapeHtml(state.family.code)}</strong> · ${visibleUsers.length}/${familyMax()} учасників · дім росте разом із вами</div><div class="progress family-style-progress" style="margin-top:10px"><i style="width:${home.pct}%"></i></div><small class="family-style-hint">${escapeHtml(nextHome)}</small></div><div class="profile-actions"><button class="btn primary" data-action="invite">Запросити</button>${isAdmin()?'<button class="btn soft" data-action="family-monthly-report">📊 Звіт за 30 днів</button>':''}<button class="btn danger" data-action="leave-family">Вийти із сімʼї</button></div></div></section>${familyHouseBlock()}${familyHallBlock(visibleUsers)}<div class="section-head"><h2>Сімейна активність</h2></div><div class="card family-activity-window">${familyActivity.length?familyActivity.map(h=>`<div class="activity"><span class="activity-icon">${activityIconHtml(h.icon)}</span><div><p>${escapeHtml(h.text||'Подія')}</p><small>${escapeHtml(h.time||'')}</small></div></div>`).join(''):'<div class="empty">Поки немає нових подій учасників</div>'}</div>`,`Сімʼя`,`Приватний простір лише для учасників цієї сімʼї.`)}
 
   function adminMemberRow(u){
     const roleLabel=u.role==='owner'?'Власник':u.role==='admin'?'Адміністратор':'Учасник';

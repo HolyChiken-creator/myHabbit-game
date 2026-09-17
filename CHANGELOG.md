@@ -1,3 +1,8 @@
+
+## 12.23.9 — Family Home Evolution
+- Сімейний дім тепер автоматично розвивається за рівнями сімʼї 1 / 5 / 10 / 20 / 35.
+- Ручне «Оформлення сімʼї» прибрано з користувацького екрана; legacy-дані зберігаються для сумісності.
+- Особиста кімната Теда навмисно не змінювалась: магазин, декор, анімації, прокачка та owner-layout залишилися логікою 12.23.8.
 ## 12.23.7
 - Preserve pending profile JSON across session bootstrap and 409 conflicts.
 - Export quick-login and encrypted profile JSON from the current persisted account snapshot.
