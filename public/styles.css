@@ -759,3 +759,11 @@ body{background:radial-gradient(circle at 20% 0,#fff8ef 0,#ead4bd 44%,#c69a72 10
 .game-task{backdrop-filter:blur(10px);background:rgba(255,248,235,.92)}
 @media(max-width:900px){.game-room{min-height:900px}.game-room-art{background-position:39% center}.game-room-copy{top:20px;left:18px}.game-teddy-hotspot{left:34%;top:47%;width:150px;height:190px}}
 @media(max-width:520px){.game-room{min-height:920px}.game-room-art{background-position:37% center}.game-room-shade{background:linear-gradient(0deg,rgba(28,14,9,.72),transparent 55%),linear-gradient(180deg,rgba(28,14,9,.38),transparent 35%)}.game-teddy-hotspot{left:27%;top:48%}}
+
+/* 12.23.6 — authenticated session bootstrap gate. */
+.session-restore-failure{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(180deg,#fff8f1,#fff)}
+.session-restore-failure>section{width:min(520px,100%);padding:26px;border:1px solid #eadfd7;border-radius:24px;background:#fff;text-align:center;box-shadow:0 18px 46px rgba(80,55,45,.09)}
+.session-restore-failure h1{margin:10px 0 8px;font-size:clamp(24px,6vw,34px);letter-spacing:-.03em}
+.session-restore-failure p{margin:0 0 18px;color:#756a68;line-height:1.55}
+.session-restore-mark{font-size:52px}
+.session-restore-failure .btn{width:100%}

@@ -2,7 +2,7 @@
     'use strict';
     let savedLanguage;try{savedLanguage=localStorage.getItem('myHabbitLanguageV1');}catch{}
     const english=savedLanguage==='en'||(!['uk','en'].includes(savedLanguage)&&(navigator.language||'').toLowerCase().startsWith('en'));
-    const labels={"Перевіряємо локальні дані…":"Reading local data…","Відновлюємо профіль…":"Restoring your profile…","Підключаємо модулі…":"Loading modules…","Майже готово…":"Almost ready…","Безпечне відновлення":"Safe recovery","Застарілий кеш або локальні дані завадили запуску. Особисті дані не видалятимуться без окремого підтвердження.":"Outdated cache or local data prevented startup. Personal data will not be deleted without separate confirmation.","Оновити кеш і перезапустити":"Refresh cache and restart","Технічна інформація":"Technical information","Скрипт не підтвердив запуск":"The app did not confirm startup","Не вдалося завантажити застосунок":"Could not load the app"};
+    const labels={"Перевіряємо локальні дані…":"Reading local data…","Відновлюємо профіль…":"Restoring your profile…","Перевіряємо вашу сесію…":"Checking your session…","Підключаємо модулі…":"Loading modules…","Майже готово…":"Almost ready…","Безпечне відновлення":"Safe recovery","Застарілий кеш або локальні дані завадили запуску. Особисті дані не видалятимуться без окремого підтвердження.":"Outdated cache or local data prevented startup. Personal data will not be deleted without separate confirmation.","Оновити кеш і перезапустити":"Refresh cache and restart","Технічна інформація":"Technical information","Скрипт не підтвердив запуск":"The app did not confirm startup","Не вдалося завантажити застосунок":"Could not load the app"};
     const label=text=>english?(labels[text]||text):text;
     document.documentElement.lang=english?'en':'uk';
     if(english){document.getElementById('appSplash')?.setAttribute('aria-label','Loading myHabbit');const status=document.getElementById('splashStatus');if(status)status.textContent='Starting safely…';}
@@ -58,11 +58,12 @@
     setTimeout(() => setProgress(92, 'Майже готово…'), 1100);
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = '/app.js?v=12.23.3';
+    script.src = '/app.js?v=12.23.6';
     script.onerror = () => { lastError = 'Не вдалося завантажити застосунок'; recovery(); };
     document.body.appendChild(script);
     setTimeout(() => {
-      if (window.__MYHABBIT_APP_READY__ || app?.innerHTML.trim()) hide();
+      if (window.__MYHABBIT_APP_READY__) hide();
+      else if (window.__MYHABBIT_APP_BOOTSTRAPPING__) setTimeout(() => window.__MYHABBIT_APP_READY__ ? hide() : recovery(), 6500);
       else recovery();
     }, 6500);
   })();

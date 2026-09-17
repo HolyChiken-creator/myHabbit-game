@@ -1071,8 +1071,8 @@ import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatu
     if(!auth?.token||auth?.demo)return;
     liveSessionStartedAt=Date.now();
     lastUserActivityAt=Date.now();
-    // Refresh must paint local state first. A delayed, throttled pull avoids
-    // duplicate Durable Object requests during reload/PWA activation.
+    // The first authenticated paint is already session-gated at boot.
+    // Subsequent pulls stay delayed/throttled to avoid duplicate requests.
     setTimeout(()=>pullRemoteAndRender().catch(()=>{}).finally(scheduleFamilyRefresh),2500);
   }
   familyChannel?.addEventListener('message',event=>{
@@ -2720,36 +2720,116 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     window.addEventListener('focus',ping);
   }
 
+  let appReadySignalled=false;
+  function signalAppReady(){
+    if(appReadySignalled)return;
+    appReadySignalled=true;
+    window.__MYHABBIT_APP_BOOTSTRAPPING__=false;
+    window.__MYHABBIT_APP_READY__=true;
+    window.dispatchEvent(new CustomEvent('myhabbit:ready'));
+  }
+  function hasTrustedLocalSessionState(){
+    if(!auth?.token||auth?.demo||!state||state.family?.id==='demo-family')return false;
+    const userId=String(auth.userId||'');
+    if(!userId||!Array.isArray(state.users))return false;
+    return state.users.some(user=>String(user?.id||'')===userId);
+  }
+  function rejectStoredSession(){
+    const staleId=accountId();
+    try{
+      localStorage.removeItem(AUTH);
+      localStorage.removeItem(ACTIVE_ACCOUNT);
+      if(staleId){
+        const remaining=loadAccounts().filter(item=>item.id!==staleId);
+        safeJsonWrite(ACCOUNTS,remaining);
+      }
+    }catch{}
+    auth=null;
+    route='landing';
+    try{history.replaceState({},'', '/');}catch{}
+  }
+  async function restoreAuthenticatedSessionBeforePaint(){
+    if(!auth?.token||auth?.demo)return 'not-required';
+    const localTrusted=hasTrustedLocalSessionState();
+    updateSplash(26,'Відновлюємо ваш профіль…');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),4800);
+    try{
+      const data=await api('/api/family/state',{signal:controller.signal});
+      if(!data?.state)throw new Error('Сервер не повернув профіль');
+      acceptServer(data);
+      if(auth?.userId&&state.users?.some(user=>String(user.id)===String(auth.userId))){
+        state.currentUserId=auth.userId;
+        persistConfirmed();
+      }
+      lastFamilyPullAt=Date.now();
+      syncMessage='Збережено';
+      return 'server';
+    }catch(error){
+      if(error?.status===401||error?.status===403){
+        rejectStoredSession();
+        return 'signed-out';
+      }
+      if(localTrusted){
+        if(auth?.userId&&state.users?.some(user=>String(user.id)===String(auth.userId)))state.currentUserId=auth.userId;
+        normalizeState();
+        syncMessage='Офлайн · локальний профіль';
+        console.warn('Session bootstrap uses confirmed local profile:',error?.message||error);
+        return 'local';
+      }
+      throw error;
+    }finally{clearTimeout(timeout);}
+  }
+  function showSessionRestoreFailure(error){
+    const message=error?.name==='AbortError'
+      ? 'Сервер не відповів вчасно. Тестовий профіль не показуємо — спробуйте ще раз.'
+      : 'Не вдалося підтвердити ваш профіль. Тестовий акаунт не буде показаний замість нього.';
+    app.innerHTML=`<main class="session-restore-failure"><section><div class="session-restore-mark">🧸</div><h1>Не вдалося відновити сесію</h1><p>${escapeHtml(message)}</p><button class="btn primary" id="sessionRetryButton" type="button">Спробувати ще раз</button></section></main>`;
+    document.getElementById('sessionRetryButton')?.addEventListener('click',()=>location.reload());
+    updateSplash(100,'Потрібне повторне підключення');
+    signalAppReady();
+  }
+
   (async()=>{
+    window.__MYHABBIT_APP_BOOTSTRAPPING__=true;
     try{
       updateSplash(10,'Запускаємо myHabbit…');
       initializeViewportAndOrientation();
-
-      // First paint uses local state only and happens before network, Telegram,
-      // IndexedDB, content downloads, or Service Worker preparation.
-      render();
-      window.__MYHABBIT_APP_READY__ = true;
-      window.dispatchEvent(new CustomEvent('myhabbit:ready'));
       initializeRewardFeedback();
-      updateSplash(42,'Готуємо ваш простір…');
-
-      // Decorative loading sequence: it keeps the pleasant splash visible,
-      // but never waits for network, Telegram, IndexedDB or full offline cache.
-      setTimeout(()=>updateSplash(68,'Завантажуємо локальні дані…'),260);
-      setTimeout(()=>updateSplash(86,'Майже готово…'),620);
-      setTimeout(()=>updateSplash(100,'Готово ✨'),980);
-      setTimeout(hideSplash,1250);
-      setTimeout(showPwaInstallGuide,1450);
-
-      // Everything else is progressive enhancement in the background.
       prepareOfflineApp().catch(()=>{});
 
+      // Never paint an authenticated dashboard from seed/demo data.
+      // The splash remains above a blank app until the real session is confirmed.
       if(isTelegramWebApp&&!auth&&!inviteToken){
-        try{await resumeTelegramSession();render();}catch(e){console.warn('Telegram session:',e);}
+        updateSplash(24,'Відновлюємо Telegram-профіль…');
+        try{await resumeTelegramSession();}catch(e){console.warn('Telegram session:',e);}
       }
       if(inviteToken&&!auth){
-        try{await loadInviteInfo();render();}catch(e){console.warn('Invite:',e);}
+        updateSplash(28,'Перевіряємо запрошення…');
+        try{await loadInviteInfo();}catch(e){console.warn('Invite:',e);}
       }
+
+      if(auth?.token&&!auth.demo){
+        updateSplash(38,'Перевіряємо вашу сесію…');
+        try{
+          const source=await restoreAuthenticatedSessionBeforePaint();
+          updateSplash(source==='local'?72:68,source==='local'?'Відкриваємо збережений профіль…':'Завантажуємо вашу кімнату…');
+        }catch(error){
+          console.error('Session bootstrap failed:',error);
+          showSessionRestoreFailure(error);
+          return;
+        }
+      }else{
+        updateSplash(58,auth?.demo?'Відкриваємо демо…':'Готуємо myHabbit…');
+      }
+
+      updateSplash(88,'Майже готово…');
+      render();
+      updateSplash(100,'Готово ✨');
+      signalAppReady();
+      setTimeout(showPwaInstallGuide,550);
+
+      // Non-critical libraries and metadata load only after the correct identity is visible.
       try{await loadContentLibrary();render();}catch(e){console.warn('Content library:',e);}
       try{const m=await checkPublicMeta();if(m?.updateName){publicUpdateName=m.updateName;document.querySelectorAll('.release-label').forEach(x=>x.textContent=publicUpdateName);}const previousSeasonalTesting=ownerSeasonalStickerTesting;ownerSeasonalStickerTesting=Boolean(m?.seasonalStickerTesting);if(previousSeasonalTesting!==ownerSeasonalStickerTesting&&!m?.maintenance)render();const revision=Number(m?.cacheRevision||1),seen=Number(localStorage.getItem('myHabbitCacheRevisionV1')||0);if(!seen){localStorage.setItem('myHabbitCacheRevisionV1',String(revision));}else if(revision>seen){localStorage.setItem('myHabbitCacheRevisionV1',String(revision));try{const regs=await navigator.serviceWorker?.getRegistrations?.();await Promise.all((regs||[]).map(async r=>{try{await r.update()}catch{};r.waiting?.postMessage({type:'SKIP_WAITING'});}));}catch{}try{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('myhabbit-')).map(k=>caches.delete(k)));}catch{}location.reload();return;}setInterval(()=>checkPublicMeta(false),30000);}catch(e){console.warn('App meta:',e);}
       if(auth?.token){
@@ -2759,6 +2839,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
         setTimeout(checkDailyRoulette,350);
       }
     }catch(error){
+      window.__MYHABBIT_APP_BOOTSTRAPPING__=false;
       showBootError(error);
     }
   })();
