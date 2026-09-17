@@ -97,3 +97,40 @@
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
+
+/* Room life and renovation studio — 12.22.0 */
+.room-master-object[hidden]{display:none!important}
+.room-master-teddy{transition:left 1.8s ease-in-out,top 1.8s ease-in-out,width 1.8s ease-in-out}
+.room-master-editing .room-master-teddy{transition:none}
+.renovation-room.room-master-enabled>.room-companion[data-activity] .companion-caption{display:block!important;font-size:clamp(9px,1.1vw,12px);max-width:150px;white-space:normal;pointer-events:none;z-index:30}
+.room-master-teddy[data-activity] .bear-part,.room-master-teddy[data-activity] .bear-head{animation:none!important}
+.room-master-teddy[data-activity] .bear-body{animation:bear-breathe 4s ease-in-out infinite}
+.room-master-teddy[data-activity] .bear-eyes-open{display:inline}.room-master-teddy[data-activity] .bear-eyes-closed{display:none}
+.room-master-teddy[data-activity] .bear-arm-left,.room-master-teddy[data-activity] .bear-arm-right,.room-master-teddy[data-activity] .bear-head{transform:rotate(0deg)}
+.room-master-teddy[data-activity="sit"] .bear-leg-left{transform:translate(-25px,-100px) rotate(58deg)}
+.room-master-teddy[data-activity="sit"] .bear-leg-right{transform:translate(25px,-100px) rotate(-58deg)}
+.room-master-teddy[data-activity="sit"] .bear-head{transform:rotate(-6deg)}
+.room-master-teddy[data-activity="read"] .bear-head{transform:rotate(8deg)}
+.room-master-teddy[data-activity="read"] .bear-arm-left{transform:rotate(-27deg)}
+.room-master-teddy[data-activity="read"] .bear-arm-right{transform:rotate(27deg)}
+.room-master-teddy[data-activity="sip"] .bear-arm-right{transform:rotate(-46deg)}
+.room-master-teddy[data-activity="warm"] .bear-arm-left{transform:rotate(-35deg)}
+.room-master-teddy[data-activity="warm"] .bear-arm-right{transform:rotate(35deg)}
+.room-master-teddy[data-activity="water"] .bear-arm-right{transform:rotate(-55deg)}
+.room-master-teddy[data-activity="admire"] .bear-head{transform:rotate(-12deg)}
+.room-master-teddy[data-activity="cheer"] .bear-arm-left{transform:rotate(105deg)}
+.room-master-teddy[data-activity="cheer"] .bear-arm-right{transform:rotate(-105deg)}
+.room-master-teddy[data-activity] .companion-prop{top:60%;left:55%;font-size:clamp(15px,3vw,32px);transform:translateX(-50%)}
+.room-master-teddy[data-activity="water"] .companion-prop{left:88%;transform:rotate(-20deg)}
+.room-master-teddy.room-new-joy .companion-caption{background:#fff3cc;box-shadow:0 4px 22px #e7b54a66}
+.room-master-teddy.room-new-joy .bear-head{animation:room-happy-nod .8s ease-in-out 3!important}
+@keyframes room-happy-nod{50%{transform:rotate(10deg) translateY(-10px)}}
+.room-live-studio{border:1px solid #dccbb5;border-radius:24px;background:linear-gradient(145deg,#fffdf8,#f4eadc);box-shadow:0 12px 32px #45312212;overflow:hidden}
+.room-live-head{padding:18px}.room-live-balance{border-radius:20px;background:#fff;padding:10px 14px;font-weight:800}
+.room-live-tabs{gap:8px;padding:4px 16px 14px;scrollbar-width:thin}.room-live-tabs button{min-height:42px;white-space:nowrap;border-radius:14px}
+.room-live-styles{display:grid!important;grid-template-columns:repeat(5,minmax(125px,1fr));gap:10px;padding:8px 16px 18px;overflow-x:auto}
+.room-live-style{min-width:125px;border-radius:18px!important;background:#fffcf7!important;border:2px solid transparent!important;padding:12px!important}
+.room-live-style img{height:105px;max-width:100%;object-fit:contain}.room-live-style.is-active{border-color:#88a184!important}.room-live-style.is-preview{border-color:#bf8a41!important;box-shadow:0 5px 18px #bf8a4122}
+.room-live-style small{line-height:1.45}.room-live-confirm,.room-live-hint{padding:16px;background:#fffaf2;border-top:1px solid #e4d6c4}
+@media(max-width:600px){.room-live-styles{grid-template-columns:repeat(5,140px)}.room-live-confirm-actions{display:flex;flex-wrap:wrap}.room-live-confirm-actions button{flex:1;min-height:44px}.room-live-head{padding:14px}}
+@media(prefers-reduced-motion:reduce){.room-master-teddy{transition:none}.room-master-teddy.room-new-joy .bear-head{animation:none!important}}

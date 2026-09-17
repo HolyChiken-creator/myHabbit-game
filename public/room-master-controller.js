@@ -28,7 +28,7 @@
       if(!parsed)return d;
       d.activeLevel=Math.min(4,Math.max(0,Number(parsed.activeLevel)||0));
       d.sources={...d.sources,...(parsed.sources||{})};
-      d.layouts={...d.layouts,...(parsed.layouts||{})};
+      for(const n of Object.keys(d.layouts))d.layouts[n]={...d.layouts[n],...(parsed.layouts?.[n]||{})};
       return d;
     }catch{return defaultState();}
   }
@@ -61,7 +61,7 @@
   function ensureStateForRoom(el){
     if(!editorOpen){
       const remote=serverLayouts(el);
-      if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+      if(Object.keys(remote).length)Object.keys(remote).forEach(n=>state.layouts[n]={...CFG.defaults[n],...remote[n]});
       const stage=inferStage(el);state.activeLevel=stage;
       SLOTS.forEach(s=>state.sources[s]=sourceFor(el,s));
     }
@@ -92,6 +92,7 @@
       companion.dataset.roomMasterObject='teddy';
     }
 
+    activity=null;
     bindObjectEvents(el);
     render();
   }
@@ -100,7 +101,7 @@
     const el=room(); if(!el)return;
     if(!editorOpen){
       const remote=serverLayouts(el);
-      if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+      if(Object.keys(remote).length)Object.keys(remote).forEach(n=>state.layouts[n]={...CFG.defaults[n],...remote[n]});
     }
     const runtimeLevel=String(inferStage(el));
     const bgLevel=editorOpen?String(state.activeLevel):String(sourceFor(el,'background'));
@@ -113,17 +114,70 @@
       const level=CFG.levels[sourceLevel]||CFG.levels[0];
       const layout=(state.layouts[sourceLevel]||CFG.defaults[sourceLevel]||CFG.defaults[0]);
       img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
-      img.src=level.assets[slot];applyBox(img,layout[slot],slot);
+      img.src=level.assets[slot];img.hidden=['painting','lamp','clock'].includes(slot)&&sourceLevel==='0';applyBox(img,layout[slot]||CFG.defaults[sourceLevel][slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
     });
 
     const teddy=el.querySelector('.room-master-teddy');
     if(teddy){
       const tl=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]).teddy;
-      applyBox(teddy,tl,'teddy');teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
+      applyBox(teddy,tl,'teddy');if(!editorOpen)applyActivity(el,teddy);teddy.classList.toggle('is-selected',editorOpen&&selected==='teddy');
     }
     el.classList.toggle('room-master-editing',editorOpen);syncEditor();
   }
+
+
+  let activity=null, pendingReaction=null, activityIndex=0;
+  const activities={
+    armchair:{pose:'sit',prop:'',uk:['Оце крісло! Влаштуюся зручніше.','Мій улюблений куточок для відпочинку.'],en:['What a chair! Time to get comfortable.','My favourite place to rest.']},
+    table:{pose:'sip',prop:'☕',uk:['Час для чаю за моїм столиком.','Тепер є де поставити какао!'],en:['Time for tea at my table.','A place for my cocoa!']},
+    bookshelf:{pose:'read',prop:'📖',uk:['Обираю наступну історію.','Стільки книжок — вечір буде чудовим!'],en:['Choosing my next story.','So many books for a lovely evening!']},
+    fireplace:{pose:'warm',prop:'',uk:['Погрію лапки біля вогню.','Тепер удома ще затишніше.'],en:['Warming my paws by the fire.','Home feels even cozier.']},
+    plant:{pose:'water',prop:'🚿',uk:['Трохи води для мого зеленого друга.','Рости великою, красуне!'],en:['A little water for my green friend.','Grow tall, little beauty!']},
+    rug:{pose:'sit',prop:'',uk:['Який м’який килим!','Тут можна просто посидіти й помріяти.'],en:['Such a soft rug!','A place to sit and daydream.']},
+    window:{pose:'admire',prop:'',uk:['Звідси такий гарний краєвид.','Сонечко завітало в гості!'],en:['What a lovely view.','Sunshine came to visit!']},
+    painting:{pose:'admire',prop:'',uk:['Ця картина надихає мене!','Маленька галерея просто вдома.'],en:['This painting inspires me!','My own little gallery.']},
+    lamp:{pose:'warm',prop:'',uk:['М’яке світло для тихого вечора.','Тепер читати ще приємніше.'],en:['Soft light for a quiet evening.','Reading feels even nicer now.']},
+    clock:{pose:'admire',prop:'',uk:['Тік-так… час на маленьку перемогу!','З таким годинником не забуду про відпочинок.'],en:['Tick-tock… time for a small victory!','A reminder to take a little rest.']},
+    background:{pose:'cheer',prop:'✨',uk:['Ого! Наче зовсім новий дім!','Яка зміна! Хочеться обійняти всю кімнату.'],en:['Wow! It feels like a new home!','What a change! I love this room.']}
+  };
+  function applyActivity(el,teddy){
+    if(el.dataset.roomPreview==='true'){teddy.removeAttribute('data-activity');return;}
+    if(!activity)return;
+    const a=activities[activity.slot];if(!a)return;
+    const level=sourceFor(el,activity.slot),layout=state.layouts[level]||CFG.defaults[level];
+    const b=layout[activity.slot]||CFG.defaults[level][activity.slot];
+    if(b){
+      const item=el.querySelector(`[data-room-master-object="${activity.slot}"]`);
+      const h=item?.naturalWidth?b.w*item.naturalHeight/item.naturalWidth*el.clientWidth/Math.max(1,el.clientHeight):b.w;
+      const w=activity.slot==='armchair'?b.w*.78:18;
+      const teddyHeight=w*1150/900*el.clientWidth/Math.max(1,el.clientHeight);
+      let x=b.x+b.w*.5-w*.5,y=b.y+h*.84-teddyHeight*.9;
+      if(['painting','clock','window','bookshelf','lamp'].includes(activity.slot)){x=b.x-w*.65;y=Math.max(38,b.y+h-teddyHeight*.65);}
+      if(['table','plant','fireplace'].includes(activity.slot)){x=b.x-w*.8;y=b.y+h-teddyHeight*.9;}
+      applyBox(teddy,{x:pct(x,1,80),y:pct(y,5,Math.max(5,94-teddyHeight)),w,z:20},'teddy');
+    }
+    teddy.dataset.activity=a.pose;
+    const english=document.documentElement.lang?.startsWith('en');
+    const words=a[english?'en':'uk'],text=words[activity.variant%words.length];
+    const caption=teddy.querySelector('.companion-caption');if(caption&&caption.textContent!==text)caption.textContent=text;
+    teddy.setAttribute('aria-label',text);
+    const prop=teddy.querySelector('.companion-prop');if(prop&&prop.textContent!==a.prop)prop.textContent=a.prop;
+    teddy.classList.toggle('room-new-joy',Boolean(activity.reaction));
+  }
+  function nextActivity(){
+    const el=room();if(!el||editorOpen||document.hidden||el.dataset.roomPreview==='true')return;
+    if(pendingReaction&&Date.now()-pendingReaction.at<12000){activity={...pendingReaction,reaction:true};pendingReaction=null;}
+    else if(activity?.reaction&&Date.now()-activity.at<9000)return;
+    else {const available=SLOTS.filter(s=>sourceFor(el,s)>0);if(!available.length)return;const slot=available[activityIndex++%available.length];activity={slot,variant:Math.floor(activityIndex/Math.max(1,available.length)),at:Date.now()};}
+    const teddy=el.querySelector('.room-master-teddy');if(teddy)applyActivity(el,teddy);
+  }
+  window.addEventListener('teddy-room-upgraded',e=>{
+    if(!activities[e.detail?.slot])return;
+    pendingReaction={slot:e.detail.slot,variant:Math.max(0,(e.detail.tier||1)-1),at:Date.now()};
+    requestAnimationFrame(()=>{mount();nextActivity();});
+  });
+  setInterval(nextActivity,11000);
 
   function applyBox(el,b={},slot){
     const x=pct(b.x,0,95), y=pct(b.y,0,95), w=pct(b.w,5,80);

@@ -1306,7 +1306,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   }
   const ROOM_DECOR_SLOT_NAMES={
     background:['Фон','Background'],window:['Вікно','Window'],armchair:['Крісло','Armchair'],table:['Столик','Side table'],
-    bookshelf:['Книжкова шафа','Bookshelf'],fireplace:['Камін','Fireplace'],rug:['Килим','Rug'],plant:['Рослина','Plant']
+    bookshelf:['Книжкова шафа','Bookshelf'],fireplace:['Камін','Fireplace'],rug:['Килим','Rug'],plant:['Рослина','Plant'],painting:['Картина','Painting'],lamp:['Торшер','Floor lamp'],clock:['Годинник','Clock']
   };
   const ROOM_STAGE_COPY=[
     ['Занедбана кімната','Neglected room','Початок історії. Кожен елемент можна відновлювати окремо.','The story begins here. Upgrade each item separately.'],
@@ -1370,7 +1370,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     render();
     restoreRoomStudioScroll();
   }
-  function cancelRoomDecorPreview(){captureRoomStudioScroll();roomPreviewItemId='';cozyHaptic('light');render();restoreRoomStudioScroll();}
+  function cancelRoomDecorPreview(){captureRoomStudioScroll();roomPreviewItemId='';cozyHaptic('light');render();restoreRoomStudioScroll();if(!owned)window.dispatchEvent(new CustomEvent('teddy-room-upgraded',{detail:{slot:item.slot,tier:item.tier}}));}
   function closeRoomStudio(){roomStudioOpen=false;roomPreviewItemId='';cozyHaptic('light');render();}
   const ROOM_ASSET='/assets/generated/pack_00_style_lock/webp/';
   function roomDecorItem(u,slot){return ROOM_DECOR_CATALOG.find(item=>item.id===u?.roomDecor?.[slot])||ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&item.price===0);}
@@ -1419,7 +1419,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const attrs=Object.entries(src).map(([slot,level])=>`data-room-source-${slot}="${level}"`).join(' ');
     const layout=escapeHtml(JSON.stringify(state.roomLayoutMaster||{}));
     const classes=['game-room','room-depth','renovation-room','renovation-stage-'+progress.stage].join(' ');
-    return `<section class="${classes}" data-room-theme-level="${progress.stage}" data-room-admin="${isAdmin()?'true':'false'}" data-room-layout="${layout}" ${attrs}>
+    return `<section class="${classes}" data-room-theme-level="${progress.stage}" data-room-preview="${preview?'true':'false'}" data-room-admin="${isAdmin()?'true':'false'}" data-room-layout="${layout}" ${attrs}>
       ${roomCompanion(next,completed,total)}
     </section>`;
   }
@@ -1443,7 +1443,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,isPreview=roomPreviewItemId===item.id,tier=item.tier||0,prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id));
       const status=active?tr('Зараз у кімнаті','Currently equipped'):owned?tr('Уже придбано','Owned'):locked?tr('Можна приміряти · купівля після попереднього рівня','Preview available · unlock previous tier first'):item.price+' 💎';
       const assetSlot=item.slot==='background'?'background':item.slot;
-      const previewSrc=`/assets/room-master/level-${tier}/${assetSlot}.webp`;
+      const previewSrc=`/assets/room-master/level-${tier}/${assetSlot}.${['painting','lamp','clock'].includes(assetSlot)?'svg':'webp'}`;
       return `<button class="room-live-style tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}" data-action="room-decor-preview" data-item-id="${item.id}"><img src="${previewSrc}" alt="" loading="lazy"><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}</button>`;
     }).join('');
     let confirm='';
@@ -1468,7 +1468,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const owned=u.roomDecorOwned?.includes(item.id);
     cozyHaptic('medium');
     const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});
-    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();}
+    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();if(!owned)window.dispatchEvent(new CustomEvent('teddy-room-upgraded',{detail:{slot:item.slot,tier:item.tier}}));}
   }
 
   window.myHabbitSaveRoomLayout=layout=>isAdmin()?runGameAction('room-layout-save',{layout}):Promise.resolve(null);
@@ -1542,7 +1542,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     }
     return [...Array(cfg.size*cfg.size)].map((_,i)=>i%cfg.colors);
   }
-  function match3SaveKey(){return 'myHabbitMatch3V3:'+accountId();}
+  function match3SaveKey(){return 'myHabbitMatch3V4:'+accountId();}
   async function startMatch3(){const result=await runGameAction('match3-start');if(!result?.session)return;match3Runtime={...result.session,day:localDay()};safeJsonWrite(match3SaveKey(),{day:localDay(),runtime:match3Runtime});render();}
 
 
@@ -1575,14 +1575,14 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
 
   function match3Screen(){
     const u=currentUser(),p=ensureMatch3Profile(u),left=Math.max(0,25-p.playedToday);
-    if(!match3Runtime){const saved=safeJsonRead(match3SaveKey(),null);if(saved?.day===localDay()&&saved.runtime?.cfg?.schema===3&&saved.runtime?.cfg?.level===p.level)match3Runtime=saved.runtime;}
+    if(!match3Runtime){const saved=safeJsonRead(match3SaveKey(),null);if(saved?.day===localDay()&&saved.runtime?.cfg?.schema===4&&saved.runtime?.cfg?.level===p.level)match3Runtime=saved.runtime;}
     if(match3Runtime&&(match3Runtime.cfg.level!==p.level||match3Runtime.day!==localDay()))match3Runtime=null;
     const cfg=match3Runtime?.cfg||match3Config(p.level),rt=match3Runtime;
     const bossLabel=cfg.boss==='grand'?tr('Великий бос','Grand boss'):cfg.boss==='boss'?tr('Бос-рівень','Boss level'):cfg.boss==='mini'?tr('Складний рівень','Challenge level'):'';
     const diffLabel={cozy:tr('Затишний','Cozy'),focus:tr('Фокус','Focus'),expert:tr('Експерт','Expert'),boss:tr('Бос','Boss')}[cfg.difficulty]||cfg.difficulty;
     const boosterBar=rt?`<div class="m3-boosters"><button class="m3-booster ${match3BoosterMode==='hammer'?'is-active':''}" data-action="match3-booster" data-booster="hammer" ${!rt.boosters?.hammer||rt.busy?'disabled':''}>🔨 <span>${tr('Молоток','Hammer')}</span><b>${rt.boosters?.hammer||0}</b></button><button class="m3-booster" data-action="match3-booster" data-booster="shuffle" ${!rt.boosters?.shuffle||rt.busy?'disabled':''}>🔀 <span>${tr('Перемішати','Shuffle')}</span><b>${rt.boosters?.shuffle||0}</b></button><button class="m3-booster fire" data-action="match3-booster" data-booster="fire" ${!rt.boosters?.fire||rt.busy?'disabled':''}>🔥 <span>${tr('Спалити поле','Burn board')}</span><b>${rt.boosters?.fire||0}</b></button></div>`:'';
     const board=rt?'<div class="match3-board theme-'+cfg.theme+' difficulty-'+cfg.difficulty+'" style="--m3-size:'+cfg.size+'">'+match3Tiles(rt.board,rt.selected)+'</div>':'<div class="match3-ready theme-'+cfg.theme+'"><div class="m3-preview">'+[0,2,1,3,4].map(match3Piece).join('')+'</div><span class="m3-kicker">'+tr('ПОЛЕ ЗМІНЮЄТЬСЯ З РІВНЕМ','THE BOARD CHANGES WITH EACH LEVEL')+'</span><h2>'+tr('Нова комбінація — нове поле','A new level, a new board')+'</h2><p>'+tr('Розмір, палітра, ціль і кількість ходів тепер змінюються. На складних рівнях з’являється вогняний бустер.','Board size, palette, goal and moves now change. Harder levels unlock the fire booster.')+'</p><button class="btn primary m3-play" data-action="start-match3" '+(left<=0?'disabled':'')+'>'+tr(left>0?'Грати':'На сьогодні досить',left>0?'Let’s play':'Daily limit reached')+'</button></div>';
-    return shell('<section class="m3-world theme-'+cfg.theme+'"><div class="m3-ribbon"><span>myHabbit · '+diffLabel+' · '+cfg.size+'×'+cfg.size+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(2)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('фішок залишилось','pieces to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+boosterBar+'</div></div><footer class="m3-footer">'+(rt?'<button class="btn soft m3-restart" data-action="restart-match3" '+(rt.busy||rt.won?'disabled':'')+'>'+tr('Почати рівень заново','Restart level')+'</button>':'')+'<span>'+tr('Збирай комбінації. Молоток прибирає одну фішку, перемішування рятує поле, а вогонь спалює весь стіл.','Make matches. Hammer removes one piece, shuffle rescues the board, and fire burns the whole table.')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+' · 💎 '+format(u.diamonds)+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Різні поля, справжня прогресія складності й спеціальні предмети','Different boards, real difficulty progression and special items'));
+    return shell('<section class="m3-world theme-'+cfg.theme+'"><div class="m3-ribbon"><span>myHabbit · '+diffLabel+' · '+cfg.size+'×'+cfg.size+'</span><strong>'+tr('Рівень ','Level ')+p.level+(bossLabel?' · '+bossLabel:'')+'</strong></div><div class="m3-layout"><aside class="m3-goals"><div class="m3-goal-icon">'+match3Piece(cfg.target)+'</div><small>'+tr('Ціль','Goal')+'</small><strong data-m3-score>'+Math.max(0,cfg.goal-(rt?.score||0))+'</strong><span>'+tr('зірок залишилось','stars to collect')+'</span><div class="m3-meter"><i style="width:'+Math.min(100,(rt?.score||0)/cfg.goal*100)+'%"></i></div><div class="m3-moves '+(rt&&rt.moves<=5?'is-low':'')+'"><small>'+tr('Ходи','Moves')+'</small><b data-m3-moves>'+(rt?rt.moves:cfg.moves)+'</b></div></aside><div class="m3-playfield">'+board+boosterBar+'</div></div><footer class="m3-footer">'+(rt?'<button class="btn soft m3-restart" data-action="restart-match3" '+(rt.busy||rt.won?'disabled':'')+'>'+tr('Почати рівень заново','Restart level')+'</button>':'')+'<span>'+tr('До цілі зараховуються лише зірки. Інші комбінації звільняють поле. Молоток прибирає одну фішку, перемішування рятує поле, а вогонь спалює весь стіл.','Only stars count toward the goal. Other matches clear space. Hammer removes one piece, shuffle rescues the board, and fire burns the whole table.')+'</span><small>'+tr('Рівнів на сьогодні: ','Levels left today: ')+left+' · 💎 '+format(u.diamonds)+'</small></footer></section>',tr('Три в ряд','Match 3'),tr('Різні поля, справжня прогресія складності й спеціальні предмети','Different boards, real difficulty progression and special items'));
   }
 
   async function useMatch3Booster(kind,index){

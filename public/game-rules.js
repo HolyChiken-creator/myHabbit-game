@@ -12,52 +12,67 @@ export const ROOM_THEME_PACKS=[
 export function roomThemePack(level){return ROOM_THEME_PACKS.find(x=>x.level===Math.trunc(num(level)))||ROOM_THEME_PACKS[0];}
 export const ROOM_DECOR_CATALOG=[
   {id:'background-zero',slot:'background',title:'Занедбаний фон',price:0,icon:'🏚️',theme:'zero',tier:0},
-  {id:'background-cozy',slot:'background',title:'Затишний фон',price:4,icon:'🏡',theme:'cozy',tier:1},
-  {id:'background-warm',slot:'background',title:'Теплий фон',price:8,icon:'🌤️',theme:'warm',tier:2},
-  {id:'background-hitech',slot:'background',title:'Hi-tech фон',price:14,icon:'✨',theme:'hitech',tier:3},
-  {id:'background-gothic',slot:'background',title:'Готичний фон',price:22,icon:'🌙',theme:'gothic',tier:4},
+  {id:'background-cozy',slot:'background',title:'Затишний фон',price:24,icon:'🏡',theme:'cozy',tier:1},
+  {id:'background-warm',slot:'background',title:'Теплий фон',price:48,icon:'🌤️',theme:'warm',tier:2},
+  {id:'background-hitech',slot:'background',title:'Hi-tech фон',price:84,icon:'✨',theme:'hitech',tier:3},
+  {id:'background-gothic',slot:'background',title:'Готичний фон',price:132,icon:'🌙',theme:'gothic',tier:4},
 
   {id:'window-zero',slot:'window',title:'Занедбане вікно',price:0,icon:'🪟',theme:'zero',tier:0},
-  {id:'window-cozy',slot:'window',title:'Затишне вікно',price:4,icon:'🪟',theme:'cozy',tier:1},
-  {id:'window-warm',slot:'window',title:'Тепле вікно',price:9,icon:'🎀',theme:'warm',tier:2},
-  {id:'window-hitech',slot:'window',title:'Hi-tech вікно',price:15,icon:'💡',theme:'hitech',tier:3},
-  {id:'window-gothic',slot:'window',title:'Готичне вікно',price:24,icon:'🌙',theme:'gothic',tier:4},
+  {id:'window-cozy',slot:'window',title:'Затишне вікно',price:24,icon:'🪟',theme:'cozy',tier:1},
+  {id:'window-warm',slot:'window',title:'Тепле вікно',price:54,icon:'🎀',theme:'warm',tier:2},
+  {id:'window-hitech',slot:'window',title:'Hi-tech вікно',price:90,icon:'💡',theme:'hitech',tier:3},
+  {id:'window-gothic',slot:'window',title:'Готичне вікно',price:144,icon:'🌙',theme:'gothic',tier:4},
 
   {id:'armchair-zero',slot:'armchair',title:'Занедбане крісло',price:0,icon:'🪑',theme:'zero',tier:0},
-  {id:'armchair-cozy',slot:'armchair',title:'Затишне крісло',price:5,icon:'🛋️',theme:'cozy',tier:1},
-  {id:'armchair-warm',slot:'armchair',title:'Тепле крісло',price:10,icon:'🛋️',theme:'warm',tier:2},
-  {id:'armchair-hitech',slot:'armchair',title:'Hi-tech крісло',price:17,icon:'✨',theme:'hitech',tier:3},
-  {id:'armchair-gothic',slot:'armchair',title:'Готичне крісло',price:26,icon:'🕯️',theme:'gothic',tier:4},
+  {id:'armchair-cozy',slot:'armchair',title:'Затишне крісло',price:30,icon:'🛋️',theme:'cozy',tier:1},
+  {id:'armchair-warm',slot:'armchair',title:'Тепле крісло',price:60,icon:'🛋️',theme:'warm',tier:2},
+  {id:'armchair-hitech',slot:'armchair',title:'Hi-tech крісло',price:102,icon:'✨',theme:'hitech',tier:3},
+  {id:'armchair-gothic',slot:'armchair',title:'Готичне крісло',price:156,icon:'🕯️',theme:'gothic',tier:4},
 
   {id:'table-zero',slot:'table',title:'Занедбаний столик',price:0,icon:'🪵',theme:'zero',tier:0},
-  {id:'table-cozy',slot:'table',title:'Затишний столик',price:3,icon:'☕',theme:'cozy',tier:1},
-  {id:'table-warm',slot:'table',title:'Теплий столик',price:7,icon:'☕',theme:'warm',tier:2},
-  {id:'table-hitech',slot:'table',title:'Hi-tech столик',price:12,icon:'✨',theme:'hitech',tier:3},
-  {id:'table-gothic',slot:'table',title:'Готичний столик',price:18,icon:'🕯️',theme:'gothic',tier:4},
+  {id:'table-cozy',slot:'table',title:'Затишний столик',price:18,icon:'☕',theme:'cozy',tier:1},
+  {id:'table-warm',slot:'table',title:'Теплий столик',price:42,icon:'☕',theme:'warm',tier:2},
+  {id:'table-hitech',slot:'table',title:'Hi-tech столик',price:72,icon:'✨',theme:'hitech',tier:3},
+  {id:'table-gothic',slot:'table',title:'Готичний столик',price:108,icon:'🕯️',theme:'gothic',tier:4},
 
   {id:'bookshelf-zero',slot:'bookshelf',title:'Занедбана книжкова шафа',price:0,icon:'📚',theme:'zero',tier:0},
-  {id:'bookshelf-cozy',slot:'bookshelf',title:'Затишна книжкова шафа',price:4,icon:'📚',theme:'cozy',tier:1},
-  {id:'bookshelf-warm',slot:'bookshelf',title:'Тепла книжкова шафа',price:9,icon:'📚',theme:'warm',tier:2},
-  {id:'bookshelf-hitech',slot:'bookshelf',title:'Hi-tech книжкова шафа',price:16,icon:'✨',theme:'hitech',tier:3},
-  {id:'bookshelf-gothic',slot:'bookshelf',title:'Готична книжкова шафа',price:24,icon:'📚',theme:'gothic',tier:4},
+  {id:'bookshelf-cozy',slot:'bookshelf',title:'Затишна книжкова шафа',price:24,icon:'📚',theme:'cozy',tier:1},
+  {id:'bookshelf-warm',slot:'bookshelf',title:'Тепла книжкова шафа',price:54,icon:'📚',theme:'warm',tier:2},
+  {id:'bookshelf-hitech',slot:'bookshelf',title:'Hi-tech книжкова шафа',price:96,icon:'✨',theme:'hitech',tier:3},
+  {id:'bookshelf-gothic',slot:'bookshelf',title:'Готична книжкова шафа',price:144,icon:'📚',theme:'gothic',tier:4},
 
   {id:'fireplace-zero',slot:'fireplace',title:'Занедбаний камін',price:0,icon:'▫️',theme:'zero',tier:0},
-  {id:'fireplace-cozy',slot:'fireplace',title:'Затишний камін',price:5,icon:'🔥',theme:'cozy',tier:1},
-  {id:'fireplace-warm',slot:'fireplace',title:'Теплий камін',price:11,icon:'🔥',theme:'warm',tier:2},
-  {id:'fireplace-hitech',slot:'fireplace',title:'Hi-tech камін',price:18,icon:'✨',theme:'hitech',tier:3},
-  {id:'fireplace-gothic',slot:'fireplace',title:'Готичний камін',price:28,icon:'🕯️',theme:'gothic',tier:4},
+  {id:'fireplace-cozy',slot:'fireplace',title:'Затишний камін',price:30,icon:'🔥',theme:'cozy',tier:1},
+  {id:'fireplace-warm',slot:'fireplace',title:'Теплий камін',price:66,icon:'🔥',theme:'warm',tier:2},
+  {id:'fireplace-hitech',slot:'fireplace',title:'Hi-tech камін',price:108,icon:'✨',theme:'hitech',tier:3},
+  {id:'fireplace-gothic',slot:'fireplace',title:'Готичний камін',price:168,icon:'🕯️',theme:'gothic',tier:4},
 
   {id:'rug-zero',slot:'rug',title:'Занедбаний килим',price:0,icon:'▫️',theme:'zero',tier:0},
-  {id:'rug-cozy',slot:'rug',title:'Затишний килим',price:3,icon:'🧶',theme:'cozy',tier:1},
-  {id:'rug-warm',slot:'rug',title:'Теплий килим',price:6,icon:'🧶',theme:'warm',tier:2},
-  {id:'rug-hitech',slot:'rug',title:'Hi-tech килим',price:10,icon:'✨',theme:'hitech',tier:3},
-  {id:'rug-gothic',slot:'rug',title:'Готичний килим',price:16,icon:'🌙',theme:'gothic',tier:4},
+  {id:'rug-cozy',slot:'rug',title:'Затишний килим',price:18,icon:'🧶',theme:'cozy',tier:1},
+  {id:'rug-warm',slot:'rug',title:'Теплий килим',price:36,icon:'🧶',theme:'warm',tier:2},
+  {id:'rug-hitech',slot:'rug',title:'Hi-tech килим',price:60,icon:'✨',theme:'hitech',tier:3},
+  {id:'rug-gothic',slot:'rug',title:'Готичний килим',price:96,icon:'🌙',theme:'gothic',tier:4},
 
   {id:'plant-zero',slot:'plant',title:'Занедбана рослина',price:0,icon:'🥀',theme:'zero',tier:0},
-  {id:'plant-cozy',slot:'plant',title:'Затишна рослина',price:2,icon:'🪴',theme:'cozy',tier:1},
-  {id:'plant-warm',slot:'plant',title:'Тепла рослина',price:5,icon:'🌿',theme:'warm',tier:2},
-  {id:'plant-hitech',slot:'plant',title:'Hi-tech рослина',price:9,icon:'✨',theme:'hitech',tier:3},
-  {id:'plant-gothic',slot:'plant',title:'Готична рослина',price:14,icon:'🥀',theme:'gothic',tier:4}
+  {id:'plant-cozy',slot:'plant',title:'Затишна рослина',price:12,icon:'🪴',theme:'cozy',tier:1},
+  {id:'plant-warm',slot:'plant',title:'Тепла рослина',price:30,icon:'🌿',theme:'warm',tier:2},
+  {id:'plant-hitech',slot:'plant',title:'Hi-tech рослина',price:54,icon:'✨',theme:'hitech',tier:3},
+  {id:'plant-gothic',slot:'plant',title:'Готична рослина',price:84,icon:'🥀',theme:'gothic',tier:4},
+  {id:'painting-zero',slot:'painting',title:'Порожнє місце · Картина',price:0,icon:'🖼️',theme:'zero',tier:0},
+  {id:'painting-cozy',slot:'painting',title:'Cozy · Картина',price:24,icon:'🖼️',theme:'cozy',tier:1},
+  {id:'painting-warm',slot:'painting',title:'Warm · Картина',price:54,icon:'🖼️',theme:'warm',tier:2},
+  {id:'painting-hitech',slot:'painting',title:'Hi-tech · Картина',price:96,icon:'🖼️',theme:'hitech',tier:3},
+  {id:'painting-gothic',slot:'painting',title:'Gothic · Картина',price:156,icon:'🖼️',theme:'gothic',tier:4},
+  {id:'lamp-zero',slot:'lamp',title:'Порожнє місце · Торшер',price:0,icon:'💡',theme:'zero',tier:0},
+  {id:'lamp-cozy',slot:'lamp',title:'Cozy · Торшер',price:30,icon:'💡',theme:'cozy',tier:1},
+  {id:'lamp-warm',slot:'lamp',title:'Warm · Торшер',price:66,icon:'💡',theme:'warm',tier:2},
+  {id:'lamp-hitech',slot:'lamp',title:'Hi-tech · Торшер',price:108,icon:'💡',theme:'hitech',tier:3},
+  {id:'lamp-gothic',slot:'lamp',title:'Gothic · Торшер',price:168,icon:'💡',theme:'gothic',tier:4},
+  {id:'clock-zero',slot:'clock',title:'Порожнє місце · Годинник',price:0,icon:'🕰️',theme:'zero',tier:0},
+  {id:'clock-cozy',slot:'clock',title:'Cozy · Годинник',price:18,icon:'🕰️',theme:'cozy',tier:1},
+  {id:'clock-warm',slot:'clock',title:'Warm · Годинник',price:42,icon:'🕰️',theme:'warm',tier:2},
+  {id:'clock-hitech',slot:'clock',title:'Hi-tech · Годинник',price:78,icon:'🕰️',theme:'hitech',tier:3},
+  {id:'clock-gothic',slot:'clock',title:'Gothic · Годинник',price:132,icon:'🕰️',theme:'gothic',tier:4}
 ];
 export function roomDecorPrerequisite(item){
   if(!item||num(item.tier)<=1)return null;
@@ -109,7 +124,7 @@ function userDefaults(u){
   for(const key of skillKeys){u.skills[key]=num(u.skills[key]);u.skillXp[key]=num(u.skillXp[key]??u.skills[key]*100);}
   for(const key of ['achievements','inventory','claimedLevelRewards','activity','activeFeatures','receivedGifts','stickerUnlockHistory','purchaseHistory','fulfilledPacks','roomDecorOwned'])u[key]=Array.isArray(u[key])?u[key]:[];
   for(const key of ['stats','questCompletions','achievementProgress','stickerInventory','equipped','roomDecor'])u[key]=u[key]&&typeof u[key]==='object'?u[key]:{};
-  const defaults={background:'background-zero',window:'window-zero',armchair:'armchair-zero',table:'table-zero',bookshelf:'bookshelf-zero',fireplace:'fireplace-zero',rug:'rug-zero',plant:'plant-zero'};
+  const defaults={background:'background-zero',window:'window-zero',armchair:'armchair-zero',table:'table-zero',bookshelf:'bookshelf-zero',fireplace:'fireplace-zero',rug:'rug-zero',plant:'plant-zero',painting:'painting-zero',lamp:'lamp-zero',clock:'clock-zero'};
   if(!u.roomAssetShopV1){
     // New room model: every furniture/background slot starts at Step 0 and upgrades independently.
     u.roomDecor={...defaults};
@@ -222,7 +237,7 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
     for(const [level,layout] of Object.entries(incoming).slice(0,5)){
       const n=Math.max(0,Math.min(4,Math.trunc(num(level,0,4))));
       safe[n]={};
-      for(const slot of ['window','armchair','table','bookshelf','fireplace','rug','plant','teddy']){
+      for(const slot of ['window','armchair','table','bookshelf','fireplace','rug','plant','painting','lamp','clock','teddy']){
         const b=layout?.[slot];if(!b||typeof b!=='object')continue;
         safe[n][slot]={x:num(b.x,0,95),y:num(b.y,0,95),w:num(b.w,5,80),z:Math.trunc(num(b.z,1,40))};
       }
@@ -256,12 +271,12 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
   }else fail('Невідома дія');
   for(const member of affected)evaluateGameAchievements(s,member);normalizeGame(s,now);return {message,...detail};
 }
-export function ensureMatch3(u,day=gameDay()){const p=u.match3||{},validSession=p.session?.cfg?.schema===3;p.session=validSession?p.session:null;u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
+export function ensureMatch3(u,day=gameDay()){const p=u.match3||{},validSession=p.session?.cfg?.schema===4;p.session=validSession?p.session:null;u.match3={...p,level:Math.floor(num(p.level,1)),totalCompleted:num(p.totalCompleted),playedToday:p.day===day?num(p.playedToday):0,day,session:p.day===day?p.session||null:null};return u.match3;}
 export function match3Config(level){
   level=Math.max(1,Math.trunc(num(level,1)));const boss=level%50===0?'grand':level%25===0?'boss':level%10===0?'mini':null,tier=Math.min(20,Math.floor((level-1)/5)),cycle=(level-1)%6;
   const size=[6,7,6,7,8,7][cycle],theme=['garden','berry','moon','ember'][Math.floor((level-1)/3)%4],difficulty=boss?'boss':tier>=8?'expert':tier>=3?'focus':'cozy';
-  const moves=Math.max(14,27-Math.floor(tier*.7)+(boss?5:0)),goal=Math.round(20+tier*4+size+(boss==='grand'?35:boss==='boss'?24:boss?14:0));
-  return {schema:3,level,boss,size,moves,goal,colors:Math.min(6,4+Math.floor((level+7)/15)),theme,difficulty,boosters:{hammer:1,shuffle:1,fire:level>=3?1:0}};
+  const moves=Math.max(14,27-Math.floor(tier*.7)+(boss?5:0)),goal=Math.round(12+tier*1.2+Math.floor(size/2)+(boss==='grand'?12:boss==='boss'?8:boss?5:0));
+  return {schema:4,target:2,level,boss,size,moves,goal,colors:Math.min(6,4+Math.floor((level+7)/15)),theme,difficulty,boosters:{hammer:1,shuffle:1,fire:level>=3?1:0}};
 }
 function rng(rt){let n=rt.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;rt.seed=n>>>0;return rt.seed/4294967296;}
 export function matches(board,size){const found=new Set();for(let r=0;r<size;r++)for(let c=0;c<size;c++){const i=r*size+c,v=board[i];if(v==null)continue;if(c+2<size&&board[i+1]===v&&board[i+2]===v){let n=c;while(n<size&&board[r*size+n]===v)found.add(r*size+n++);}if(r+2<size&&board[i+size]===v&&board[i+2*size]===v){let n=r;while(n<size&&board[n*size+c]===v)found.add(n++*size+c);}}return [...found];}
@@ -276,16 +291,16 @@ export function createMatch3(level,seed){const cfg=match3Config(level),rt={cfg,s
 export function applyMatch3Move(rt,a,b,onFrame){
   const {size}=rt.cfg;if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=rt.board.length||b>=rt.board.length||rt.moves<=0||rt.score>=rt.cfg.goal||Math.abs(Math.floor(a/size)-Math.floor(b/size))+Math.abs(a%size-b%size)!==1)return false;
   [rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];if(!matches(rt.board,size).length){[rt.board[a],rt.board[b]]=[rt.board[b],rt.board[a]];return false;}rt.moves--;rt.moveLog.push([a,b]);rt.combo=0;
-  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.length;onFrame?.({kind:'clear',board:[...rt.board],hit,combo:rt.combo,score:rt.score});refill(rt,hit,onFrame);}
+  for(let cascade=0;cascade<100;cascade++){const hit=matches(rt.board,size);if(!hit.length)break;rt.combo++;rt.score+=hit.filter(i=>rt.board[i]===rt.cfg.target).length;onFrame?.({kind:'clear',board:[...rt.board],hit,combo:rt.combo,score:rt.score});refill(rt,hit,onFrame);}
   if(matches(rt.board,size).length||!canMove(rt.board,size)){rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});}return true;
 }
 export function applyMatch3Booster(rt,kind,index,onFrame){
   if(!rt?.boosters||!['hammer','shuffle','fire'].includes(kind)||num(rt.boosters[kind])<=0||rt.score>=rt.cfg.goal)return false;
   if(kind==='hammer'){
-    if(!Number.isInteger(index)||index<0||index>=rt.board.length)return false;rt.boosters.hammer--;rt.moveLog.push({type:'booster',kind,index});rt.combo=1;rt.score+=1;onFrame?.({kind:'hammer',board:[...rt.board],hit:[index],combo:1,score:rt.score});refill(rt,[index],onFrame);return true;
+    if(!Number.isInteger(index)||index<0||index>=rt.board.length)return false;rt.boosters.hammer--;rt.moveLog.push({type:'booster',kind,index});rt.combo=1;rt.score+=Number(rt.board[index]===rt.cfg.target);onFrame?.({kind:'hammer',board:[...rt.board],hit:[index],combo:1,score:rt.score});refill(rt,[index],onFrame);return true;
   }
   if(kind==='shuffle'){rt.boosters.shuffle--;rt.moveLog.push({type:'booster',kind});rt.board=generate(rt);onFrame?.({kind:'shuffle',board:[...rt.board]});return true;}
-  rt.boosters.fire--;rt.moveLog.push({type:'booster',kind});const hit=rt.board.map((_,i)=>i),bonus=Math.max(6,Math.round(rt.board.length*.18));rt.combo=1;rt.score+=bonus;onFrame?.({kind:'fire',board:[...rt.board],hit,combo:1,score:rt.score});rt.board=generate(rt);onFrame?.({kind:'rebirth',board:[...rt.board]});return true;
+  rt.boosters.fire--;rt.moveLog.push({type:'booster',kind});const hit=rt.board.map((_,i)=>i),bonus=hit.filter(i=>rt.board[i]===rt.cfg.target).length;rt.combo=1;rt.score+=bonus;onFrame?.({kind:'fire',board:[...rt.board],hit,combo:1,score:rt.score});rt.board=generate(rt);onFrame?.({kind:'rebirth',board:[...rt.board]});return true;
 }
 export function applyMatch3Command(rt,command,onFrame){
   if(Array.isArray(command)&&command.length===2)return applyMatch3Move(rt,command[0],command[1],onFrame);
