@@ -8,27 +8,28 @@ normalizeGame(state,now);
 const u=state.users[0];
 const slots=[...new Set(ROOM_DECOR_CATALOG.map(x=>x.slot))];
 assert.equal(u.diamonds,8);
-assert.deepEqual(slots.sort(),['armchair','background','bookshelf','fireplace','plant','rug','table','window'].sort());
-assert.equal(Object.keys(u.roomDecor).length,8);
+assert.deepEqual(slots.sort(),['armchair','background','bookshelf','clock','fireplace','lamp','painting','plant','rug','table','window'].sort());
+assert.equal(Object.keys(u.roomDecor).length,11);
 
 for(const slot of slots){
   const starter=ROOM_DECOR_CATALOG.find(x=>x.slot===slot&&x.tier===0);
   assert.ok(starter,`missing starter for ${slot}`);
   assert.equal(u.roomDecor[slot],starter.id);
   assert.ok(u.roomDecorOwned.includes(starter.id));
-  assert.equal(ROOM_DECOR_CATALOG.filter(x=>x.slot===slot).length,5);
+  assert.equal(ROOM_DECOR_CATALOG.filter(x=>x.slot===slot).length,slot==='background'?5:6);
 }
 
 // Each object is bought independently for diamonds.
 const bg1=ROOM_DECOR_CATALOG.find(x=>x.id==='background-cozy');
+u.diamonds=100;
 applyGameAction(state,u.id,{type:'room-decor-buy',itemId:bg1.id},now);
 assert.equal(u.roomDecor.background,'background-cozy');
-assert.equal(u.diamonds,4);
+assert.equal(u.diamonds,100-bg1.price);
 
 const chair1=ROOM_DECOR_CATALOG.find(x=>x.id==='armchair-cozy');
-assert.equal(chair1.price,5);
+u.diamonds=chair1.price-1;
 assert.throws(()=>applyGameAction(state,u.id,{type:'room-decor-buy',itemId:chair1.id},now),/Недостатньо діамантів/);
-u.diamonds=100;
+u.diamonds=1000;
 applyGameAction(state,u.id,{type:'room-decor-buy',itemId:chair1.id},now);
 assert.equal(u.roomDecor.armchair,'armchair-cozy');
 
@@ -70,7 +71,7 @@ assert.match(css,/12\.21\.0 — per-object Teddy room upgrades/);
 assert.match(css,/room-inline-studio/);
 assert.match(css,/room-live-style>img/);
 
-console.log('PASS: 8-slot per-object Teddy room shop + Step 0 defaults + admin global layout editor.');
+console.log('PASS: 11-slot per-object Teddy room shop + Step 0 defaults + admin global layout editor.');
 
 const fixedApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
 assert.match(fixedApp,/let roomStudioSlot='background'/);
@@ -104,3 +105,19 @@ assert.match(smoothController,/data-rm-save-global/);
 assert.match(smoothController,/if\(!editorOpen\)\{/);
 assert.match(smoothController,/sizeInput\.oninput/);
 assert.doesNotMatch(smoothController,/save\(\);persistGlobal\(\);\s*render\(\);/);
+
+
+// 12.22.6 regressions: decor choices animate the item, not Teddy; owner layout tools are exposed.
+assert.doesNotMatch(appSource,/dispatchEvent\(new CustomEvent\('teddy-room-upgraded'/);
+assert.match(appSource,/data-action="owner-room-edit"/);
+assert.match(appSource,/data-action="owner-room-save-global"/);
+assert.match(appSource,/data-action="owner-room-import"/);
+assert.match(controller,/room-item-glide/);
+assert.match(controller,/downloadJSON/);
+assert.match(controller,/importJSON/);
+assert.match(controller,/savePreset/);
+assert.match(controller,/loadPreset/);
+const roomCss=readFileSync(new URL('../public/room-master.css',import.meta.url),'utf8');
+assert.match(roomCss,/aspect-ratio:16\/7/);
+assert.match(roomCss,/@keyframes room-item-glide/);
+console.log('PASS: smooth decor switching + canonical desktop/mobile layout + owner import/export/presets.');

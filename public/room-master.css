@@ -172,3 +172,18 @@
 @media(prefers-reduced-motion:reduce){.room-master-teddy[data-activity],.room-master-teddy[data-activity] .bear-part,.room-master-teddy[data-activity] .bear-head,.teddy-book{transition:none!important}.room-master-teddy[data-activity] .bear-rig g{animation:none!important}}
 
 .room-master-teddy .bear-rig,.room-master-teddy .bear-rig *{pointer-events:none!important}
+
+/* 12.22.6 — canonical cross-device room layout + smooth decor preview */
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-object.room-item-glide{
+  animation:room-item-glide .36s cubic-bezier(.22,.78,.28,1) both
+}
+@keyframes room-item-glide{
+  from{opacity:.22;transform:translate3d(3.5%,0,0) scale(.985)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+.room-master-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
+.room-master-presets>div{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:7px;border:1px solid #e1d2c3;border-radius:12px;background:#fffaf4}
+.room-master-presets strong{grid-column:1/-1;font-size:10px;color:#6d594c}
+.room-master-presets button{min-width:0;border:1px solid #dfcfbf;background:#fff;color:#5d493d;border-radius:9px;padding:6px 5px;font-size:9px;font-weight:800}
+@media(max-width:520px){.room-master-presets{grid-template-columns:1fr}.room-master-actions{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.room-item-glide{animation:none!important}}

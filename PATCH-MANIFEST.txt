@@ -1,15 +1,37 @@
-myHabbit 12.21.6
+myHabbit 12.22.6 — Teddy Room canonical layout
 
 Changed:
+- public/app.js
 - public/room-master-controller.js
+- public/room-master.css
+- public/room-master.config.js
 - public/index.html
 - public/boot.js
 - public/sw.js
+- public/manifest.webmanifest
+- public/game-content.js
 - scripts/test-room-decor.mjs
 - package.json
 - VERSION
 - VERSION.txt
 - public/VERSION.txt
+- boot.js
+- game-content.js
 
 Added:
-- UPDATE-12.21.6.md
+- UPDATE-12.22.6.md
+- public/UPDATE-12.22.6.md
+
+Delete obsolete root-level PWA duplicates (already listed in DELETE-FILES.txt):
+- index.html
+- app.js
+- styles.css
+- sw.js
+- manifest.webmanifest
+
+Main behavior changes:
+- Teddy no longer reacts/waves on every decor selection.
+- Changed decor glides in smoothly during preview.
+- Owner/Admin can edit, globally save/load, import/export, and keep 3 quick room-layout variants.
+- One canonical 16:7 percentage layout is used on desktop and mobile.
+- Room layout is included in live state signatures so layout-only updates repaint on other devices.

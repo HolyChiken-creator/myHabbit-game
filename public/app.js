@@ -1017,7 +1017,7 @@ import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatu
   let familySyncAgain=false;
   const familyChannel='BroadcastChannel' in window?new BroadcastChannel('myhabbit-family-live'):null;
   function stateSignature(value=state){
-    try{return JSON.stringify({family:value.family,users:value.users,quests:value.quests,shop:value.shop,history:value.history,profileStickers:value.profileStickers});}catch{return String(Date.now());}
+    try{return JSON.stringify({family:value.family,users:value.users,quests:value.quests,shop:value.shop,history:value.history,profileStickers:value.profileStickers,roomLayoutMaster:value.roomLayoutMaster,roomLayoutVersion:value.roomLayoutVersion});}catch{return String(Date.now());}
   }
   function broadcastLocalState(){
     try{familyChannel?.postMessage({type:'state',accountId:accountId(),state,at:Date.now()});}catch{}
@@ -1347,7 +1347,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     render();
     restoreRoomStudioScroll();
   }
-  function cancelRoomDecorPreview(){captureRoomStudioScroll();roomPreviewItemId='';cozyHaptic('light');render();restoreRoomStudioScroll();if(!owned)window.dispatchEvent(new CustomEvent('teddy-room-upgraded',{detail:{slot:item.slot,tier:item.tier}}));}
+  function cancelRoomDecorPreview(){captureRoomStudioScroll();roomPreviewItemId='';cozyHaptic('light');render();restoreRoomStudioScroll();}
   function closeRoomStudio(){roomStudioOpen=false;roomPreviewItemId='';cozyHaptic('light');render();}
   const ROOM_ASSET='/assets/generated/pack_00_style_lock/webp/';
   function roomDecorItem(u,slot){return ROOM_DECOR_CATALOG.find(item=>item.id===u?.roomDecor?.[slot])||ROOM_DECOR_CATALOG.find(item=>item.slot===slot&&item.price===0);}
@@ -1446,7 +1446,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const owned=u.roomDecorOwned?.includes(item.id);
     cozyHaptic('medium');
     const result=await runGameAction(owned?'room-decor-equip':'room-decor-buy',{itemId:item.id});
-    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();if(!owned)window.dispatchEvent(new CustomEvent('teddy-room-upgraded',{detail:{slot:item.slot,tier:item.tier}}));}
+    if(result){roomStudioOpen=true;roomStudioSlot=item.slot;roomPreviewItemId='';render();restoreRoomStudioScroll();}
   }
 
   window.myHabbitSaveRoomLayout=layout=>isAdmin()?runGameAction('room-layout-save',{layout}):Promise.resolve(null);
@@ -1882,6 +1882,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     <div class="admin-accordion">
       <details class="admin-module" data-admin-module="quests"${adminSectionOpen('quests')}><summary><span>✓</span><div><strong>Квести та логічні ланцюжки</strong><small>Редагування, приховування й власні завдання</small></div></summary><div class="admin-module-body"><div class="section-head"><h2>Поточні квести</h2><button class="btn primary small" data-action="new-quest">+ Додати</button></div><div class="admin-list">${questRows||'<div class="empty-soft">Квестів немає</div>'}</div><div class="section-head"><h2>Стандартна бібліотека</h2><small>Вимкнені шаблони не потрапляють у нову щоденну вибірку</small></div><div class="admin-list">${templateRows}</div></div></details>
       <details class="admin-module" data-admin-module="shop"${adminSectionOpen('shop')}><summary><span>🎁</span><div><strong>Магазин і готові пропозиції</strong><small>Асортимент, залишки та швидке додавання</small></div></summary><div class="admin-module-body"><div class="section-head"><h2>Ваш асортимент</h2><button class="btn primary small" data-action="new-shop">+ Власний товар</button></div><div class="admin-list">${shopRows||'<div class="empty-soft">Магазин порожній</div>'}</div><div class="section-head"><h2>Готова сітка товарів</h2></div><div class="ready-product-grid">${catalog}</div></div></details>
+      <details class="admin-module" data-admin-module="room-layout"${adminSectionOpen('room-layout')}><summary><span>🛋️</span><div><strong>Кімната Тедіка · загальний layout</strong><small>Один план розташування для ПК і телефона</small></div></summary><div class="admin-module-body"><p>Редагуйте кімнату на великому екрані або телефоні — координати зберігаються відносно єдиного полотна 16:7. Після «Зберегти для всіх» той самий план підтягується на кожному пристрої.</p><div class="admin-transfer-actions"><button class="btn primary" data-action="owner-room-edit">Редагувати картину</button><button class="btn" data-action="owner-room-save-global">Зберегти для всіх</button><button class="btn" data-action="owner-room-load-global">Підвантажити загальний</button><button class="btn" data-action="owner-room-export">Завантажити JSON</button><button class="btn" data-action="owner-room-import">Імпортувати JSON</button></div><div class="section-head compact"><div><h2>Швидкі варіанти</h2><small>Три локальні слоти для готових композицій перед публікацією.</small></div></div><div class="admin-transfer-actions">${[1,2,3].map(n=>`<button class="btn soft small" data-action="owner-room-preset-save" data-preset="${n}">Зберегти варіант ${n}</button><button class="btn small" data-action="owner-room-preset-load" data-preset="${n}">Підвантажити ${n}</button>`).join('')}</div><small>Серверний layout: v${Number(state.roomLayoutVersion||0)}. JSON містить усі 5 рівнів і позиції Тедіка.</small></div></details>
       <details class="admin-module" data-admin-module="transfer"${adminSectionOpen('transfer')}><summary><span>↔</span><div><strong>Перенесення асортименту</strong><small>Копія між сімейними акаунтами</small></div></summary><div class="admin-module-body"><p>Експорт містить лише товари, ціни, іконки, кількість і посилання — без користувачів, балансів та історії.</p><input id="shopImportFile" type="file" accept="application/json,.json" hidden><div class="admin-transfer-actions"><button class="btn primary" data-action="export-shop">Зберегти JSON</button><button class="btn" data-action="copy-shop-json">Копіювати JSON</button><button class="btn" data-action="import-shop">Імпортувати файл</button><button class="btn soft" data-action="paste-shop-json">Вставити з буфера</button></div></div></details>
       <details class="admin-module" data-admin-module="family"${adminSectionOpen('family')}><summary><span>👥</span><div><strong>Сімʼя та учасники</strong><small>Ліміт від 2 до 25 і керування профілями</small></div></summary><div class="admin-module-body"><div class="family-limit-setting"><div><strong>Максимальна кількість членів сімʼї</strong><small>Не можна встановити менше, ніж уже приєднано.</small></div><select id="familyMaxMembers">${[2,3,5,10,15,20,25].map(n=>`<option value="${n}" ${familyMax()===n?'selected':''}>${n}</option>`).join('')}</select><button class="btn primary small" data-action="save-family-limit">Зберегти</button></div><div class="section-head"><h2>Учасники</h2><div class="admin-actions"><button class="btn primary small" data-action="grant-coins">Видати 🪙 / 💎</button></div></div><div class="admin-list">${state.users.map(adminMemberRow).join('')}</div></div></details>
       <details class="admin-module danger-module" data-admin-module="danger"${adminSectionOpen('danger')}><summary><span>⚠</span><div><strong>Небезпечні дії</strong><small>Скидання профілів</small></div></summary><div class="admin-module-body danger-zone"><div class="admin-list">${state.users.map(u=>`<article class="admin-row"><span class="avatar">${u.avatar}</span><div><strong translate="no">${escapeHtml(u.name)}</strong><small>${u.level} рівень</small></div><button class="btn danger small" data-reset-user="${u.id}">Скинути</button></article>`).join('')}</div></div></details>
@@ -2179,6 +2180,13 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(name==='copy-shop-json') copyShopJson();
     if(name==='import-shop'){document.getElementById('shopImportFile')?.click();}
     if(name==='paste-shop-json') pasteShopJson();
+    if(name==='owner-room-edit'){go('dashboard');requestAnimationFrame(()=>setTimeout(()=>window.TeddyRoomMaster?.open?.(),0));}
+    if(name==='owner-room-save-global')Promise.resolve(window.TeddyRoomMaster?.saveGlobal?.()).then(ok=>showToast(ok?'Розташування збережено для всіх':'Не вдалося зберегти розташування'));
+    if(name==='owner-room-load-global')window.TeddyRoomMaster?.loadServer?.(state.roomLayoutMaster||{});
+    if(name==='owner-room-export')window.TeddyRoomMaster?.downloadJSON?.();
+    if(name==='owner-room-import')window.TeddyRoomMaster?.importJSON?.();
+    if(name==='owner-room-preset-save')window.TeddyRoomMaster?.savePreset?.(el?.dataset.preset);
+    if(name==='owner-room-preset-load')window.TeddyRoomMaster?.loadPreset?.(el?.dataset.preset);
     if(name==='spin-daily-roulette') spinDailyRoulette();
     if(name==='claim-level-rewards') claimLevelRewards();
     if(name==='family-style'){appendMarkup(document.body,modal('family-style'));bindModal();}

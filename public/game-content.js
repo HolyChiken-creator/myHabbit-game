@@ -1,5 +1,5 @@
 // Shared, versioned definitions. The server never accepts these from players.
-export const GAME_VERSION='12.22.5';
+export const GAME_VERSION='12.22.6';
   const DAILY_QUEST_TEMPLATES = [
     ['Застелити ліжко','🛏️','Почати день з маленького порядку','home','easy',25,20,true],
     ['Прибрати після себе','🧽','Залишити спільний простір чистим','home','easy',30,25,true],

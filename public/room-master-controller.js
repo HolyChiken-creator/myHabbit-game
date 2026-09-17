@@ -11,6 +11,7 @@
   let tapTimes=[];
   let drag=null;
   let observer=null;
+  let lastVisualState={};
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function defaultState(){
@@ -116,8 +117,16 @@
       const level=CFG.levels[sourceLevel]||CFG.levels[0];
       const layout=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]);
       img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
-      img.src=level.assets[slot];img.hidden=!editorOpen&&hiddenSlot(el,slot);applyBox(img,layout[slot]||CFG.defaults[runtimeLevel][slot],slot);
+      const nextHidden=!editorOpen&&hiddenSlot(el,slot);
+      const visualKey=`${sourceLevel}:${nextHidden?'hidden':'shown'}`;
+      const visualChanged=lastVisualState[slot]!=null&&lastVisualState[slot]!==visualKey;
+      img.src=level.assets[slot];img.hidden=nextHidden;applyBox(img,layout[slot]||CFG.defaults[runtimeLevel][slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
+      if(visualChanged&&!editorOpen&&!nextHidden){
+        img.classList.remove('room-item-glide');
+        requestAnimationFrame(()=>{img.classList.add('room-item-glide');setTimeout(()=>img.classList.remove('room-item-glide'),420);});
+      }
+      lastVisualState[slot]=visualKey;
     });
 
     const teddy=el.querySelector('.room-master-teddy');
@@ -317,9 +326,74 @@
 
   async function persistGlobal(){
     try{
+      save();
       const result=await window.myHabbitSaveRoomLayout?.(state.layouts);
       return Boolean(result);
     }catch{return false;}
+  }
+
+  function normalizeImportedState(payload){
+    const raw=payload?.roomMaster||payload||{};
+    const layouts=raw.layouts||payload?.roomLayoutMaster||((payload&&typeof payload==='object'&&Object.keys(payload).some(k=>/^[0-4]$/.test(k)))?payload:null);
+    if(!layouts||typeof layouts!=='object')throw new Error('У файлі немає layout кімнати');
+    const next=defaultState();
+    next.activeLevel=Math.min(4,Math.max(0,Number(raw.activeLevel??state.activeLevel)||0));
+    next.sources={...next.sources,...(state.sources||{})};
+    if(raw.sources&&typeof raw.sources==='object')SLOTS.forEach(slot=>{const n=Number(raw.sources[slot]);if(Number.isFinite(n))next.sources[slot]=Math.min(4,Math.max(0,Math.trunc(n)));});
+    for(const level of [0,1,2,3,4]){
+      const src=layouts[level]||layouts[String(level)]||{};
+      const base=clone(CFG.defaults[level]||CFG.defaults[0]);
+      for(const slot of [...SLOTS,'teddy']){
+        const b=src?.[slot];if(!b||typeof b!=='object')continue;
+        const fallback=base[slot]||CFG.defaults[0][slot];
+        base[slot]={
+          x:pct(b.x,0,95),y:pct(b.y,0,95),w:pct(b.w,5,80),z:Math.trunc(pct(b.z,1,40)),
+          ...(Number.isFinite(Number(b.h))?{h:pct(b.h,3,95)}:(Number.isFinite(fallback?.h)?{h:fallback.h}:{}))
+        };
+      }
+      next.layouts[level]=base;
+    }
+    return next;
+  }
+
+  function downloadJSON(){
+    const payload=JSON.stringify({version:CFG.version,exportedAt:new Date().toISOString(),roomMaster:state},null,2);
+    const blob=new Blob([payload],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=`teddy-room-layout-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);
+    toast('Layout JSON завантажено');
+    return payload;
+  }
+
+  function importJSON(){
+    const input=document.createElement('input');input.type='file';input.accept='application/json,.json';input.hidden=true;
+    document.body.appendChild(input);
+    input.onchange=async()=>{
+      const file=input.files?.[0];if(!file){input.remove();return;}
+      try{state=normalizeImportedState(JSON.parse(await file.text()));save();render();toast('Layout завантажено з JSON');}
+      catch(error){toast(error?.message||'Не вдалося імпортувати layout');}
+      finally{input.remove();}
+    };
+    input.click();
+  }
+
+  function loadServerLayout(layouts){
+    try{
+      const remote=layouts&&typeof layouts==='object'&&Object.keys(layouts).length?layouts:serverLayouts(room());
+      if(!remote||!Object.keys(remote).length){toast('Збереженого layout для всіх ще немає');return false;}
+      state=normalizeImportedState({roomMaster:{layouts:remote,activeLevel:state.activeLevel,sources:state.sources}});save();render();toast('Загальний layout підвантажено');return true;
+    }catch(error){toast(error?.message||'Не вдалося підвантажити layout');return false;}
+  }
+
+  function presetKey(index){return `${CFG.storageKey}:preset:${index}`;}
+  function savePreset(index){
+    const n=Math.max(1,Math.min(3,Number(index)||1));
+    try{localStorage.setItem(presetKey(n),JSON.stringify({savedAt:new Date().toISOString(),roomMaster:state}));toast(`Варіант ${n} збережено`);return true;}catch{toast('Не вдалося зберегти варіант');return false;}
+  }
+  function loadPreset(index){
+    const n=Math.max(1,Math.min(3,Number(index)||1));
+    try{const raw=localStorage.getItem(presetKey(n));if(!raw){toast(`Варіант ${n} ще порожній`);return false;}state=normalizeImportedState(JSON.parse(raw));save();render();toast(`Варіант ${n} підвантажено`);return true;}catch{toast('Не вдалося підвантажити варіант');return false;}
   }
 
   function toggleEditor(force){
@@ -371,9 +445,12 @@
         <button type="button" data-rm-reset-one>Скинути предмет</button>
         <button type="button" data-rm-reset-level>Скинути рівень</button>
         <button type="button" data-rm-save-global>Зберегти для всіх</button>
-        <button type="button" data-rm-export>Export JSON</button>
+        <button type="button" data-rm-load-global>Підвантажити загальний</button>
+        <button type="button" data-rm-export>Завантажити JSON</button>
+        <button type="button" data-rm-import>Імпортувати JSON</button>
       </div>
-      <p>Перетягуй предмети пальцем. Розстановка не оновлює сторінку під час редагування. Збереження для всіх — окремою кнопкою.</p>`;
+      <div class="room-master-presets">${[1,2,3].map(n=>`<div><strong>Варіант ${n}</strong><button type="button" data-rm-preset-save="${n}">Зберегти</button><button type="button" data-rm-preset-load="${n}">Підвантажити</button></div>`).join('')}</div>
+      <p>Перетягуй предмети пальцем. Координати зберігаються у відсотках від єдиного полотна 16:7, тому ПК і телефон використовують один план. «Зберегти для всіх» робить його загальним для всіх пристроїв.</p>`;
     document.body.appendChild(panel);
 
     const levels=panel.querySelector('.room-master-levels');
@@ -404,7 +481,11 @@
       const ok=await persistGlobal();
       toast(ok?'Розташування збережено для всіх':'Не вдалося зберегти для всіх');
     };
-    panel.querySelector('[data-rm-export]').onclick=exportJSON;
+    panel.querySelector('[data-rm-load-global]').onclick=()=>loadServerLayout();
+    panel.querySelector('[data-rm-export]').onclick=downloadJSON;
+    panel.querySelector('[data-rm-import]').onclick=importJSON;
+    panel.querySelectorAll('[data-rm-preset-save]').forEach(b=>b.onclick=()=>savePreset(b.dataset.rmPresetSave));
+    panel.querySelectorAll('[data-rm-preset-load]').forEach(b=>b.onclick=()=>loadPreset(b.dataset.rmPresetLoad));
     return panel;
   }
 
@@ -450,15 +531,6 @@
     SLOTS.forEach(s=>state.sources[s]=state.activeLevel);
     save();render();
   }
-  function exportJSON(){
-    const payload=JSON.stringify({version:CFG.version,exportedAt:new Date().toISOString(),roomMaster:state},null,2);
-    if(navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(payload).then(()=>toast('JSON скопійовано'));
-    }else{
-      const blob=new Blob([payload],{type:'application/json'});
-      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='teddy-room-layout.json';a.click();URL.revokeObjectURL(a.href);
-    }
-  }
   function toast(msg){
     let t=document.querySelector('.room-master-toast');
     if(!t){t=document.createElement('div');t.className='room-master-toast';document.body.appendChild(t);}
@@ -476,6 +548,12 @@
     close:()=>toggleEditor(false),
     getState:()=>clone(state),
     setLevel,
+    saveGlobal:persistGlobal,
+    loadServer:loadServerLayout,
+    downloadJSON,
+    importJSON,
+    savePreset,
+    loadPreset,
     reset:()=>{state=defaultState();save();render();}
   };
 
