@@ -1,3 +1,8 @@
+## 12.23.1 — Owner seasonal sticker purchase authorization
+- Fixed Owner Console seasonal sticker testing so the server authorizes Christmas, Halloween and Egg Party box purchases while the switch is enabled.
+- The same server-side override now applies to sticker-dust exchange for those seasonal collections.
+- The override is read from trusted Owner storage on the server and cannot be enabled by a forged client action.
+
 ## 12.11.0
 - Inline Teddy-room editor and clean room viewport.
 
