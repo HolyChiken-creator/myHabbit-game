@@ -513,11 +513,18 @@ import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatu
     const id=localStorage.getItem(ACTIVE_ACCOUNT); const item=loadAccounts().find(x=>x.id===id);
     if(item?.auth&&item?.state){auth=clone(item.auth);state=clone(item.state);normalizeState();safeJsonWrite(AUTH,auth);safeJsonWrite(STORAGE,state);}
   }
+  function currentAccountSnapshot(){
+    if(!auth)return null;
+    const id=accountId();if(!id)return null;
+    const u=currentUser();
+    return {id,label:u?.name||'Мій профіль',familyName:state.family?.name||'',auth:clone(auth),state:clone(state),updatedAt:Date.now()};
+  }
   function persistAccount(){
-    if(!auth)return; const id=accountId(); if(!id)return; const list=loadAccounts(); const u=currentUser();
-    const item={id,label:u?.name||'Мій профіль',familyName:state.family?.name||'',auth:clone(auth),state:clone(state),updatedAt:Date.now()};
-    const i=list.findIndex(x=>x.id===id); if(i>=0)list[i]=item;else list.unshift(item);
-    safeJsonWrite(ACCOUNTS,list.slice(0,25));localStorage.removeItem(LOGOUT_TOMBSTONE);localStorage.setItem(ACTIVE_ACCOUNT,id);
+    const item=currentAccountSnapshot();if(!item)return null;
+    const list=loadAccounts();const i=list.findIndex(x=>x.id===item.id);if(i>=0)list[i]=item;else list.unshift(item);
+    if(!safeJsonWrite(ACCOUNTS,list.slice(0,25)))return null;
+    localStorage.removeItem(LOGOUT_TOMBSTONE);localStorage.setItem(ACTIVE_ACCOUNT,item.id);
+    return item;
   }
   function save(){normalizeState();observeRewardChanges();if(!safeJsonWrite(STORAGE,state)){showToast('Не вдалося безпечно зберегти дані');return;}persistAccount();queueDailySnapshot();applyTheme();scheduleImmediateFamilySync();broadcastLocalState();}
   function applyTheme(){document.documentElement.dataset.theme=currentUser()?.equipped?.theme||'light';}
@@ -1034,7 +1041,7 @@ import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatu
       try{const data=await api('/api/family/state',{method:'PUT',body:JSON.stringify({protocol:2,state:packet.state,baseRevision:packet.baseRevision})});if(auth?.token!==token)return false;
         const latest=safeJsonRead(key,null);if(latest?.id===packet.id){localStorage.removeItem(key);acceptServer(data);}else {serverRevision=Number(data.revision);if(latest){latest.baseRevision=serverRevision;safeJsonWrite(key,latest);scheduleImmediateFamilySync(300);}}
         syncMessage='Збережено';return true;
-      }catch(error){if(error.status===409&&auth?.token===token){if(safeJsonWrite(key+':conflict',packet)){localStorage.removeItem(key);acceptServer(error.data);}syncMessage='Конфлікт змін';showToast('На іншому пристрої є нові зміни. Ваш чернетковий знімок збережено; повторіть потрібне редагування.');render();}else {syncMessage='Зміни очікують на мережу';showToast(error.message||syncMessage);}return false;}
+      }catch(error){if(error.status===409&&auth?.token===token){safeJsonWrite(key+':conflict',packet);serverRevision=Number(error.data?.revision??serverRevision);syncMessage='Конфлікт змін · локальна копія збережена';showToast('На іншому пристрої є нові зміни. Ваш локальний профіль не втрачено — повторне збереження синхронізує його після перевірки.');render();}else {syncMessage='Зміни очікують на мережу';showToast(error.message||syncMessage);}return false;}
     });
   }
   function scheduleImmediateFamilySync(delay=180){
@@ -2322,8 +2329,9 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   async function createEncryptedAccountFile(){
     const password=document.getElementById('transferPassword')?.value||'';
     if(password.length<6){showToast('Створіть пароль від 6 символів');return null;}
-    persistAccount();
-    const payload={format:'myHabbit-profile',version:1,exportedAt:new Date().toISOString(),account:loadAccounts().find(x=>x.id===accountId())};
+    const account=persistAccount();
+    if(!account){showToast('Не вдалося зберегти актуальний стан профілю');return null;}
+    const payload={format:'myHabbit-profile',version:1,exportedAt:new Date().toISOString(),account};
     const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
     const key=await deriveTransferKey(password,salt);
     const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(payload)));
@@ -2340,9 +2348,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},2500);
   }
   function createPasswordlessAccountFile(){
-    persistAccount();
-    const account=loadAccounts().find(x=>x.id===accountId());
-    if(!account?.auth||!account?.state){showToast('Не вдалося підготувати профіль');return null;}
+    const account=persistAccount();
+    if(!account?.auth||!account?.state){showToast('Не вдалося підготувати актуальний профіль');return null;}
     const payload={format:'myHabbit-login-profile',version:1,exportedAt:new Date().toISOString(),warning:'This file grants access to the profile without a password.',account};
     const filename=`myHabbit-login-${currentUser()?.name||'profile'}-${new Date().toISOString().slice(0,10)}.json`;
     return {blob:new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),filename};
@@ -2751,12 +2758,29 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   async function restoreAuthenticatedSessionBeforePaint(){
     if(!auth?.token||auth?.demo)return 'not-required';
     const localTrusted=hasTrustedLocalSessionState();
-    updateSplash(26,'Відновлюємо ваш профіль…');
+    const pendingPacket=localTrusted?safeJsonRead(settingsKey(),null):null;
+    updateSplash(26,pendingPacket?.state?'Відновлюємо останні зміни профілю…':'Відновлюємо ваш профіль…');
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),4800);
     try{
       const data=await api('/api/family/state',{signal:controller.signal});
       if(!data?.state)throw new Error('Сервер не повернув профіль');
+      const remoteRevision=Number(data.revision??serverRevision);
+      // A pending settings packet means the local JSON contains newer user edits.
+      // Validate the token against the server, but never replace that local state
+      // before the pending packet has had a chance to sync.
+      if(pendingPacket?.state&&localTrusted){
+        serverRevision=remoteRevision;
+        if(auth?.userId&&state.users?.some(user=>String(user.id)===String(auth.userId)))state.currentUserId=auth.userId;
+        normalizeState();persistConfirmed();lastFamilyPullAt=Date.now();
+        if(Number(pendingPacket.baseRevision)===remoteRevision){
+          updateSplash(48,'Зберігаємо останні зміни профілю…');
+          const synced=await pushLocalStateNow();
+          if(synced){lastFamilyPullAt=Date.now();syncMessage='Збережено';return 'server';}
+        }
+        syncMessage=Number(pendingPacket.baseRevision)===remoteRevision?'Зміни очікують на мережу':'Локальні зміни збережені · потрібна повторна синхронізація';
+        return 'local-pending';
+      }
       acceptServer(data);
       if(auth?.userId&&state.users?.some(user=>String(user.id)===String(auth.userId))){
         state.currentUserId=auth.userId;
@@ -2813,7 +2837,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
         updateSplash(38,'Перевіряємо вашу сесію…');
         try{
           const source=await restoreAuthenticatedSessionBeforePaint();
-          updateSplash(source==='local'?72:68,source==='local'?'Відкриваємо збережений профіль…':'Завантажуємо вашу кімнату…');
+          const localSource=source==='local'||source==='local-pending';
+          updateSplash(localSource?72:68,source==='local-pending'?'Відкриваємо останні збережені зміни…':(localSource?'Відкриваємо збережений профіль…':'Завантажуємо вашу кімнату…'));
         }catch(error){
           console.error('Session bootstrap failed:',error);
           showSessionRestoreFailure(error);

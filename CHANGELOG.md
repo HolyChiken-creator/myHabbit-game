@@ -1,3 +1,7 @@
+## 12.23.7
+- Preserve pending profile JSON across session bootstrap and 409 conflicts.
+- Export quick-login and encrypted profile JSON from the current persisted account snapshot.
+
 ## 12.23.6
 - Added an authenticated session bootstrap gate so demo seed data never appears before the real profile is restored.
 - Added safe offline fallback only for a matching locally confirmed user and a retry state when no trustworthy session can be restored.
