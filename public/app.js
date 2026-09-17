@@ -2625,7 +2625,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     if(!('serviceWorker' in navigator))return false;
     try{
-      const registration=await navigator.serviceWorker.register('/sw.js?v=12.8.0',{updateViaCache:'none'});
+      const registration=await navigator.serviceWorker.register(`/sw.js?v=${encodeURIComponent(APP_VERSION)}`,{updateViaCache:'none'});
       registration.update().catch(()=>{});
       await Promise.race([
         navigator.serviceWorker.ready,

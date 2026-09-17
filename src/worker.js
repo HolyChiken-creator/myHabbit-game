@@ -2005,9 +2005,15 @@ export class TelegramStateV2 {
     const maintenance = Boolean(await this.state.storage.get('owner-maintenance-enabled') || false);
     const maintenanceMessage = String(await this.state.storage.get('owner-maintenance-message') || '');
     const maintenanceUntil = String(await this.state.storage.get('owner-maintenance-until') || '');
-    const cacheRevision = Number(await this.state.storage.get('owner-cache-revision') || 1);
+    let cacheRevision = Number(await this.state.storage.get('owner-cache-revision') || 1);
+    const publishedClientBuild = String(await this.state.storage.get('owner-client-build') || '');
+    if (publishedClientBuild !== APP_VERSION) {
+      cacheRevision = Math.max(1, cacheRevision) + 1;
+      await this.state.storage.put('owner-client-build', APP_VERSION);
+      await this.state.storage.put('owner-cache-revision', cacheRevision);
+    }
     const seasonalStickerTesting = Boolean(await this.state.storage.get('owner-seasonal-sticker-testing') || false);
-    return json({ ok: true, updateName, maintenance, maintenanceMessage, maintenanceUntil, cacheRevision, seasonalStickerTesting, updatedAt: new Date().toISOString() });
+    return json({ ok: true, version: APP_VERSION, updateName, maintenance, maintenanceMessage, maintenanceUntil, cacheRevision, seasonalStickerTesting, updatedAt: new Date().toISOString() });
   }
 
   async ownerMetaUpdate(body) {
