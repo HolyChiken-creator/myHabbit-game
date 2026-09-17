@@ -1258,7 +1258,7 @@ import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatu
     const telegramBox = telegramInitData && !inviteToken ? `<div class="telegram-login-note"><span>✈</span><div><strong>Вхід через Telegram</strong><p>${telegramUser?.first_name || 'Ваш профіль'} буде привʼязаний до сімейної сесії. Введіть код сімʼї та PIN нижче.</p></div></div>` : '';
     const isExistingLogin = authMode==='login' && !inviteToken && !telegramInitData;
     const tabs = (inviteToken || isExistingLogin) ? '' : `<div class="auth-switch"><button class="${authMode==='create'?'active':''}" data-auth-tab="create">Створити сімʼю</button><button class="${authMode==='join'?'active':''}" data-auth-tab="join">Приєднатися до сімʼї</button></div>`;
-    const recovery = (!inviteToken && !isTelegramWebApp) ? `<div class="auth-recovery">${isExistingLogin?'':'<div class="auth-divider"><span>Вже маєте профіль?</span></div>'}<div class="json-login-box"><strong>Увійти через JSON</strong><p>Оберіть швидкий JSON входу — профіль відкриється без пароля.</p><input id="accountImportFile" type="file" accept="application/json,.json" hidden><button class="btn primary" type="button" style="width:100%;margin-top:10px" data-action="import-account">Обрати JSON-файл</button></div>${isExistingLogin?'<div class="auth-divider"><span>Немає збереженого профілю?</span></div><button class="btn" style="width:100%" data-action="join-family">Приєднатися до сімʼї</button>':''}</div>` : '';
+    const recovery = (!inviteToken && !isTelegramWebApp) ? `<div class="auth-recovery">${isExistingLogin?'':'<div class="auth-divider"><span>Вже маєте профіль?</span></div>'}<div class="json-login-box"><strong>Увійти через JSON</strong><p>Оберіть швидкий JSON входу — сервер підтвердить ключ і підключить профіль на цьому пристрої.</p><input id="accountImportFile" type="file" accept="application/json,.json" hidden><button class="btn primary" type="button" style="width:100%;margin-top:10px" data-action="import-account">Обрати JSON-файл</button></div>${isExistingLogin?'<div class="auth-divider"><span>Немає збереженого профілю?</span></div><button class="btn" style="width:100%" data-action="join-family">Приєднатися до сімʼї</button>':''}</div>` : '';
     const heading = inviteToken?'Ласкаво просимо':(telegramInitData?'Підключення до сімʼї':(isExistingLogin?'Вхід у наявний акаунт':'Початок сімейної гри'));
     const intro = inviteToken?'Ще один крок — оберіть імʼя для свого затишного куточка.':(telegramInitData?'Введіть код сімʼї та PIN.':(isExistingLogin?'Оберіть збережений профіль або швидкий JSON входу.':'Створіть приватну сімʼю або приєднайтесь до неї як новий учасник.'));
     return `<div class="auth-card"><div class="brand"><span class="brand-mark">✦</span>myHabbit</div><h1>${heading}</h1><p>${intro}</p>${inviteBox}${telegramBox}${tabs}${isExistingLogin?'':`<div id="authForm">${authForm(authMode)}</div>`}${recovery}${telegramInitData?'':'<button class="btn" style="width:100%;margin-top:10px" data-route="landing">Назад</button>'}</div>`;
@@ -1980,7 +1980,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(type==='new-quest') return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Новий квест</h2><button class="close" data-close>×</button></div><div class="form-grid"><div class="field full"><label>Назва</label><input id="qTitle" placeholder="Наприклад, Прибрати кухню"></div><div class="field"><label>Тип</label><select id="qType"><option value="personal">Особистий</option><option value="coop">Спільний</option><option value="pair">Тільки вдвох</option><option value="limited">Лімітований</option></select></div><div class="field"><label>Складність</label><select id="qDifficulty"><option value="easy">Легка</option><option value="normal" selected>Середня</option><option value="hard">Складна</option></select></div><div class="field"><label>Навичка</label><select id="qSkill"><option value="home">Дім</option><option value="care">Турбота</option><option value="health">Здоровʼя</option><option value="growth">Розвиток</option><option value="finance">Фінанси</option></select></div><div class="field"><label>Монети</label><input id="qCoins" type="number" value="100"></div><div class="field"><label>XP</label><input id="qXp" type="number" value="80"></div><div class="field full"><label>Опис</label><textarea id="qDesc"></textarea></div></div><div class="modal-actions"><button class="btn" data-close>Скасувати</button><button class="btn primary" data-action="save-quest">Створити</button></div></div></div>`;
     if(type==='new-shop') return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Нова можливість</h2><button class="close" data-close>×</button></div><div class="form-grid"><div class="field full"><label>Назва</label><input id="sTitle" placeholder="Наприклад, Новий велосипед"></div><div class="field"><label>Іконка</label><input id="sIcon" maxlength="8" value="✨" placeholder="🎁"></div><div class="field"><label>Тип</label><select id="sType"><option value="personal">Особиста</option><option value="family">Для всієї сімʼї</option><option value="collective">Спільний фонд</option></select></div><div class="field"><label>Ціна</label><input id="sPrice" type="number" value="2000"></div><div class="field"><label>Кількість</label><input id="sStock" type="number" value="1"></div><div class="field"><label>Тривалість, днів</label><select id="sRewardKind"><option value="permanent">Постійна нагорода</option><option value="timed">Тимчасова можливість</option></select><input id="sDurationDays" type="number" min="1" max="30" value="7"></div><div class="field full"><label>Опис</label><textarea id="sDesc"></textarea></div><div class="field full"><label>Приховане посилання на приклад <small>(необов’язково)</small></label><input id="sResourceUrl" type="url" inputmode="url" placeholder="https://…"><small>У магазині URL не показується — людина бачить лише кнопку «Подивитися, що мається на увазі».</small></div></div><div class="modal-actions"><button class="btn" data-close>Скасувати</button><button class="btn primary" data-action="save-shop">Додати</button></div></div></div>`;
 
-    if(type==='accounts') { const list=loadAccounts(); return `<div class="modal-backdrop accounts-window"><div class="modal accounts-modal"><div class="modal-head"><h2>Мої профілі</h2><button class="close" data-close>×</button></div><p>Перемикайте профілі або додавайте вхід з іншого пристрою.</p><div class="account-vault">${list.length?list.map(a=>`<button class="account-vault-item ${a.id===accountId()?'active':''}" data-account-id="${a.id}"><span class="member-initial">${(a.label||'?').slice(0,1).toUpperCase()}</span><span><strong>${a.label}</strong><small>${a.familyName||'Мій простір'} · ${formatDayMonth(a.updatedAt)}</small></span><b>${a.id===accountId()?'Відкрито':'Перейти'}</b></button>`).join(''):'<div class="card empty">Збережених профілів поки немає</div>'}</div><div class="quick-login-note"><strong>Швидкий JSON входу</strong><p>Відкриває профіль без пароля. Зберігайте файл як ключ доступу.</p></div><input id="accountImportFile" type="file" accept="application/json,.json" hidden><div class="modal-actions wrap"><button class="btn" data-action="add-account">+ Додати профіль</button><button class="btn" data-action="import-account">Відкрити JSON</button><button class="btn primary" data-action="export-login-account">Зберегти JSON входу</button></div></div></div>`; }
+    if(type==='accounts') { const list=loadAccounts(); return `<div class="modal-backdrop accounts-window"><div class="modal accounts-modal"><div class="modal-head"><h2>Мої профілі</h2><button class="close" data-close>×</button></div><p>Перемикайте профілі або додавайте вхід з іншого пристрою.</p><div class="account-vault">${list.length?list.map(a=>`<button class="account-vault-item ${a.id===accountId()?'active':''}" data-account-id="${a.id}"><span class="member-initial">${(a.label||'?').slice(0,1).toUpperCase()}</span><span><strong>${a.label}</strong><small>${a.familyName||'Мій простір'} · ${formatDayMonth(a.updatedAt)}</small></span><b>${a.id===accountId()?'Відкрито':'Перейти'}</b></button>`).join(''):'<div class="card empty">Збережених профілів поки немає</div>'}</div><div class="quick-login-note"><strong>Швидкий JSON входу</strong><p>Підключає профіль на іншому пристрої після перевірки сервером. Зберігайте файл як ключ доступу.</p></div><input id="accountImportFile" type="file" accept="application/json,.json" hidden><div class="modal-actions wrap"><button class="btn" data-action="add-account">+ Додати профіль</button><button class="btn" data-action="import-account">Відкрити JSON</button><button class="btn primary" data-action="export-login-account">Зберегти JSON входу</button></div></div></div>`; }
     if(type==='edit-profile') { const u=currentUser(); const owned=(state.cosmeticsCatalog||[]).filter(i=>u.inventory.includes(i.id)); const opts=(kind,current)=>`<option value="">Без прикраси</option>${owned.filter(i=>i.kind===kind).map(i=>`<option value="${i.id}" ${current===i.id?'selected':''}>${escapeHtml(i.title)}</option>`).join('')}`; return `<div class="modal-backdrop"><div class="modal"><div class="modal-head"><h2>Оформлення профілю</h2><button class="close" data-close>×</button></div><div class="cosmetic-preview animated-frame-${cosmetic(u.equipped.animatedFrame)?.asset||'none'}"><span class="animated-name nick-${cosmetic(u.equipped.nicknameEffect)?.asset||'none'}">${escapeHtml(u.name)}</span><small>Попередній вигляд</small></div><div class="form-grid"><div class="field"><label>Значок біля імені</label><select id="profileBadge">${opts('badge',u.equipped.badge)}</select></div><div class="field"><label>Звичайна рамка</label><select id="profileFrame">${opts('frame',u.equipped.frame)}</select></div><div class="field"><label>Анімована рамка</label><select id="profileAnimatedFrame">${opts('animatedFrame',u.equipped.animatedFrame)}</select></div><div class="field"><label>Світне імʼя</label><select id="profileNicknameEffect">${opts('nicknameEffect',u.equipped.nicknameEffect)}</select></div><div class="field"><label>Ефект профілю</label><select id="profileEffect">${opts('profileEffect',u.equipped.profileEffect)}</select></div><div class="field full"><label>Тема застосунку</label><select id="profileTheme"><option value="light" ${u.equipped.theme==='light'?'selected':''}>Світла</option>${owned.filter(i=>i.kind==='theme').map(i=>`<option value="${i.asset}" ${u.equipped.theme===i.asset?'selected':''}>${escapeHtml(i.title)}</option>`).join('')}</select></div><div class="field"><label>Звуки</label><select id="profileSoundMode"><option value="off" ${audioPrefs().mode==='off'?'selected':''}>Вимкнено</option><option value="minimal" ${audioPrefs().mode==='minimal'?'selected':''}>Мінімальні</option><option value="full" ${audioPrefs().mode==='full'?'selected':''}>Усі ефекти</option></select></div><div class="field"><label>Вібрація</label><select id="profileHaptics"><option value="on" ${audioPrefs().haptics?'selected':''}>Увімкнена</option><option value="off" ${!audioPrefs().haptics?'selected':''}>Вимкнена</option></select></div></div><p class="auth-help">Тедик не має власних звуків. Одночасно активна одна анімована рамка та один ефект нікнейму. Системне зменшення руху підтримується автоматично.</p><div class="modal-actions"><button class="btn" data-close>Скасувати</button><button class="btn primary" data-action="save-profile-settings">Зберегти</button></div></div></div>`; }
 
     if(type==='daily-roulette') return `<div class="modal-backdrop daily-gift-backdrop"><div class="modal daily-gift-modal"><div class="daily-gift-head"><span>Щоденний сюрприз</span><small>Один оберт на день</small></div><div class="roulette-wrap"><div class="roulette-pointer">▼</div><div id="dailyRouletteWheel" class="roulette-wheel"><div class="roulette-label r1">+5</div><div class="roulette-label r2">+10</div><div class="roulette-label r3">+50</div><div class="roulette-label r4">+100</div><div class="roulette-label r5">+500</div></div><div class="roulette-hub">✦</div></div><h2 id="rouletteTitle">Крути колесо удачі</h2><p id="rouletteText">На тебе вже чекає маленький подарунок 🌿</p><div class="modal-actions"><button id="rouletteSpinButton" class="btn primary roulette-spin" data-action="spin-daily-roulette">Крутити рулетку</button></div><div class="roulette-odds"><span>+5 · 62%</span><span>+10 · 25%</span><span>+50 · 10%</span><span>+100 · 2,5%</span><span>+500 · 0,5%</span></div></div></div>`;
@@ -2401,8 +2401,67 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     downloadBlobFile(item.blob,item.filename);
     showToast(message);
   }
-  function storeImportedAccount(item){if(!item?.id||!item?.auth||!item?.state)throw new Error('Профіль пошкоджено');const list=loadAccounts();const i=list.findIndex(x=>x.id===item.id);if(i>=0)list[i]=item;else list.unshift(item);safeJsonWrite(ACCOUNTS,list.slice(0,25));switchAccount(item.id);}
-  async function importAccountFile(file){if(!file)return;try{const box=JSON.parse(await file.text());if(box.format!=='myHabbit-login-profile')throw new Error('Оберіть швидкий JSON входу myHabbit');storeImportedAccount(box.account);showToast('Вхід через JSON виконано');}catch(e){showToast(e.message||'Не вдалося відкрити JSON');}}
+  function importedLoginIdentity(item){
+    const token=String(item?.auth?.token||'').trim();
+    const userId=String(item?.auth?.userId||'').trim();
+    const parts=token.split('.');
+    if(!token||!userId||parts.length!==3||parts[0]!=='fq'||parts[1]!==userId)throw new Error('JSON входу пошкоджено або не містить дійсний ключ сесії');
+    return {token,userId};
+  }
+  async function validateImportedAccountOnServer(item){
+    const {token,userId}=importedLoginIdentity(item);
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),8000);
+    try{
+      const res=await fetch('/api/family/state',{cache:'no-store',signal:controller.signal,headers:{'content-type':'application/json',authorization:`Bearer ${token}`}});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok){
+        if(res.status===401||res.status===403)throw new Error('Цей JSON входу більше не дійсний. Збережіть новий JSON на пристрої, де профіль ще відкритий.');
+        throw new Error(data.error||'Не вдалося підтвердити JSON входу на сервері');
+      }
+      const freshState=data?.state;
+      const familyId=String(freshState?.family?.id||'').trim();
+      const user=(freshState?.users||[]).find(candidate=>String(candidate?.id||'')===userId);
+      if(!freshState||!familyId||!user)throw new Error('Сервер не підтвердив профіль з цього JSON');
+      freshState.currentUserId=userId;
+      return {
+        id:`${familyId}:${userId}`,
+        label:user.name||item?.label||'Мій профіль',
+        familyName:freshState.family?.name||item?.familyName||'',
+        auth:{...clone(item?.auth||{}),token,userId},
+        state:clone(freshState),
+        updatedAt:Date.now(),
+        revision:Number(data.revision||0)
+      };
+    }catch(error){
+      if(error?.name==='AbortError')throw new Error('Сервер не відповів вчасно. Для входу через JSON на новому пристрої потрібне з’єднання з інтернетом.');
+      if(error instanceof TypeError)throw new Error('Не вдалося підключитися до сервера. Перевірте інтернет і спробуйте ще раз.');
+      throw error;
+    }finally{clearTimeout(timeout);}
+  }
+  function storeImportedAccount(item){
+    if(!item?.id||!item?.auth?.token||!item?.auth?.userId||!item?.state)throw new Error('Профіль пошкоджено');
+    const list=loadAccounts();const i=list.findIndex(x=>x.id===item.id);if(i>=0)list[i]=item;else list.unshift(item);
+    if(!safeJsonWrite(ACCOUNTS,list.slice(0,25)))throw new Error('Не вдалося зберегти профіль на цьому пристрої');
+    localStorage.removeItem(LOGOUT_TOMBSTONE);
+    if(!safeJsonWrite(AUTH,item.auth)||!safeJsonWrite(STORAGE,item.state))throw new Error('Не вдалося зберегти сесію на цьому пристрої');
+    localStorage.setItem(ACTIVE_ACCOUNT,item.id);
+    return item;
+  }
+  async function importAccountFile(file){
+    if(!file)return;
+    try{
+      const box=JSON.parse(await file.text());
+      if(box.format!=='myHabbit-login-profile'||!box.account)throw new Error('Оберіть швидкий JSON входу myHabbit');
+      showToast('Перевіряємо JSON входу…');
+      const confirmed=await validateImportedAccountOnServer(box.account);
+      storeImportedAccount(confirmed);
+      // A JSON login may happen after the unauthenticated app already finished booting.
+      // Reload through the normal session bootstrap so live sync, presence, daily sync and
+      // the first visible paint all start from the server-confirmed identity.
+      location.replace('/?screen=dashboard');
+    }catch(e){showToast(e.message||'Не вдалося відкрити JSON');}
+  }
   function switchAccount(id,options={}){match3Runtime=null;serverRevision=0;if(options.persistCurrent!==false&&auth)persistAccount();localStorage.removeItem(LOGOUT_TOMBSTONE);const item=loadAccounts().find(x=>x.id===id);if(!item)return false;auth=clone(item.auth);state=clone(item.state);normalizeState();safeJsonWrite(AUTH,auth);safeJsonWrite(STORAGE,state);localStorage.setItem(ACTIVE_ACCOUNT,id);document.querySelector('.modal-backdrop')?.remove();route='dashboard';history.replaceState({},'', '/?screen=dashboard');render();pullRemote().then(()=>render()).catch(()=>{});return true;}
 
   function clearSessionStorageKeys(){

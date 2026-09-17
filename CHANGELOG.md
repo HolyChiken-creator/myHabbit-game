@@ -1,3 +1,8 @@
+## 12.24.0 — JSON login on a new device
+- Quick-login JSON is validated by the server before it is stored or opened.
+- New devices receive the fresh server state and then restart through the authenticated bootstrap, so live sync/presence start correctly.
+- Invalid or revoked JSON keys now show a clear error instead of a false local login.
+- Teddy room behavior is unchanged.
 
 ## 12.23.9 — Family Home Evolution
 - Сімейний дім тепер автоматично розвивається за рівнями сімʼї 1 / 5 / 10 / 20 / 35.

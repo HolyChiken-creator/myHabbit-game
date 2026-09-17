@@ -1,6 +1,6 @@
 {
   "name": "myhabbit-game",
-  "version": "12.23.9",
+  "version": "12.24.0",
   "private": true,
   "description": "myHabbit-game family habit RPG PWA on Cloudflare Workers",
   "scripts": {
@@ -14,7 +14,8 @@
     "test": "npm run test:match3 && npm run test:room && npm run test:crystals",
     "test:crystals": "node scripts/test-crystal-economy.mjs",
     "test:session": "node scripts/test-session-bootstrap.mjs",
-    "test:profile-json": "node scripts/test-profile-json-persistence.mjs"
+    "test:profile-json": "node scripts/test-profile-json-persistence.mjs",
+    "test:json-login": "node scripts/test-json-login-new-device.mjs"
   },
   "devDependencies": {
     "wrangler": "4.116.0"

@@ -1,27 +1,30 @@
-myHabbit 12.23.3 — Wider mobile workshop cards
+myHabbit 12.24.0 — JSON login on a new device
 
-Apply over 12.23.2.
+Apply over 12.23.9.
 
 Changed files:
 - VERSION
 - VERSION.txt
 - package.json
 - CHANGELOG.md
-- UPDATE-12.23.3.md
+- CHANGELOG-GAME.md
+- UPDATE-12.24.0.md
 - public/VERSION.txt
 - public/index.html
-- public/home.css
+- public/app.js
 - public/boot.js
 - public/sw.js
 - public/manifest.webmanifest
 - public/game-content.js
-- public/UPDATE-12.23.3.md
+- public/UPDATE-12.24.0.md
 - boot.js
 - game-content.js
-- src/worker.js
-- worker.js
+- scripts/test-json-login-new-device.mjs
 
 Behavior:
-- mobile workshop and item frames are slightly wider;
-- item previews have a little more room on phones;
-- the empty-state hint is a dedicated non-blocking footer and cannot cover item selection.
+- JSON login validates the exported family token against the server before storing the account;
+- the fresh server family state is used on the new device;
+- successful import restarts through the standard session bootstrap so live sync, presence and daily sync are initialized;
+- invalid/revoked credentials are rejected with a clear message;
+- existing myHabbit-login-profile v1 files remain supported;
+- Teddy room behavior is intentionally unchanged.
