@@ -1,33 +1,30 @@
-myHabbit 12.22.8 — Owner Console live room master
+myHabbit update 12.22.9
+Base: 12.22.8
 
-Changed:
-- public/app.js
-- public/room-master-controller.js
-- public/room-master.config.js
-- public/index.html
-- public/boot.js
-- public/sw.js
-- public/manifest.webmanifest
-- public/game-content.js
-- src/worker.js
-- worker.js
-- scripts/test-room-decor.mjs
-- package.json
-- VERSION
-- VERSION.txt
-- public/VERSION.txt
-- boot.js
-- game-content.js
+OVERWRITE / ADD:
+VERSION
+VERSION.txt
+package.json
+boot.js
+game-content.js
+worker.js
+UPDATE-12.22.9.md
+src/worker.js
+public/VERSION.txt
+public/boot.js
+public/game-content.js
+public/index.html
+public/manifest.webmanifest
+public/room-master.config.js
+public/sw.js
+public/UPDATE-12.22.9.md
 
-Added:
-- UPDATE-12.22.8.md
-- public/UPDATE-12.22.8.md
+NO FILES TO DELETE.
 
-Behavior:
-- Global Teddy Room placement is managed only from /owner-console, not the family admin panel.
-- Owner Console has a 16:7 visual editor for all objects and Teddy, size, z-index, nudging, reset, JSON import/export and 3 preset slots.
-- Dragging publishes throttled live revisions to the server; pointer release publishes a committed revision.
-- Active clients fetch the canonical owner revision every ~1.5 s and apply it without page reload.
-- Desktop and mobile share the same percentage-based master layout.
-- Hidden triple-tap movement remains a local inspection tool and cannot publish the global standard.
-- Teddy wave + magic decor transform from 12.22.7 remains unchanged.
+Main fixes:
+- /owner-console room editor CSP now permits /room-master.config.js, so the room/background/object list render correctly.
+- Editor is local-draft-first: drag/size/z/reset/preset/import do not publish to users.
+- Draft auto-saves locally and survives refreshes.
+- JSON import accepts layouts, roomLayoutMaster, roomMaster.layouts, or a direct level map.
+- Only “Опублікувати для всіх” creates a new server master-layout revision.
+- “Відновити опублікований” discards the local draft and reloads the server/default layout.
