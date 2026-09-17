@@ -1,4 +1,4 @@
-import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, applyMatch3Booster, ROOM_DECOR_CATALOG, ROOM_THEME_PACKS, roomDecorPrerequisite, questDiamondReward, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
+import { achievementKey, normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num, evaluateGameAchievements, ensureMatch3, createMatch3, applyMatch3Move, applyMatch3Booster, ROOM_DECOR_CATALOG, ROOM_THEME_PACKS, roomDecorPrerequisite, questDiamondReward, match3Config as sharedMatch3Config, GAME_VERSION } from './game-rules.js';
 (() => {
   'use strict';
 
@@ -589,7 +589,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
   let rewardFxBusy=false;
   function currentRewardSnapshot(){
     const u=currentUser();
-    return u?{userId:u.id,coins:Number(u.coins||0),xp:Number(u.xp||0),level:Number(u.level||1),achievements:new Set(u.achievements||[])}:null;
+    return u?{userId:u.id,coins:Number(u.coins||0),achievementCoins:Number(u.achievementRewardCoins||0),xp:Number(u.xp||0),level:Number(u.level||1),achievements:new Set(u.achievements||[])}:null;
   }
   function initializeRewardFeedback(){
     rewardSnapshot=currentRewardSnapshot();
@@ -651,7 +651,7 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
     const next=currentRewardSnapshot();if(!next){rewardSnapshot=null;return;}
     const prev=rewardSnapshot;
     if(prev&&prev.userId===next.userId){
-      const coinDelta=next.coins-prev.coins;if(coinDelta>0)enqueueRewardFx({type:'coins',amount:coinDelta});
+      const coinDelta=next.coins-prev.coins-Math.max(0,next.achievementCoins-prev.achievementCoins);if(coinDelta>0)enqueueRewardFx({type:'coins',amount:coinDelta});
       for(const id of next.achievements){
         if(!prev.achievements.has(id)&&!announcedAchievements.has(id)){
           announcedAchievements.add(id);const a=state.achievements.find(x=>x.id===id);queueAchievementToast(a||{id,icon:'🏆',title:'Нове досягнення',rarity:'Звичайна'});
@@ -796,8 +796,8 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
 
   // Stage 7: game-style achievement notifications. Items are shown one at a time,
   // remain visible for five seconds, then leave to the right.
-  const achievementToastQueue=[];
-  let achievementToastBusy=false;
+  
+  
   function achievementRarityClass(value){
     const v=String(value||'').toLowerCase();
     if(v.includes('міф')||v.includes('myth'))return 'mythic';
@@ -809,28 +809,9 @@ import { normalizeGame, applyGameAction, dailyQuests, questStatus, gameDay, num,
   }
   function achievementChime(rarity='common'){playCozySound('achievement','important',rarity);cozyHaptic(rarity==='legendary'||rarity==='mythic'?'strong':'medium');}
   function queueAchievementToast(achievement){
-    if(!achievement)return;
+    if(!achievement||achievement.archived||achievement.active===false)return;
     const item={...achievement,title:achievement.title||'Нове досягнення',rarity:achievement.rarity||'Звичайна',rewardXp:Number(achievement.rewardXp||0)};
     CozyEvents.emit('achievement',item);
-  }
-  function dismissAchievementToast(card,done){
-    if(!card||card.dataset.closing==='1')return;card.dataset.closing='1';card.classList.add('achievement-toast-out');
-    setTimeout(()=>{card.remove();done?.();},520);
-  }
-  function processAchievementToastQueue(){
-    if(achievementToastBusy||!achievementToastQueue.length)return;achievementToastBusy=true;
-    const item=achievementToastQueue.shift(),rarity=achievementRarityClass(item.rarity);
-    let layer=document.getElementById('achievementToastLayer');
-    if(!layer){layer=document.createElement('div');layer.id='achievementToastLayer';layer.className='achievement-toast-layer';layer.setAttribute('aria-live','polite');document.body.appendChild(layer);}
-    const card=document.createElement('button');card.type='button';card.className=`achievement-toast achievement-toast-${rarity}`;card.dataset.achievementId=item.id||'';
-    card.innerHTML=`<span class="achievement-toast-icon">${achievementIconHtml(item,'achievement-toast-art')}</span><span class="achievement-toast-copy"><small>Досягнення отримано</small><strong>${escapeHtml(item.title)}</strong>${item.rewardXp?`<em>+${format(item.rewardXp)} XP</em>`:''}</span><span class="achievement-toast-sparkles" aria-hidden="true">✦</span>`;
-    layer.appendChild(card);requestAnimationFrame(()=>card.classList.add('achievement-toast-in'));achievementChime(rarity);
-    let timer=setTimeout(()=>dismissAchievementToast(card,finish),5000),startX=0,deltaX=0;
-    function finish(){clearTimeout(timer);achievementToastBusy=false;setTimeout(processAchievementToastQueue,90);}
-    card.addEventListener('click',()=>{dismissAchievementToast(card,finish);route='achievements';history.pushState({},'',location.pathname+'?screen=achievements');render();});
-    card.addEventListener('pointerdown',e=>{startX=e.clientX;deltaX=0;card.setPointerCapture?.(e.pointerId);});
-    card.addEventListener('pointermove',e=>{if(!startX)return;deltaX=e.clientX-startX;if(deltaX>0)card.style.transform=`translateX(${Math.min(deltaX,180)}px)`;});
-    card.addEventListener('pointerup',()=>{if(deltaX>85){clearTimeout(timer);dismissAchievementToast(card,finish);}else card.style.transform='';startX=0;deltaX=0;});
   }
   function format(n){return new Intl.NumberFormat(currentLocale()).format(n||0);}
   function xpRequiredForLevel(level){
@@ -1513,7 +1494,27 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(referralXp>=1000000)unlockAchievement(u,'myth_infinity');if(bestStreak>=365)unlockAchievement(u,'myth_time_keeper');if(referralGifts>=500)unlockAchievement(u,'myth_heart_myhabbit');
     const nonAbsolute=state.achievements.filter(a=>a.id!=='myth_absolute'&&!a.catalog);
   }
-  function achievementsScreen(){const u=currentUser();const list=state.achievements.filter(a=>u.achievements.includes(a.id)||(!a.hidden&&!a.archived&&a.active!==false&&(a.condition||a.id.startsWith('collection_')||a.id.startsWith('ref_'))));return shell(`<div class="section-head"><div><h2>Колекція досягнень</h2><small class="meta">Відкрито ${u.achievements.length} · оберіть до трьох головних у профілі</small></div></div><div class="achievement-grid">${list.map(a=>achievementCard(a,u)).join('')}</div>`,`Ачивки`,`Особисті перемоги, реферальні відзнаки та міфічні вершини.`);}
+  function tidyAchievements(u=currentUser(),earnedOnly=false){
+    const owned=new Set(u?.achievements||[]),groups=new Map();
+    for(const a of state.achievements||[]){
+      if(!a?.id)continue;
+      const key=achievementKey(a),old=groups.get(key);
+      const rank=x=>(owned.has(x.id)?4:0)+(!x.archived&&x.active!==false?2:0)+(!x.catalog?1:0);
+      if(!old||rank(a)>rank(old))groups.set(key,a);
+    }
+    const list=[...groups.values()],earned=list.filter(a=>owned.has(a.id));
+    if(earnedOnly)return earned;
+    const next=new Map(),other=[];
+    for(const a of list){
+      if(owned.has(a.id)||a.archived||a.active===false||a.hidden)continue;
+      if(a.condition?.type&&a.condition.type!=='hiddenCondition'){
+        const family=achievementKey(a).split(':')[0],old=next.get(family);
+        if(!old||Number(a.condition.value)<Number(old.condition.value))next.set(family,a);
+      }else if(a.id.startsWith('collection_')||a.id.startsWith('ref_'))other.push(a);
+    }
+    return [...earned,...next.values(),...other];
+  }
+  function achievementsScreen(){const u=currentUser();const list=tidyAchievements(u);return shell(`<div class="section-head"><div><h2>Колекція досягнень</h2><small class="meta">Відкрито ${tidyAchievements(u,true).length} · оберіть до трьох головних у профілі</small></div></div><div class="achievement-grid">${list.map(a=>achievementCard(a,u)).join('')}</div>`,`Ачивки`,`Особисті перемоги, реферальні відзнаки та міфічні вершини.`);}
   function referralStatsBlock(u){const refs=state.users.filter(x=>x.invitedBy===u.id),count=Number(u.stats?.invitedUsers||u.referrals?.length||0),active=refs.length,totalXp=refs.reduce((n,x)=>n+Number(x.totalXpEarned||0),0),best=refs.reduce((n,x)=>Math.max(n,Number(x.streak||0)),0),gifts=(state.giftHistory||[]).filter(g=>refs.some(x=>x.id===g.fromId)&&refs.some(x=>x.id===g.toId)).length;return `<details class="cozy-fold referral-secret"><summary><span>🔐</span><strong>Моя прихована статистика запрошень</strong><small>лише для вас</small></summary><div class="fold-body referral-stats-grid"><div><small>Запрошено</small><strong>${count}</strong></div><div><small>Зараз у сімʼї</small><strong>${active}</strong></div><div><small>XP запрошених</small><strong>${format(totalXp)}</strong></div><div><small>Найкраща серія</small><strong>${best} 🔥</strong></div><div><small>Подарунки між ними</small><strong>${gifts}</strong></div></div></details>`;}
 
   const MATCH3_ICONS=['🌿','💧','⭐','🍓','☕','💜'];
@@ -1745,7 +1746,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const recentStickers=ownedStickers.slice().sort((a,b)=>{const aa=unlockOrder.get(a.id),bb=unlockOrder.get(b.id);if(aa||bb)return (bb?.time||bb?.index||0)-(aa?.time||aa?.index||0);return allStickers.indexOf(b)-allStickers.indexOf(a);}).slice(0,museumLimit);
     const ownedCosmetics=(Array.isArray(u.inventory)?u.inventory:[]).map(cosmetic).filter(Boolean);
     const completed=collections.filter(c=>c.stickers.length&&c.stickers.every(st=>stickerCount(u,st.id)>0)).length;
-    const achievements=(Array.isArray(u.achievements)?u.achievements:[]).map(id=>state.achievements.find(a=>a.id===id)).filter(Boolean);
+    const achievements=tidyAchievements(u,true);
     const history=(Array.isArray(state.giftHistory)?state.giftHistory:[]).slice().reverse().map(g=>`<article class="museum-history-row"><span>${g.icon||'🎁'}</span><div><strong>${escapeHtml(g.title||'Подарунок')}</strong><small>${escapeHtml(g.fromName||'')} → ${escapeHtml(g.toName||'')} · ${g.createdAt?formatDayMonth(g.createdAt):'без дати'}</small>${g.note?`<p>${escapeHtml(g.note)}</p>`:''}</div></article>`).join('')||'<div class="empty-soft">Подарунків ще не було.</div>';
     const achievementCards=achievements.length?achievements.map(a=>achievementCard(a,u)).join(''):'<div class="empty-soft">Перша ачивка з’явиться після виконаного завдання.</div>';
     return shell(`<section class="museum-hero"><div><span class="eyebrow">Особиста скарбниця</span><h2>Музей ${escapeHtml(u.name||'учасника')}</h2><p>Колекції, косметика, ачивки та історія подарунків.</p></div><div class="museum-seal">🏛️</div></section>
@@ -1782,7 +1783,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   async function sendProfileGift(){const to=document.getElementById('profileGiftRecipient')?.value,value=document.getElementById('profileGiftItem')?.value||'',note=document.getElementById('profileGiftNote')?.value||'';const [kind,itemId]=value.split(':');return runGameAction('gift',{to,kind,itemId,note});}
 
   function profileScreen(userId=state.currentUserId){
-    const u=state.users.find(x=>x.id===userId)||currentUser(),own=u.id===state.currentUserId;evaluateReferralAchievements(u);const skills=Object.entries(u.skills||{}),achievements=state.achievements.filter(a=>u.achievements.includes(a.id)),badge=cosmetic(u.equipped?.badge),frame=u.equipped?.frame||'',animatedFrame=cosmetic(u.equipped?.animatedFrame),nickEffect=cosmetic(u.equipped?.nicknameEffect),profileEffect=cosmetic(u.equipped?.profileEffect),stickers=state.profileStickers.filter(x=>x.to===u.id).slice(-10).reverse(),nextRewards=state.levelRewards.filter(r=>!u.claimedLevelRewards.includes(r.level)).slice(0,4);
+    const u=state.users.find(x=>x.id===userId)||currentUser(),own=u.id===state.currentUserId;evaluateReferralAchievements(u);const skills=Object.entries(u.skills||{}),achievements=tidyAchievements(u,true),badge=cosmetic(u.equipped?.badge),frame=u.equipped?.frame||'',animatedFrame=cosmetic(u.equipped?.animatedFrame),nickEffect=cosmetic(u.equipped?.nicknameEffect),profileEffect=cosmetic(u.equipped?.profileEffect),stickers=state.profileStickers.filter(x=>x.to===u.id).slice(-10).reverse(),nextRewards=state.levelRewards.filter(r=>!u.claimedLevelRewards.includes(r.level)).slice(0,4);
     return shell(`<section class="card cozy-profile-head profile-frame-${frame} animated-frame-${animatedFrame?.asset||'none'} profile-effect-${profileEffect?.asset||'none'}"><div class="profile-minimal"><div class="member-initial large">${cuteIcon('cat')}</div><div><div class="profile-level"><span class="animated-name nick-${nickEffect?.asset||'none'}">${escapeHtml(u.name)}</span> ${badge?cuteIcon(badge.asset.includes('bunny')?'bunny':'cat'):''}</div><div class="meta">${u.level} загальний рівень · ${format(u.xp)} / ${format(xpRequiredForLevel(u.level))} XP · ${format(u.coins)} 🪙</div><div class="profile-joined">${u.telegramUsername?'@'+escapeHtml(u.telegramUsername)+' · ':''}у myHabbit з <span class="profile-join-date">${numericJoinDate(u.createdAt)}</span></div><div class="progress soft-progress"><i style="width:${xpPct(u)}%"></i></div></div>${own?'<div class="profile-actions"><button class="btn primary" data-action="invite">Запросити в сімʼю</button><button class="btn" data-action="edit-profile">Налаштувати</button><button class="btn soft" data-action="claim-level-rewards">Подарунки рівня</button></div>':'<button class="btn soft" data-action="leave-sticker" data-user-id="'+u.id+'">Залишити слід</button>'}</div></section>
     <section class="grid metrics minimal-stats"><div class="card"><div class="metric-label">Квести</div><div class="metric-value">${u.stats.questsCompleted||0}</div></div><div class="card"><div class="metric-label">Ранкові подарунки</div><div class="metric-value">${u.stats.giftsOpened||0}</div></div><div class="card"><div class="metric-label">Джекпоти</div><div class="metric-value">${u.stats.jackpots||0}</div></div><div class="card"><div class="metric-label">Стікери друзям</div><div class="metric-value">${u.stats.stickersGiven||0}</div></div></section>
     <div class="cozy-folds">${activeFeaturesBlock(u,own)}${own?referralStatsBlock(u):''}${importantDatesBlock(u,own)}<details class="cozy-fold"><summary>${cuteIcon('leaf')}<strong>Мої барви</strong><small>${skills.length}</small></summary><div class="fold-body skill-list">${skills.map(([k,v])=>`<div class="skill-row cozy-skill"><span class="skill-icon">${cuteIcon('sparkle')}</span><div><div class="skill-name"><strong>${skillLabel(k)}</strong><span>${v} · ${num(u.skillXp?.[k])} XP</span></div><div class="progress"><i style="width:${num(u.skillXp?.[k])%100}%"></i></div></div></div>`).join('')}</div></details><details class="cozy-fold"><summary>${cuteIcon('trophy')}<strong>Мої знахідки</strong><small>${achievements.length}</small></summary><div class="fold-body achievement-grid compact-achievements">${achievements.map(a=>achievementCard(a,u)).join('')}</div></details></div>${own?'':profileCoinTransferStation(u)+profileGiftStation(u)}`,own?'Мій профіль':'Профіль учасника',own?`${escapeHtml(u.name)} · загальний рівень ${u.level}`:`${escapeHtml(u.name)} · профіль близької людини`);
@@ -1882,7 +1883,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       <details class="admin-module" data-admin-module="quests"${adminSectionOpen('quests')}><summary><span>✓</span><div><strong>Квести та логічні ланцюжки</strong><small>Редагування, приховування й власні завдання</small></div></summary><div class="admin-module-body"><div class="section-head"><h2>Поточні квести</h2><button class="btn primary small" data-action="new-quest">+ Додати</button></div><div class="admin-list">${questRows||'<div class="empty-soft">Квестів немає</div>'}</div><div class="section-head"><h2>Стандартна бібліотека</h2><small>Вимкнені шаблони не потрапляють у нову щоденну вибірку</small></div><div class="admin-list">${templateRows}</div></div></details>
       <details class="admin-module" data-admin-module="shop"${adminSectionOpen('shop')}><summary><span>🎁</span><div><strong>Магазин і готові пропозиції</strong><small>Асортимент, залишки та швидке додавання</small></div></summary><div class="admin-module-body"><div class="section-head"><h2>Ваш асортимент</h2><button class="btn primary small" data-action="new-shop">+ Власний товар</button></div><div class="admin-list">${shopRows||'<div class="empty-soft">Магазин порожній</div>'}</div><div class="section-head"><h2>Готова сітка товарів</h2></div><div class="ready-product-grid">${catalog}</div></div></details>
       <details class="admin-module" data-admin-module="transfer"${adminSectionOpen('transfer')}><summary><span>↔</span><div><strong>Перенесення асортименту</strong><small>Копія між сімейними акаунтами</small></div></summary><div class="admin-module-body"><p>Експорт містить лише товари, ціни, іконки, кількість і посилання — без користувачів, балансів та історії.</p><input id="shopImportFile" type="file" accept="application/json,.json" hidden><div class="admin-transfer-actions"><button class="btn primary" data-action="export-shop">Зберегти JSON</button><button class="btn" data-action="copy-shop-json">Копіювати JSON</button><button class="btn" data-action="import-shop">Імпортувати файл</button><button class="btn soft" data-action="paste-shop-json">Вставити з буфера</button></div></div></details>
-      <details class="admin-module" data-admin-module="family"${adminSectionOpen('family')}><summary><span>👥</span><div><strong>Сімʼя та учасники</strong><small>Ліміт від 2 до 25 і керування профілями</small></div></summary><div class="admin-module-body"><div class="family-limit-setting"><div><strong>Максимальна кількість членів сімʼї</strong><small>Не можна встановити менше, ніж уже приєднано.</small></div><select id="familyMaxMembers">${[2,3,5,10,15,20,25].map(n=>`<option value="${n}" ${familyMax()===n?'selected':''}>${n}</option>`).join('')}</select><button class="btn primary small" data-action="save-family-limit">Зберегти</button></div><div class="section-head"><h2>Учасники</h2><div class="admin-actions"><button class="btn soft small" data-action="admin-room-decorator">🎨 Відкрити декор</button><button class="btn primary small" data-action="grant-coins">Видати 🪙 / 💎</button></div></div><div class="admin-list">${state.users.map(adminMemberRow).join('')}</div></div></details>
+      <details class="admin-module" data-admin-module="family"${adminSectionOpen('family')}><summary><span>👥</span><div><strong>Сімʼя та учасники</strong><small>Ліміт від 2 до 25 і керування профілями</small></div></summary><div class="admin-module-body"><div class="family-limit-setting"><div><strong>Максимальна кількість членів сімʼї</strong><small>Не можна встановити менше, ніж уже приєднано.</small></div><select id="familyMaxMembers">${[2,3,5,10,15,20,25].map(n=>`<option value="${n}" ${familyMax()===n?'selected':''}>${n}</option>`).join('')}</select><button class="btn primary small" data-action="save-family-limit">Зберегти</button></div><div class="section-head"><h2>Учасники</h2><div class="admin-actions"><button class="btn primary small" data-action="grant-coins">Видати 🪙 / 💎</button></div></div><div class="admin-list">${state.users.map(adminMemberRow).join('')}</div></div></details>
       <details class="admin-module danger-module" data-admin-module="danger"${adminSectionOpen('danger')}><summary><span>⚠</span><div><strong>Небезпечні дії</strong><small>Скидання профілів</small></div></summary><div class="admin-module-body danger-zone"><div class="admin-list">${state.users.map(u=>`<article class="admin-row"><span class="avatar">${u.avatar}</span><div><strong translate="no">${escapeHtml(u.name)}</strong><small>${u.level} рівень</small></div><button class="btn danger small" data-reset-user="${u.id}">Скинути</button></article>`).join('')}</div></div></details>
     </div>`,`Куточок господаря`,`Контролюйте квести, магазин і розмір сімʼї.`);
   }
@@ -1946,7 +1947,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const write=value=>localStorage.setItem(storageKey(),JSON.stringify({...stateOf(),...value}));
     let tour=null,stepIndex=0,tipTimer=0,achievementTimer=0;
     const companionAchievementQueue=[];
-    let companionAchievementBusy=false;
+    let companionAchievementBusy=false,announcementAccount='',nextAnnouncementAt=0;
+    const queuedAchievementKeys=new Set();
     const memberSteps=[
       {route:'dashboard',selector:'[data-route="dashboard"]',title:'Твій затишний простір',text:'Тут зібрано прогрес, серію та найважливіше на сьогодні.'},
       {route:'quests',selector:'[data-route="quests"]',title:'Щоденні квести',text:'Виконуй звички й отримуй XP та монетки. Починай з маленьких кроків.'},
@@ -1973,7 +1975,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       </div>`);
       const root=document.getElementById('cozyCompanionRoot');
       root.querySelector('.cozy-bear-button').addEventListener('click',openMenu);
-      root.querySelector('.cozy-bubble-close').addEventListener('click',closeBubble);
+      root.querySelector('.cozy-bubble-close').addEventListener('click',()=>companionAchievementBusy?finishAchievementAnnouncement():closeBubble());
     }
     function showBubble(title,text,actions=''){
       ensureRoot();
@@ -1996,6 +1998,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       clearHighlight();
     }
     function openMenu(){
+      if(companionAchievementBusy)finishAchievementAnnouncement();
       showBubble('Привіт! Я поруч 💚','Я нічого не пояснюватиму без запиту. Обери, що тобі потрібно.',`<button data-cozy-action="tour">🎓 Почати тур</button><button data-cozy-action="tip">🌱 Порада дня</button>`);
     }
     function handle(name){
@@ -2037,31 +2040,49 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       const tip=dailyTips[Math.abs([...day].reduce((a,c)=>a+c.charCodeAt(0),0))%dailyTips.length];
       showBubble('Порада дня 🌱',tip,'<button data-cozy-action="close">Дякую</button>');
     }
+    function syncAnnouncementAccount(){
+      const key=storageKey();if(key===announcementAccount)return;
+      announcementAccount=key;clearTimeout(achievementTimer);companionAchievementQueue.length=0;queuedAchievementKeys.clear();companionAchievementBusy=false;nextAnnouncementAt=0;closeBubble();
+    }
     function finishAchievementAnnouncement(){
       clearTimeout(achievementTimer);closeBubble();companionAchievementBusy=false;
-      setTimeout(processAchievementAnnouncements,220);
+      nextAnnouncementAt=Date.now()+20000;
+      if(companionAchievementQueue.length)achievementTimer=setTimeout(processAchievementAnnouncements,20000);
     }
     function processAchievementAnnouncements(){
-      if(companionAchievementBusy||!companionAchievementQueue.length||stateOf().muted)return;
+      syncAnnouncementAccount();
+      if(companionAchievementBusy||!companionAchievementQueue.length)return;
+      if(!auth||stateOf().muted){companionAchievementQueue.length=0;return;}
+      const bubble=document.querySelector('#cozyCompanionRoot .cozy-bubble');
+      if(document.hidden||tour||route==='match3'||document.querySelector('.modal-backdrop')||(bubble&&!bubble.hidden)||Date.now()<nextAnnouncementAt){
+        clearTimeout(achievementTimer);achievementTimer=setTimeout(processAchievementAnnouncements,5000);return;
+      }
+      const batch=companionAchievementQueue.splice(0),saved=new Set(stateOf().achievementSeenV2||[]);
+      const fresh=batch.filter(a=>!saved.has(achievementKey(a)));
+      if(!fresh.length)return;
+      for(const a of fresh)saved.add(achievementKey(a));write({achievementSeenV2:[...saved]});
       companionAchievementBusy=true;
-      const a=companionAchievementQueue.shift();
-      const reward=Number(a?.rewardXp||0)>0?` · +${format(a.rewardXp)} XP`:'';
-      const description=a?.description?` ${escapeHtml(a.description)}`:'';
-      showBubble(`Нове досягнення! ${a?.icon&&!String(a.icon).startsWith('/')?a.icon:'🏆'}`,`${a?.title||'Ти зробив важливий крок.'}${reward}.${description}`,'<button class="primary" data-cozy-action="achievement-next">Чудово</button>');
-      clearTimeout(achievementTimer);achievementTimer=setTimeout(finishAchievementAnnouncement,8500);
+      const text=fresh.length===1?`${fresh[0].title}${fresh[0].description?' — '+fresh[0].description:''}`:fresh.slice(0,3).map(a=>a.title).join(' · ')+(fresh.length>3?` · та ще ${fresh.length-3}. Усі збережено в досягненнях.`:'');
+      showBubble(fresh.length===1?'Нове досягнення 🏆':`Нові досягнення: ${fresh.length} 🏆`,text,'<button class="primary" data-cozy-action="achievement-next">Дякую</button>');
+      // Remain visible until dismissed; never race through a backlog.
     }
     function announceAchievement(a){
-      companionAchievementQueue.push(a||{});processAchievementAnnouncements();
+      syncAnnouncementAccount();if(!a?.id||a.archived||a.active===false||stateOf().muted)return;
+      const key=achievementKey(a);
+      if(queuedAchievementKeys.has(key)||(stateOf().achievementSeenV2||[]).includes(key))return;
+      queuedAchievementKeys.add(key);companionAchievementQueue.push(a);
+      if(!companionAchievementBusy){clearTimeout(achievementTimer);achievementTimer=setTimeout(processAchievementAnnouncements,1500);}
     }
     function contextualMessage(){ return; }
     function afterRender(){
+      syncAnnouncementAccount();
       if(!auth||['landing','auth'].includes(route)){document.getElementById('cozyCompanionRoot')?.remove();return;}
       ensureRoot();clearHighlight();
       // Teddy is intentionally silent on render. Tours and daily tips are manual only.
       // Achievement and level celebrations remain event-driven and never replay on navigation.
     }
     CozyEvents.on('achievement',a=>announceAchievement(a));
-    CozyEvents.on('levelup',d=>showBubble('Новий рівень! ⭐',`Тепер у тебе ${d.level} рівень. Я пишаюся тобою!`,'<button data-cozy-action="close">Далі</button>'));
+    CozyEvents.on('levelup',d=>!companionAchievementBusy&&showBubble('Новий рівень! ⭐',`Тепер у тебе ${d.level} рівень. Я пишаюся тобою!`,'<button data-cozy-action="close">Далі</button>'));
     return {afterRender,startTour,showDailyTip,emit:CozyEvents.emit};
   })();
 
@@ -2185,8 +2206,8 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     if(name==='confirm-leave-family') leaveFamily();
     if(name==='grant-coins'){appendMarkup(document.body,modal('grant-coins'));bindModal();}
     if(name==='confirm-grant-coins') grantCoins();
-    if(name==='admin-room-decorator'){appendMarkup(document.body,modal('admin-room-decorator'));bindModal();}
-    if(name==='confirm-admin-room-decorator') adminUnlockRoomDecor();
+
+
     if(name==='confirm-kick-user') kickUser(el?.dataset.userId);
     if(name==='reset-current-session') openResetSessionDialog();
     if(name==='confirm-reset-session') confirmResetSession();
