@@ -1,9 +1,9 @@
 (function(){
   'use strict';
   const A='/assets/room-master/';
-  const assetSet=n=>({window:A+`level-${n}/window.webp`,armchair:A+`level-${n}/armchair.webp`,table:A+`level-${n}/table.webp`,bookshelf:A+`level-${n}/bookshelf.webp`,fireplace:A+`level-${n}/fireplace.webp`,rug:A+`level-${n}/rug.webp`,plant:A+`level-${n}/plant.webp`,painting:A+`level-${n}/painting.png`,lamp:A+`level-${n}/lamp.png`,clock:A+`level-${n}/clock.png`});
+  const assetSet=n=>({window:A+`level-${n}/window.webp`,armchair:A+`level-${n}/${n===4?'armchair-perspective.png':'armchair.webp'}`,table:A+`level-${n}/table.webp`,bookshelf:A+`level-${n}/${n===1?'bookshelf-perspective.png':'bookshelf.webp'}`,fireplace:A+`level-${n}/${n===3?'fireplace-perspective.png':'fireplace.webp'}`,rug:A+`level-${n}/rug.webp`,plant:A+`level-${n}/plant.webp`,painting:A+`level-${n}/painting.png`,lamp:A+`level-${n}/lamp.png`,clock:A+`level-${n}/clock.png`});
   window.ROOM_MASTER_CONFIG={
-    version:'12.22.1',
+    version:'12.22.2',
     storageKey:'myhabbit:teddy-room-master:v4',
     slots:['window','armchair','table','bookshelf','fireplace','rug','plant','painting','lamp','clock'],
     labels:{window:'Вікно',armchair:'Крісло',table:'Столик',bookshelf:'Книжкова шафа',fireplace:'Камін',rug:'Килим',plant:'Рослина',painting:'Картина',lamp:'Торшер',clock:'Годинник',teddy:'Тедик'},
@@ -11,7 +11,7 @@
       0:{id:0,title:'Step 0',background:A+'level-0/background.webp',assets:assetSet(0)},
       1:{id:1,title:'Cozy',background:A+'level-1/background.webp',assets:assetSet(1)},
       2:{id:2,title:'Warm',background:A+'level-2/background.webp',assets:assetSet(2)},
-      3:{id:3,title:'Hi-tech',background:A+'level-3/background.webp',assets:assetSet(3)},
+      3:{id:3,title:'Hi-tech',background:A+'level-3/background-perspective.png',assets:assetSet(3)},
       4:{id:4,title:'Gothic',background:A+'level-4/background.webp',assets:assetSet(4)}
     },
     defaults:{

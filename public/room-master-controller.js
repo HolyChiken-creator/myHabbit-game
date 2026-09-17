@@ -54,6 +54,7 @@
   function serverLayouts(el){
     try{if(el?.dataset?.roomLayoutVersion!=='2')return {};return JSON.parse(el?.dataset?.roomLayout||'{}')||{};}catch{return {};}
   }
+  function hiddenSlot(el,slot){return (el?.dataset?.roomHidden||'').split(',').includes(slot);}
   function sourceFor(el,slot){
     const raw=Number(el?.dataset?.['roomSource'+slot[0].toUpperCase()+slot.slice(1)]);
     return Number.isFinite(raw)?Math.max(0,Math.min(4,Math.trunc(raw))):0;
@@ -114,7 +115,7 @@
       const level=CFG.levels[sourceLevel]||CFG.levels[0];
       const layout=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]);
       img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
-      img.src=level.assets[slot];img.hidden=false;applyBox(img,layout[slot]||CFG.defaults[runtimeLevel][slot],slot);
+      img.src=level.assets[slot];img.hidden=!editorOpen&&hiddenSlot(el,slot);applyBox(img,layout[slot]||CFG.defaults[runtimeLevel][slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
     });
 
@@ -169,7 +170,7 @@
     const el=room();if(!el||editorOpen||document.hidden||el.dataset.roomPreview==='true')return;
     if(pendingReaction&&Date.now()-pendingReaction.at<12000){activity={...pendingReaction,reaction:true};pendingReaction=null;}
     else if(activity?.reaction&&Date.now()-activity.at<9000)return;
-    else {const available=SLOTS.filter(s=>sourceFor(el,s)>0);if(!available.length)return;const slot=available[activityIndex++%available.length];activity={slot,variant:Math.floor(activityIndex/Math.max(1,available.length)),at:Date.now()};}
+    else {const available=SLOTS.filter(s=>sourceFor(el,s)>0&&!hiddenSlot(el,s));if(!available.length)return;const slot=available[activityIndex++%available.length];activity={slot,variant:Math.floor(activityIndex/Math.max(1,available.length)),at:Date.now()};}
     const teddy=el.querySelector('.room-master-teddy');if(teddy)applyActivity(el,teddy);
   }
   window.addEventListener('teddy-room-upgraded',e=>{

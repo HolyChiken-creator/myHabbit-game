@@ -74,6 +74,7 @@ export const ROOM_DECOR_CATALOG=[
   {id:'clock-hitech',slot:'clock',title:'Hi-tech · Годинник',price:78,icon:'🕰️',theme:'hitech',tier:3},
   {id:'clock-gothic',slot:'clock',title:'Gothic · Годинник',price:132,icon:'🕰️',theme:'gothic',tier:4}
 ];
+for(const slot of ["window", "armchair", "table", "bookshelf", "fireplace", "rug", "plant", "painting", "lamp", "clock"])ROOM_DECOR_CATALOG.push({id:slot+'-empty',slot,title:'Порожньо',price:0,icon:'∅',theme:'empty',tier:0,empty:true});
 export function roomDecorPrerequisite(item){
   if(!item||num(item.tier)<=1)return null;
   return ROOM_DECOR_CATALOG.find(x=>x.slot===item.slot&&num(x.tier)===num(item.tier)-1)||null;
@@ -132,6 +133,7 @@ function userDefaults(u){
     u.roomAssetShopV1=true;
   }
   for(const [slot,id] of Object.entries(defaults)){if(!u.roomDecor[slot]||!ROOM_DECOR_CATALOG.some(x=>x.id===u.roomDecor[slot]&&x.slot===slot))u.roomDecor[slot]=id;if(!u.roomDecorOwned.includes(id))u.roomDecorOwned.push(id);}
+  u.roomDecorOwned.push(...ROOM_DECOR_CATALOG.filter(item=>item.empty).map(item=>item.id));
   u.roomDecorOwned=unique(u.roomDecorOwned.filter(id=>ROOM_DECOR_CATALOG.some(item=>item.id===id)));
   u.roomThemeOwned=[0];u.roomThemeLevel=0;
   u.achievements=unique(u.achievements);u.stickerDust=num(u.stickerDust);if(u.totalXpEarned==null){let total=u.xp;for(let level=1;level<u.level;level++)total+=xpRequired(level);u.totalXpEarned=total;}u.streak=num(u.streak);u.bestStreak=Math.max(num(u.bestStreak),u.streak);
