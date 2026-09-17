@@ -58,7 +58,7 @@
     setTimeout(() => setProgress(92, 'Майже готово…'), 1100);
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = '/app.js?v=12.23.3';
+    script.src = '/app.js?v=12.23.4';
     script.onerror = () => { lastError = 'Не вдалося завантажити застосунок'; recovery(); };
     document.body.appendChild(script);
     setTimeout(() => {
