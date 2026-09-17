@@ -1,3 +1,9 @@
+## 12.23.2 — Compact room workshop
+
+- Teddy room stays visible while the structured decor workshop uses its own vertical scroller.
+- Desktop uses a room + compact side workshop; mobile keeps the room above a bounded workshop panel. Category tabs show one structured card set at a time.
+- Preview/buy/equip no longer moves the page. The shop keeps category structure instead of showing one long list.
+
 ## 12.23.1 — Owner seasonal sticker purchase authorization
 - Fixed Owner Console seasonal sticker testing so the server authorizes Christmas, Halloween and Egg Party box purchases while the switch is enabled.
 - The same server-side override now applies to sticker-dust exchange for those seasonal collections.

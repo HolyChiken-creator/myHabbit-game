@@ -1296,7 +1296,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   let roomStudioOpening=false;
   let roomStudioSlot='background';
   let roomPreviewItemId='';
-  let roomStudioScrollState={tabs:0,styles:0,studio:0,page:0};
+  let roomStudioScrollState={tabs:0,styles:0,studio:0,shop:0,page:0};
   function bindRoomStudioInteractions(){
     const studio=document.querySelector('.room-live-studio');if(!studio)return;
     [studio.querySelector('.room-live-tabs')].filter(Boolean).forEach(scroller=>bindEvent(scroller,'wheel',e=>{
@@ -1308,18 +1308,25 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   }
   function roomPreviewItem(){return ROOM_DECOR_CATALOG.find(item=>item.id===roomPreviewItemId)||null;}
   function captureRoomStudioScroll(){
-    const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles');
-    roomStudioScrollState={tabs:tabs?.scrollLeft||0,styles:styles?.scrollLeft||0,studio:studio?.scrollTop||0,page:window.scrollY||0};
+    const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles'),shop=document.querySelector('.room-workshop-scroll');
+    roomStudioScrollState={tabs:tabs?.scrollLeft||0,styles:styles?.scrollLeft||0,studio:studio?.scrollTop||0,shop:shop?.scrollTop||0,page:window.scrollY||0};
   }
   function restoreRoomStudioScroll({resetStyles=false,resetStudio=false}={}){
     requestAnimationFrame(()=>{
-      const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles');
+      const studio=document.querySelector('.room-live-studio'),tabs=document.querySelector('.room-live-tabs'),styles=document.querySelector('.room-live-styles'),shop=document.querySelector('.room-workshop-scroll');
       if(tabs)tabs.scrollLeft=roomStudioScrollState.tabs||0;
       if(styles)styles.scrollLeft=resetStyles?0:(roomStudioScrollState.styles||0);
       if(studio)studio.scrollTop=resetStudio?0:(roomStudioScrollState.studio||0);
+      if(shop)shop.scrollTop=resetStudio?0:(roomStudioScrollState.shop||0);
       if(Number.isFinite(roomStudioScrollState.page))window.scrollTo(0,roomStudioScrollState.page||0);
       applyRoomStudioGeometry();
     });
+  }
+  function scrollRoomWorkshopGroup(slot){
+    const scroller=document.querySelector('.room-workshop-scroll'),group=document.querySelector(`.room-workshop-group[data-slot="${slot}"]`);
+    if(!scroller||!group)return;
+    const top=Math.max(0,group.offsetTop-6);
+    scroller.scrollTo({top,behavior:'smooth'});
   }
   function roomPreviewUser(u){
     const item=roomPreviewItem();
@@ -1332,10 +1339,13 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const valid=ROOM_DECOR_SLOT_NAMES[slot]?slot:'';
     const nextSlot=valid||((ROOM_DECOR_SLOT_NAMES[roomStudioSlot])?roomStudioSlot:'background')||roomNextUpgrades(u)[0]?.slot||'background';
     if(wasOpen&&valid){
+      captureRoomStudioScroll();
       roomStudioSlot=nextSlot;
-      document.querySelectorAll('.room-live-tabs button').forEach(btn=>btn.classList.toggle('active',btn.dataset.slot===nextSlot));
-      document.querySelector(`.room-workshop-group[data-slot="${nextSlot}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});
+      roomPreviewItemId='';
+      roomStudioScrollState.shop=0;
       cozyHaptic('light');
+      render();
+      restoreRoomStudioScroll({resetStyles:true,resetStudio:true});
       return;
     }
     if(wasOpen)captureRoomStudioScroll();
@@ -1428,33 +1438,40 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
   function roomDecorStudio(u=currentUser()){
     if(!u||!roomStudioOpen)return '';
     const activeSlot=ROOM_DECOR_SLOT_NAMES[roomStudioSlot]?roomStudioSlot:'background';
+    const slotLabel=ROOM_DECOR_SLOT_NAMES[activeSlot]||ROOM_DECOR_SLOT_NAMES.background;
     const preview=roomPreviewItem();
+    const selected=preview?.slot===activeSlot?preview:null;
     const tabs=Object.entries(ROOM_DECOR_SLOT_NAMES).map(([id,label])=>`<button class="${id===activeSlot?'active':''}" data-action="room-decor-slot" data-slot="${id}">${tr(...label)}</button>`).join('');
-    const groups=Object.entries(ROOM_DECOR_SLOT_NAMES).map(([slot,label])=>{
-      const cards=ROOM_DECOR_CATALOG.filter(item=>item.slot===slot).map(item=>{
-        const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,isPreview=roomPreviewItemId===item.id,tier=Number(item.tier||0),prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id)),affordable=Number(u.diamonds||0)>=Number(item.price||0);
-        const status=active?tr('Зараз у кімнаті','Currently equipped'):owned?(item.empty?tr('Доступно','Available'):tr('Уже придбано','Owned')):locked?tr('Потрібен попередній рівень','Previous tier required'):`${item.price} 💎`;
-        const actionLabel=active?tr('Встановлено','Equipped'):owned?(item.empty?tr('Прибрати','Remove'):tr('Встановити','Equip')):locked?tr('Спочатку попередній рівень','Unlock previous tier'):affordable?`${tr('Купити','Buy')} · ${item.price} 💎`:`${tr('Не вистачає','Need')} ${Math.max(0,Number(item.price||0)-Number(u.diamonds||0))} 💎`;
-        const previewSrc=roomDecorPreviewSrc(item);
-        return `<article class="room-workshop-card tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}">
-          <button class="room-workshop-preview" data-action="room-decor-preview" data-item-id="${item.id}" aria-label="${tr('Приміряти','Preview')} ${escapeHtml(item.title)}">
-            ${item.empty?'<div class="room-empty-preview" aria-hidden="true">∅</div>':`<img src="${previewSrc}" alt="" loading="lazy">`}
-            <span class="room-workshop-card-copy"><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}</span>
-          </button>
-          <button class="btn ${active?'soft':'primary'} room-workshop-buy" data-action="room-decor-confirm" data-item-id="${item.id}" ${(active||locked||(!owned&&!affordable))?'disabled':''}>${actionLabel}</button>
-        </article>`;
-      }).join('');
-      return `<section class="room-workshop-group" data-slot="${slot}"><div class="room-workshop-group-head"><div><span>${tr('Категорія','Category')}</span><h3>${tr(...label)}</h3></div><small>${ROOM_DECOR_CATALOG.filter(item=>item.slot===slot&&!item.empty).length} ${tr('варіантів','options')}</small></div><div class="room-workshop-grid">${cards}</div></section>`;
+    const slotItems=ROOM_DECOR_CATALOG.filter(item=>item.slot===activeSlot);
+    const cards=slotItems.map(item=>{
+      const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[activeSlot]===item.id,isPreview=roomPreviewItemId===item.id,tier=Number(item.tier||0),prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id));
+      const status=active?tr('Зараз у кімнаті','Currently equipped'):owned?(item.empty?tr('Можна прибрати безкоштовно','Can remove for free'):tr('Уже придбано','Owned')):locked?tr('Спочатку відкрийте попередній рівень','Unlock the previous tier first'):`${item.price} 💎`;
+      const previewSrc=roomDecorPreviewSrc(item);
+      return `<button class="room-live-style room-workshop-tile tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}" data-action="room-decor-preview" data-item-id="${item.id}" aria-label="${tr('Приміряти','Preview')} ${escapeHtml(item.title)}">
+        ${item.empty?'<div class="room-empty-preview" aria-hidden="true">∅</div>':`<img src="${previewSrc}" alt="" loading="lazy">`}
+        <span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}
+      </button>`;
     }).join('');
-    const previewNotice=preview?`<div class="room-workshop-preview-note"><div><span>${preview.icon}</span><div><strong>${tr('Примірка:','Preview:')} ${escapeHtml(preview.title)}</strong><small>${tr('Кімната зверху вже показує цей варіант. Купівлі ще не було.','The room above already shows this option. Nothing has been purchased yet.')}</small></div></div><button class="btn soft" data-action="room-decor-cancel-preview">${tr('Скасувати примірку','Cancel preview')}</button></div>`:`<div class="room-live-hint room-workshop-hint"><span>✨</span><div><strong>${tr('Майстерня працює зверху вниз','A top-to-bottom room workshop')}</strong><small>${tr('Кімната залишається зверху, а нижче можна гортати всі категорії, приміряти та одразу купувати нові предмети.','Keep the room above, then scroll through every category below to preview and buy new items.')}</small></div></div>`;
+    let confirm='';
+    if(selected){
+      const owned=u.roomDecorOwned?.includes(selected.id),active=u.roomDecor?.[selected.slot]===selected.id,prereq=roomDecorPrerequisite(selected),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id)),affordable=Number(u.diamonds||0)>=Number(selected.price||0);
+      const actionLabel=active?tr('Цей стиль уже встановлено','This style is already equipped'):owned?(selected.empty?tr('Прибрати предмет','Remove item'):tr('Встановити цей стиль','Equip this style')):locked?tr('Спочатку відкрийте попередній рівень','Unlock the previous tier first'):affordable?`${tr('Купити й встановити','Buy & equip')} · ${selected.price} 💎`:`${tr('Не вистачає','Need')} ${Math.max(0,Number(selected.price||0)-Number(u.diamonds||0))} 💎`;
+      confirm=`<div class="room-live-confirm room-workshop-confirm"><div><span>${selected.icon}</span><div><strong>${escapeHtml(selected.title)}</strong><small>${tr('Примірка вже показана у кімнаті. Купівля відбудеться тільки після підтвердження.','The preview is already visible in the room. Nothing is purchased until you confirm.')}</small></div></div><div class="room-live-confirm-actions"><button class="btn soft" data-action="room-decor-cancel-preview">${tr('Повернути як було','Revert')}</button><button class="btn primary" data-action="room-decor-confirm" data-item-id="${selected.id}" ${(active||locked||(!owned&&!affordable))?'disabled':''}>${actionLabel}</button></div></div>`;
+    }else{
+      confirm=`<div class="room-live-hint room-workshop-hint"><span>👆</span><div><strong>${tr('Оберіть предмет для примірки','Choose an item to preview')}</strong><small>${tr('Кімната залишається перед очима. Натисніть картку — зміна зʼявиться одразу, а купівлю підтвердите окремо.','The room stays visible. Tap a card to preview it instantly, then confirm the purchase separately.')}</small></div></div>`;
+    }
     const opening=roomStudioOpening;roomStudioOpening=false;
     return `<section class="room-live-studio room-inline-studio" data-workshop="true" data-opening="${opening?'true':'false'}" aria-label="${tr('Майстерня кімнати','Room studio')}">
-      <div class="room-live-head"><div><span>${tr('Майстерня кімнати','Room studio')}</span><strong>${tr('Декор та нові предмети','Decor & new items')}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
-      <p class="room-new-decor-note">${tr('Гортайте сторінку зверху вниз: спочатку кімната Тедіка, нижче — весь каталог. Натисніть предмет, щоб приміряти його у кімнаті, або купіть одразу з картки.','Scroll from top to bottom: Teddy’s room first, then the full catalog. Tap an item to preview it in the room, or buy it directly from its card.')}</p>
-      <nav class="room-live-tabs room-workshop-jumps" aria-label="${tr('Швидкий перехід до категорії','Jump to category')}">${tabs}</nav>
-      ${previewNotice}
-      <div class="room-workshop-catalog">${groups}</div>
-      <button class="btn soft room-workshop-back-top" data-action="room-workshop-top">↑ ${tr('До кімнати Тедіка','Back to Teddy’s room')}</button>
+      <div class="room-live-head"><div><span>${tr('Майстерня кімнати','Room studio')}</span><strong>${tr(...slotLabel)}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
+      <p class="room-new-decor-note">${tr('Кімната завжди лишається видимою, а прокручується тільки компактна панель вибраної категорії.','The room always stays visible while only the compact selected-category panel scrolls.')}</p>
+      <div class="room-workshop-browser room-workshop-structured">
+        <nav class="room-live-tabs room-workshop-jumps" aria-label="${tr('Категорії декору','Decor categories')}">${tabs}</nav>
+        <div class="room-workshop-slot-head"><div><span>${tr('Категорія','Category')}</span><strong>${tr(...slotLabel)}</strong></div><small>${slotItems.filter(item=>!item.empty).length} ${tr('варіантів','options')}</small></div>
+        <div class="room-workshop-scroll" tabindex="0" aria-label="${tr('Прокручувані варіанти вибраної категорії','Scrollable options in the selected category')}">
+          <div class="room-live-styles room-workshop-styles">${cards}</div>
+        </div>
+        ${confirm}
+      </div>
     </section>`;
   }
   async function chooseRoomDecor(itemId){

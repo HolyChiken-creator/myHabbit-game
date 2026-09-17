@@ -70,6 +70,13 @@ const css=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
 assert.match(css,/12\.21\.0 — per-object Teddy room upgrades/);
 assert.match(css,/room-inline-studio/);
 assert.match(css,/room-live-style>img/);
+assert.match(appSource,/class="room-workshop-scroll"/);
+assert.match(appSource,/scrollRoomWorkshopGroup/);
+assert.match(appSource,/shop:shop\?\.scrollTop/);
+assert.match(css,/12\.23\.2 — split room workshop/);
+assert.match(css,/\.room-workshop-scroll\{[\s\S]*?overflow-y:auto/);
+assert.match(css,/grid-template-areas:"scene workshop" "status workshop"/);
+assert.match(css,/height:min\(520px,calc\(100svh - 16px\)\)/);
 
 console.log('PASS: 11-slot per-object Teddy room shop + Step 0 defaults + owner-console global layout path.');
 

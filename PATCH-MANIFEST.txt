@@ -1,35 +1,24 @@
-myHabbit 12.23.0 — Vertical Teddy room workshop
-Base: 12.22.9
+myHabbit structured room workshop update 12.23.2
+Base: 12.23.1
 
-Replace these files in the project:
-- VERSION
-- VERSION.txt
-- boot.js
-- game-content.js
-- package.json
-- worker.js
-- src/worker.js
-- public/VERSION.txt
-- public/app.js
-- public/boot.js
-- public/game-content.js
-- public/home.css
-- public/index.html
-- public/manifest.webmanifest
-- public/sw.js
-
-Add:
-- UPDATE-12.23.0.md
-- public/UPDATE-12.23.0.md
-
-Main behavior:
-- room workshop is one vertical top-to-bottom flow
-- Teddy room first, complete decor catalog below
-- all 11 decor categories are visible in the same workshop
-- preview and direct Buy / Equip are available on each item card
-- preview/equip preserves page scroll
-- quick category chips no longer steal normal vertical wheel scrolling
-- desktop keeps the room preview sticky while browsing; mobile scrolls naturally
-
-No migration is required. Room purchases, crystals, Teddy magic animation,
-owner master-layout and device layout sync keep their existing data model.
+Changed files:
+VERSION.txt
+VERSION
+game-content.js
+worker.js
+boot.js
+package.json
+PATCH-MANIFEST.txt
+UPDATE-12.23.2.md
+CHANGELOG.md
+public/VERSION.txt
+public/app.js
+public/game-content.js
+public/sw.js
+public/manifest.webmanifest
+public/home.css
+public/boot.js
+public/UPDATE-12.23.2.md
+public/index.html
+src/worker.js
+scripts/test-room-decor.mjs
