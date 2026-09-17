@@ -1,10 +1,3 @@
-home-clean-start.png
-home-tidy-corner.png
-home-order-master.png
-home-perfect-order.png
-home-everything-shines.png
-home-home-owner.png
-home-cleanliness-king.png
-sport-first-move.png
-sport-warmup.png
-sport-active-day.png
+public/assets/achievement-icons/wheel-lucky.png
+public/assets/achievement-icons/wheel-first-spin.png
+public/assets/achievement-icons/wheel-jackpot.png
