@@ -59,7 +59,7 @@ assert.match(appSource,/data-room-source-\$\{slot\}/);
 assert.doesNotMatch(appSource,/\$\{roomThemeShopMarkup\(currentUser\(\)\)\}/);
 
 const controller=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
-assert.match(controller,/bindTripleTap/);
+assert.match(controller,/ensureTripleTapDelegate/);
 assert.match(controller,/isAdminRoom/);
 assert.match(controller,/persistGlobal/);
 assert.match(controller,/myHabbitSaveRoomLayout/);
@@ -78,7 +78,6 @@ assert.match(fixedApp,/ROOM_DECOR_SLOT_NAMES\[roomStudioSlot\]\?roomStudioSlot:'
 assert.doesNotMatch(fixedApp,/roomStudioSlot='seat'/);
 const fixedController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
 assert.match(fixedController,/now-t<1500/);
-assert.match(fixedController,/isAdminRoom\(room\(\)\)/);
 
 const openController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
 const tripleBlock=openController.match(/function registerTripleStart\(ev\)[\s\S]*?function bindObjectEvents/)[0];
@@ -97,4 +96,11 @@ assert.match(fixedController,/use exactly one input event family/);
 const secretApp=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
 assert.match(secretApp,/release-label site-version-trigger/);
 const secretController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
-assert.match(secretController,/\.room-master-teddy,\.site-version-trigger/);
+assert.match(secretController,/closest\?\.\('\.site-version-trigger'\)/);
+
+const smoothController=readFileSync(new URL('../public/room-master-controller.js',import.meta.url),'utf8');
+assert.doesNotMatch(smoothController,/bindTripleTap\(companion\)/);
+assert.match(smoothController,/data-rm-save-global/);
+assert.match(smoothController,/if\(!editorOpen\)\{/);
+assert.match(smoothController,/sizeInput\.oninput/);
+assert.doesNotMatch(smoothController,/save\(\);persistGlobal\(\);\s*render\(\);/);

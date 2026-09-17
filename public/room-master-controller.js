@@ -59,10 +59,12 @@
     return Number.isFinite(raw)?Math.max(0,Math.min(4,Math.trunc(raw))):0;
   }
   function ensureStateForRoom(el){
-    const remote=serverLayouts(el);
-    if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
-    const stage=inferStage(el);state.activeLevel=stage;
-    SLOTS.forEach(s=>state.sources[s]=sourceFor(el,s));
+    if(!editorOpen){
+      const remote=serverLayouts(el);
+      if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+      const stage=inferStage(el);state.activeLevel=stage;
+      SLOTS.forEach(s=>state.sources[s]=sourceFor(el,s));
+    }
   }
 
   function mount(){
@@ -88,7 +90,6 @@
     if(companion){
       companion.classList.add('room-master-teddy');
       companion.dataset.roomMasterObject='teddy';
-      bindTripleTap(companion);
     }
 
     bindObjectEvents(el);
@@ -97,15 +98,18 @@
 
   function render(){
     const el=room(); if(!el)return;
-    const remote=serverLayouts(el);if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+    if(!editorOpen){
+      const remote=serverLayouts(el);
+      if(Object.keys(remote).length)state.layouts={...state.layouts,...remote};
+    }
     const runtimeLevel=String(inferStage(el));
-    const bgLevel=editorOpen&&isAdminRoom(el)?String(state.activeLevel):String(sourceFor(el,'background'));
+    const bgLevel=editorOpen?String(state.activeLevel):String(sourceFor(el,'background'));
     const bg=el.querySelector('[data-room-master-bg]');
     if(bg){bg.onerror=()=>bg.classList.add('asset-load-error');bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=(CFG.levels[bgLevel]||CFG.levels[0]).background;}
 
     SLOTS.forEach(slot=>{
       const img=el.querySelector(`[data-room-master-object="${slot}"]`);if(!img)return;
-      const sourceLevel=editorOpen&&isAdminRoom(el)?String(state.sources[slot]??state.activeLevel):String(sourceFor(el,slot));
+      const sourceLevel=editorOpen?String(state.sources[slot]??state.activeLevel):String(sourceFor(el,slot));
       const level=CFG.levels[sourceLevel]||CFG.levels[0];
       const layout=(state.layouts[sourceLevel]||CFG.defaults[sourceLevel]||CFG.defaults[0]);
       img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
@@ -139,14 +143,14 @@
   let tripleStart=null;
 
   function registerTripleStart(ev){
-    const target=ev?.target?.closest?.('.room-master-teddy,.site-version-trigger');
+    const target=ev?.target?.closest?.('.site-version-trigger');
     if(!target)return;
     triplePointerId=ev.pointerId ?? null;
     tripleStart={x:ev.clientX ?? ev.touches?.[0]?.clientX ?? 0,y:ev.clientY ?? ev.touches?.[0]?.clientY ?? 0,time:Date.now()};
   }
 
   function registerTripleEnd(ev){
-    const target=ev?.target?.closest?.('.room-master-teddy,.site-version-trigger');
+    const target=ev?.target?.closest?.('.site-version-trigger');
     if(!target)return;
 
     const now=Date.now();
@@ -218,7 +222,8 @@
     node.addEventListener('pointermove',onPointerMove);
     node.addEventListener('pointerup',onPointerUp,{once:true});
     node.addEventListener('pointercancel',onPointerUp,{once:true});
-    render();
+    node.classList.add('is-selected');
+    syncEditor();
     ev.preventDefault();
   }
   function onPointerMove(ev){
@@ -235,17 +240,18 @@
     if(!drag)return;
     drag.node.removeEventListener('pointermove',onPointerMove);
     drag=null;
-    save();persistGlobal();
+    save();
     render();
   }
 
   async function persistGlobal(){
-    if(!isAdminRoom(room()))return;
-    try{await window.myHabbitSaveRoomLayout?.(state.layouts);}catch{}
+    try{
+      const result=await window.myHabbitSaveRoomLayout?.(state.layouts);
+      return Boolean(result);
+    }catch{return false;}
   }
 
   function toggleEditor(force){
-    if(!isAdminRoom(room()))return;
     const next=typeof force==='boolean'?force:!editorOpen;
     if(next&&!editorOpen){
       const stage=inferStage(room());
@@ -292,9 +298,10 @@
       <div class="room-master-actions">
         <button type="button" data-rm-reset-one>Скинути предмет</button>
         <button type="button" data-rm-reset-level>Скинути рівень</button>
+        <button type="button" data-rm-save-global>Зберегти для всіх</button>
         <button type="button" data-rm-export>Export JSON</button>
       </div>
-      <p>Перетягуй вибраний предмет пальцем прямо по кімнаті. Тройний тап по Тедику закриває/відкриває цей режим.</p>`;
+      <p>Перетягуй предмети пальцем. Розстановка не оновлює сторінку під час редагування. Збереження для всіх — окремою кнопкою.</p>`;
     document.body.appendChild(panel);
 
     panel.querySelector('[data-rm-close]').onclick=()=>toggleEditor(false);
@@ -303,15 +310,25 @@
     panel.querySelector('[data-rm-source]').onchange=e=>{
       if(selected==='teddy')return;
       state.sources[selected]=Number(e.target.value);
-      save();persistGlobal();render();
-    };
-    panel.querySelector('[data-rm-size]').oninput=e=>{
-      currentLayout()[selected].w=Number(e.target.value);
       save();render();
     };
+    const sizeInput=panel.querySelector('[data-rm-size]');
+    sizeInput.oninput=e=>{
+      const l=currentLayout()[selected];if(!l)return;
+      l.w=Number(e.target.value);
+      const node=selected==='teddy'?room()?.querySelector('.room-master-teddy'):room()?.querySelector(`[data-room-master-object="${selected}"]`);
+      if(node)applyBox(node,l,selected);
+      const value=panel.querySelector('[data-rm-size-value]');
+      if(value)value.textContent=Math.round(l.w*10)/10+'%';
+    };
+    sizeInput.onchange=()=>save();
     panel.querySelectorAll('[data-rm-nudge]').forEach(b=>b.onclick=()=>nudge(b.dataset.rmNudge));
     panel.querySelector('[data-rm-reset-one]').onclick=resetOne;
     panel.querySelector('[data-rm-reset-level]').onclick=resetLevel;
+    panel.querySelector('[data-rm-save-global]').onclick=async()=>{
+      const ok=await persistGlobal();
+      toast(ok?'Розташування збережено для всіх':'Не вдалося зберегти для всіх');
+    };
     panel.querySelector('[data-rm-export]').onclick=exportJSON;
     return panel;
   }
@@ -345,18 +362,18 @@
     if(dir==='right')l.x=pct(l.x+step,0,92);
     if(dir==='up')l.y=pct(l.y-step,0,90);
     if(dir==='down')l.y=pct(l.y+step,0,90);
-    save();persistGlobal();render();
+    save();render();
   }
   function resetOne(){
     const n=String(state.activeLevel);
     currentLayout()[selected]=clone(CFG.defaults[n][selected]||CFG.defaults[0][selected]);
-    save();persistGlobal();render();
+    save();render();
   }
   function resetLevel(){
     const n=String(state.activeLevel);
     state.layouts[n]=clone(CFG.defaults[n]);
     SLOTS.forEach(s=>state.sources[s]=state.activeLevel);
-    save();persistGlobal();render();
+    save();render();
   }
   function exportJSON(){
     const payload=JSON.stringify({version:CFG.version,exportedAt:new Date().toISOString(),roomMaster:state},null,2);
