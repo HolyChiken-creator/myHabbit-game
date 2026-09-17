@@ -87,7 +87,7 @@
   .renovation-room.room-master-enabled{height:auto!important;min-height:0!important;aspect-ratio:4/3!important}
 }
 
-.renovation-room.room-master-enabled:not(.room-master-editing)>.room-companion.room-master-teddy{pointer-events:none!important;touch-action:auto!important}
+.renovation-room.room-master-enabled:not(.room-master-editing)>.room-companion.room-master-teddy{pointer-events:auto!important;touch-action:manipulation!important}
 
 /* 12.21.5 — second hidden room-editor trigger */
 .site-version-trigger{
@@ -170,3 +170,5 @@
 .room-master-teddy[data-activity="walk"][data-facing="left"] .bear-head{transform:rotate(-6deg)}
 .room-master-teddy[data-activity="walk"][data-facing="right"] .bear-head{transform:rotate(6deg)}
 @media(prefers-reduced-motion:reduce){.room-master-teddy[data-activity],.room-master-teddy[data-activity] .bear-part,.room-master-teddy[data-activity] .bear-head,.teddy-book{transition:none!important}.room-master-teddy[data-activity] .bear-rig g{animation:none!important}}
+
+.room-master-teddy .bear-rig,.room-master-teddy .bear-rig *{pointer-events:none!important}

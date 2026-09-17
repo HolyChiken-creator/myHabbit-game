@@ -1298,7 +1298,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
 }
 
   function roomCompanion(){
-    return '<div class="room-companion" role="button" tabindex="0" aria-label="'+tr('Тедик: натисніть, щоб погуляти','Teddy: press to take a walk')+'"><div class="companion-caption"></div>'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true"></span></div>';
+    return '<div class="room-companion" role="button" tabindex="0" aria-label="'+tr('Тедик','Teddy')+'">'+bearRigMarkup()+'<span class="companion-prop" aria-hidden="true"></span></div>';
   }
   const ROOM_DECOR_SLOT_NAMES={
     background:['Фон','Background'],window:['Вікно','Window'],armchair:['Крісло','Armchair'],table:['Столик','Side table'],

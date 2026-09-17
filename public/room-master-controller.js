@@ -159,7 +159,7 @@
       actor={mode:'idle',started:Date.now()};teddy.dataset.activity='idle';return;
     }
     const now=Date.now(),age=now-actor.started;
-    let pose='idle',caption='Натисни — прогуляємося!',english='Tap me for a walk!';
+    let pose='idle',caption='',english='';
     if(actor.mode==='walk'){
       const h=actor.home,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
       const right=Math.min(95-h.w,h.x+12),left=Math.max(1,h.x-12);
@@ -185,7 +185,7 @@
     teddy.classList.toggle('room-new-joy',actor.mode==='reaction');
     const text=document.documentElement.lang?.startsWith('en')?english:caption;
     const c=teddy.querySelector('.companion-caption');if(c&&c.textContent!==text)c.textContent=text;
-    teddy.setAttribute('aria-label',text);
+    teddy.setAttribute('aria-label',document.documentElement.lang?.startsWith('en')?'Teddy':'Тедик');
     const prop=teddy.querySelector('.companion-prop');if(prop&&prop.textContent)prop.textContent='';
   }
   setInterval(()=>{const el=room();if(el&&!document.hidden)applyActivity(el,el.querySelector('.room-master-teddy'));},120);
