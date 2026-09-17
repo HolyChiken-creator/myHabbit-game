@@ -493,3 +493,35 @@
   .room-inline-studio .room-live-style{grid-template-columns:72px minmax(0,1fr)!important;min-height:108px!important}
   .room-inline-studio .room-live-style>img{width:72px;height:82px}
 }
+
+/* 12.23.0 — vertical Teddy room workshop: room first, full buyable catalog below. */
+.room-live-studio[data-workshop="true"]{gap:12px!important;padding-bottom:18px!important}
+.room-live-studio[data-workshop="true"] .room-live-head{position:sticky!important;top:0!important;z-index:24!important;padding:4px 0 8px!important;background:linear-gradient(180deg,rgba(255,250,242,.98),rgba(255,250,242,.88) 78%,rgba(255,250,242,0))!important}
+.room-live-studio[data-workshop="true"] .room-workshop-jumps{position:sticky!important;top:54px!important;z-index:22!important;margin:0 -2px!important;padding:6px 2px 9px!important;background:linear-gradient(180deg,rgba(248,239,229,.98),rgba(248,239,229,.90) 82%,rgba(248,239,229,0))!important}
+.room-workshop-hint{margin:0!important}
+.room-workshop-preview-note{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid rgba(128,99,78,.16);border-radius:16px;background:rgba(245,239,255,.72)}
+.room-workshop-preview-note>div{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:9px;min-width:0}.room-workshop-preview-note>div>span{font-size:26px}.room-workshop-preview-note strong{display:block;font-size:12px;color:#563e70}.room-workshop-preview-note small{display:block;margin-top:2px;font-size:10px;line-height:1.35;color:#7c6c8c}.room-workshop-preview-note>.btn{flex:0 0 auto;min-height:42px}
+.room-workshop-catalog{display:grid;gap:18px;min-width:0}
+.room-workshop-group{display:grid;gap:9px;scroll-margin-top:118px;padding-top:2px}
+.room-workshop-group+.room-workshop-group{padding-top:16px;border-top:1px solid rgba(115,80,58,.12)}
+.room-workshop-group-head{display:flex;align-items:end;justify-content:space-between;gap:12px}.room-workshop-group-head>div{display:grid;gap:2px}.room-workshop-group-head span{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;color:#9a7f6a}.room-workshop-group-head h3{margin:0;font-size:17px;color:#50392a}.room-workshop-group-head>small{font-size:10px;color:#8a7464;white-space:nowrap}
+.room-workshop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;min-width:0}
+.room-workshop-card{min-width:0;display:grid;grid-template-rows:1fr auto;gap:8px;padding:9px;border:1px solid #e2d5c7;border-radius:17px;background:rgba(255,253,249,.78);box-shadow:0 5px 14px rgba(70,48,34,.06);transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease}
+.room-workshop-card.is-active{border-color:#8ea270;background:#f0f4e9}.room-workshop-card.is-owned:not(.is-active){border-color:#bac8a7}.room-workshop-card.is-preview{border-color:#876fc0;background:#f4efff;box-shadow:0 0 0 2px rgba(135,111,192,.12) inset,0 7px 18px rgba(78,57,125,.10)}.room-workshop-card.is-locked{background:#f7f3ed}
+@media(hover:hover) and (pointer:fine){.room-workshop-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(70,48,34,.10)}}
+.room-workshop-preview{min-width:0;display:grid;grid-template-columns:74px minmax(0,1fr);align-items:center;gap:10px;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.room-workshop-preview>img,.room-workshop-preview>.room-empty-preview{width:74px;height:82px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.5)}
+.room-workshop-preview>.room-empty-preview{display:grid;place-items:center;border:2px dashed #d6c5b2;font-size:36px;color:#a18a71}
+.room-workshop-card-copy{display:grid;gap:4px;min-width:0}.room-workshop-card-copy strong{font-size:12px;line-height:1.2;color:#523b2c;overflow-wrap:anywhere}.room-workshop-card-copy small{font-size:10px;line-height:1.25;color:#887264}.room-workshop-card-copy em{justify-self:start;padding:3px 7px;border-radius:999px;background:#f0e6dc;font-size:8px;font-style:normal;color:#876c55}
+.room-workshop-buy{width:100%;min-height:42px;padding:8px 9px!important;font-size:10px!important;white-space:normal}.room-workshop-buy:disabled{opacity:.58;cursor:not-allowed}
+.room-workshop-back-top{justify-self:center;min-height:44px;margin-top:2px}
+@media(min-width:1000px){.room-live-layout.is-editing .room-live-scene{position:sticky!important;top:8px!important;z-index:12!important}}
+@media(max-width:1050px){.room-workshop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){
+  .room-live-studio[data-workshop="true"]{padding:10px!important;gap:11px!important}.room-live-studio[data-workshop="true"] .room-live-head{top:0!important}.room-live-studio[data-workshop="true"] .room-workshop-jumps{top:51px!important}
+  .room-workshop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.room-workshop-group{scroll-margin-top:112px}.room-workshop-group-head h3{font-size:15px}
+  .room-workshop-preview{grid-template-columns:64px minmax(0,1fr);gap:8px}.room-workshop-preview>img,.room-workshop-preview>.room-empty-preview{width:64px;height:72px}.room-workshop-card{padding:8px}.room-workshop-preview-note{align-items:stretch;flex-direction:column}.room-workshop-preview-note>.btn{width:100%}
+}
+@media(max-width:460px){
+  .room-workshop-grid{grid-template-columns:1fr}.room-workshop-preview{grid-template-columns:78px minmax(0,1fr)}.room-workshop-preview>img,.room-workshop-preview>.room-empty-preview{width:78px;height:84px}.room-workshop-card-copy strong{font-size:13px}.room-workshop-buy{min-height:46px;font-size:11px!important}
+}

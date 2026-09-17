@@ -1,30 +1,35 @@
-myHabbit update 12.22.9
-Base: 12.22.8
+myHabbit 12.23.0 — Vertical Teddy room workshop
+Base: 12.22.9
 
-OVERWRITE / ADD:
-VERSION
-VERSION.txt
-package.json
-boot.js
-game-content.js
-worker.js
-UPDATE-12.22.9.md
-src/worker.js
-public/VERSION.txt
-public/boot.js
-public/game-content.js
-public/index.html
-public/manifest.webmanifest
-public/room-master.config.js
-public/sw.js
-public/UPDATE-12.22.9.md
+Replace these files in the project:
+- VERSION
+- VERSION.txt
+- boot.js
+- game-content.js
+- package.json
+- worker.js
+- src/worker.js
+- public/VERSION.txt
+- public/app.js
+- public/boot.js
+- public/game-content.js
+- public/home.css
+- public/index.html
+- public/manifest.webmanifest
+- public/sw.js
 
-NO FILES TO DELETE.
+Add:
+- UPDATE-12.23.0.md
+- public/UPDATE-12.23.0.md
 
-Main fixes:
-- /owner-console room editor CSP now permits /room-master.config.js, so the room/background/object list render correctly.
-- Editor is local-draft-first: drag/size/z/reset/preset/import do not publish to users.
-- Draft auto-saves locally and survives refreshes.
-- JSON import accepts layouts, roomLayoutMaster, roomMaster.layouts, or a direct level map.
-- Only “Опублікувати для всіх” creates a new server master-layout revision.
-- “Відновити опублікований” discards the local draft and reloads the server/default layout.
+Main behavior:
+- room workshop is one vertical top-to-bottom flow
+- Teddy room first, complete decor catalog below
+- all 11 decor categories are visible in the same workshop
+- preview and direct Buy / Equip are available on each item card
+- preview/equip preserves page scroll
+- quick category chips no longer steal normal vertical wheel scrolling
+- desktop keeps the room preview sticky while browsing; mobile scrolls naturally
+
+No migration is required. Room purchases, crystals, Teddy magic animation,
+owner master-layout and device layout sync keep their existing data model.
