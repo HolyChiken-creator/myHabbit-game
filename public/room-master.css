@@ -134,3 +134,9 @@
 .room-live-style small{line-height:1.45}.room-live-confirm,.room-live-hint{padding:16px;background:#fffaf2;border-top:1px solid #e4d6c4}
 @media(max-width:600px){.room-live-styles{grid-template-columns:repeat(5,140px)}.room-live-confirm-actions{display:flex;flex-wrap:wrap}.room-live-confirm-actions button{flex:1;min-height:44px}.room-live-head{padding:14px}}
 @media(prefers-reduced-motion:reduce){.room-master-teddy{transition:none}.room-master-teddy.room-new-joy .bear-head{animation:none!important}}
+
+/* A single stage proportion keeps all five furniture collections grounded. */
+.renovation-room.room-master-enabled{width:100%!important;aspect-ratio:16/7!important;height:auto!important;min-height:0!important;max-height:none!important}
+.renovation-room.room-master-enabled>.room-master-layer>.room-master-object{object-fit:contain!important;object-position:center bottom!important}
+.room-new-decor-note{margin:0;padding:0 16px 12px;color:#79644e;font-size:12px;line-height:1.5}
+@media(max-width:600px){.renovation-room.room-master-enabled>.room-companion[data-activity] .companion-caption{font-size:8px;max-width:100px;padding:5px 7px}}

@@ -1419,7 +1419,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const attrs=Object.entries(src).map(([slot,level])=>`data-room-source-${slot}="${level}"`).join(' ');
     const layout=escapeHtml(JSON.stringify(state.roomLayoutMaster||{}));
     const classes=['game-room','room-depth','renovation-room','renovation-stage-'+progress.stage].join(' ');
-    return `<section class="${classes}" data-room-theme-level="${progress.stage}" data-room-preview="${preview?'true':'false'}" data-room-admin="${isAdmin()?'true':'false'}" data-room-layout="${layout}" ${attrs}>
+    return `<section class="${classes}" data-room-theme-level="${progress.stage}" data-room-preview="${preview?'true':'false'}" data-room-admin="${isAdmin()?'true':'false'}" data-room-layout="${layout}" data-room-layout-version="${Number(state.roomLayoutVersion||0)}" ${attrs}>
       ${roomCompanion(next,completed,total)}
     </section>`;
   }
@@ -1443,7 +1443,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
       const owned=u.roomDecorOwned?.includes(item.id),active=u.roomDecor?.[slot]===item.id,isPreview=roomPreviewItemId===item.id,tier=item.tier||0,prereq=roomDecorPrerequisite(item),locked=Boolean(prereq&&!u.roomDecorOwned?.includes(prereq.id));
       const status=active?tr('Зараз у кімнаті','Currently equipped'):owned?tr('Уже придбано','Owned'):locked?tr('Можна приміряти · купівля після попереднього рівня','Preview available · unlock previous tier first'):item.price+' 💎';
       const assetSlot=item.slot==='background'?'background':item.slot;
-      const previewSrc=`/assets/room-master/level-${tier}/${assetSlot}.${['painting','lamp','clock'].includes(assetSlot)?'svg':'webp'}`;
+      const previewSrc=`/assets/room-master/level-${tier}/${assetSlot}.${['painting','lamp','clock'].includes(assetSlot)?'png':'webp'}`;
       return `<button class="room-live-style tier-${tier} ${active?'is-active':''} ${owned?'is-owned':''} ${locked?'is-locked':''} ${isPreview?'is-preview':''}" data-action="room-decor-preview" data-item-id="${item.id}"><img src="${previewSrc}" alt="" loading="lazy"><span>${item.icon}</span><strong>${escapeHtml(item.title)}</strong><small>${status}</small>${tier?`<em>${tr('Рівень','Tier')} ${tier}</em>`:''}</button>`;
     }).join('');
     let confirm='';
@@ -1457,7 +1457,7 @@ function bearRigMarkup(base = '/assets/bear-rig/v1/') {
     const opening=roomStudioOpening;roomStudioOpening=false;
     return `<section class="room-live-studio room-inline-studio" data-opening="${opening?'true':'false'}" aria-label="${tr('Майстерня кімнати','Room studio')}">
       <div class="room-live-head"><div><span>${tr('Майстерня кімнати','Room studio')}</span><strong>${tr(...(ROOM_DECOR_SLOT_NAMES[slot]||ROOM_DECOR_SLOT_NAMES.background))}</strong></div><div class="room-live-balance">💎 ${format(u.diamonds)}</div><button class="room-live-close" data-action="room-decor-close" aria-label="${tr('Закрити майстерню','Close studio')}">×</button></div>
-      <div class="room-live-tabs">${tabs}</div>
+      <p class="room-new-decor-note">${tr('Новий декор: картина, торшер і годинник — у кожному з 4 стилів. Оберіть вкладку, щоб приміряти.','New decor: painting, floor lamp and clock in all 4 styles. Select a tab to preview.')}</p><div class="room-live-tabs">${tabs}</div>
       <div class="room-live-styles">${cards}</div>
       ${confirm}
     </section>`;

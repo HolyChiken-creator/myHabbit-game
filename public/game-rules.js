@@ -58,17 +58,17 @@ export const ROOM_DECOR_CATALOG=[
   {id:'plant-warm',slot:'plant',title:'Тепла рослина',price:30,icon:'🌿',theme:'warm',tier:2},
   {id:'plant-hitech',slot:'plant',title:'Hi-tech рослина',price:54,icon:'✨',theme:'hitech',tier:3},
   {id:'plant-gothic',slot:'plant',title:'Готична рослина',price:84,icon:'🥀',theme:'gothic',tier:4},
-  {id:'painting-zero',slot:'painting',title:'Порожнє місце · Картина',price:0,icon:'🖼️',theme:'zero',tier:0},
+  {id:'painting-zero',slot:'painting',title:'Занедбана картина',price:0,icon:'🖼️',theme:'zero',tier:0},
   {id:'painting-cozy',slot:'painting',title:'Cozy · Картина',price:24,icon:'🖼️',theme:'cozy',tier:1},
   {id:'painting-warm',slot:'painting',title:'Warm · Картина',price:54,icon:'🖼️',theme:'warm',tier:2},
   {id:'painting-hitech',slot:'painting',title:'Hi-tech · Картина',price:96,icon:'🖼️',theme:'hitech',tier:3},
   {id:'painting-gothic',slot:'painting',title:'Gothic · Картина',price:156,icon:'🖼️',theme:'gothic',tier:4},
-  {id:'lamp-zero',slot:'lamp',title:'Порожнє місце · Торшер',price:0,icon:'💡',theme:'zero',tier:0},
+  {id:'lamp-zero',slot:'lamp',title:'Занедбаний торшер',price:0,icon:'💡',theme:'zero',tier:0},
   {id:'lamp-cozy',slot:'lamp',title:'Cozy · Торшер',price:30,icon:'💡',theme:'cozy',tier:1},
   {id:'lamp-warm',slot:'lamp',title:'Warm · Торшер',price:66,icon:'💡',theme:'warm',tier:2},
   {id:'lamp-hitech',slot:'lamp',title:'Hi-tech · Торшер',price:108,icon:'💡',theme:'hitech',tier:3},
   {id:'lamp-gothic',slot:'lamp',title:'Gothic · Торшер',price:168,icon:'💡',theme:'gothic',tier:4},
-  {id:'clock-zero',slot:'clock',title:'Порожнє місце · Годинник',price:0,icon:'🕰️',theme:'zero',tier:0},
+  {id:'clock-zero',slot:'clock',title:'Занедбаний годинник',price:0,icon:'🕰️',theme:'zero',tier:0},
   {id:'clock-cozy',slot:'clock',title:'Cozy · Годинник',price:18,icon:'🕰️',theme:'cozy',tier:1},
   {id:'clock-warm',slot:'clock',title:'Warm · Годинник',price:42,icon:'🕰️',theme:'warm',tier:2},
   {id:'clock-hitech',slot:'clock',title:'Hi-tech · Годинник',price:78,icon:'🕰️',theme:'hitech',tier:3},
@@ -239,10 +239,10 @@ export function applyGameAction(s,userId,op,now=Date.now(),random=Math.random){
       safe[n]={};
       for(const slot of ['window','armchair','table','bookshelf','fireplace','rug','plant','painting','lamp','clock','teddy']){
         const b=layout?.[slot];if(!b||typeof b!=='object')continue;
-        safe[n][slot]={x:num(b.x,0,95),y:num(b.y,0,95),w:num(b.w,5,80),z:Math.trunc(num(b.z,1,40))};
+        safe[n][slot]={x:num(b.x,0,95),y:num(b.y,0,95),w:num(b.w,5,80),z:Math.trunc(num(b.z,1,40)),...(Number.isFinite(b.h)?{h:num(b.h,3,95)}:{})};
       }
     }
-    s.roomLayoutMaster=safe;message='Розташування кімнати збережено для всіх';detail={roomLayoutMaster:safe};
+    s.roomLayoutMaster=safe;s.roomLayoutVersion=2;message='Розташування кімнати збережено для всіх';detail={roomLayoutMaster:safe};
   }else if(op.type==='level-rewards'){
     const rewards=s.levelRewards.filter(r=>u.level>=r.level&&!u.claimedLevelRewards.includes(r.level));if(!rewards.length)return {message:'Нових подарунків поки немає'};for(const r of rewards){grantReward(s,u,r);u.claimedLevelRewards.push(r.level);}message='Подарунки рівня отримано';
   }else if(op.type==='sticker-box'){

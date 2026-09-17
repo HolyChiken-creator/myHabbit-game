@@ -52,7 +52,7 @@
   function isAdminRoom(el){return el?.dataset?.roomAdmin==='true';}
 
   function serverLayouts(el){
-    try{return JSON.parse(el?.dataset?.roomLayout||'{}')||{};}catch{return {};}
+    try{if(el?.dataset?.roomLayoutVersion!=='2')return {};return JSON.parse(el?.dataset?.roomLayout||'{}')||{};}catch{return {};}
   }
   function sourceFor(el,slot){
     const raw=Number(el?.dataset?.['roomSource'+slot[0].toUpperCase()+slot.slice(1)]);
@@ -103,7 +103,7 @@
       const remote=serverLayouts(el);
       if(Object.keys(remote).length)Object.keys(remote).forEach(n=>state.layouts[n]={...CFG.defaults[n],...remote[n]});
     }
-    const runtimeLevel=String(inferStage(el));
+    const runtimeLevel=editorOpen?String(state.activeLevel):String(sourceFor(el,'background'));
     const bgLevel=editorOpen?String(state.activeLevel):String(sourceFor(el,'background'));
     const bg=el.querySelector('[data-room-master-bg]');
     if(bg){bg.onerror=()=>bg.classList.add('asset-load-error');bg.onload=()=>bg.classList.remove('asset-load-error');bg.src=(CFG.levels[bgLevel]||CFG.levels[0]).background;}
@@ -112,9 +112,9 @@
       const img=el.querySelector(`[data-room-master-object="${slot}"]`);if(!img)return;
       const sourceLevel=editorOpen?String(state.sources[slot]??state.activeLevel):String(sourceFor(el,slot));
       const level=CFG.levels[sourceLevel]||CFG.levels[0];
-      const layout=(state.layouts[sourceLevel]||CFG.defaults[sourceLevel]||CFG.defaults[0]);
+      const layout=(state.layouts[runtimeLevel]||CFG.defaults[runtimeLevel]||CFG.defaults[0]);
       img.onerror=()=>img.classList.add('asset-load-error');img.onload=()=>img.classList.remove('asset-load-error');
-      img.src=level.assets[slot];img.hidden=['painting','lamp','clock'].includes(slot)&&sourceLevel==='0';applyBox(img,layout[slot]||CFG.defaults[sourceLevel][slot],slot);
+      img.src=level.assets[slot];img.hidden=false;applyBox(img,layout[slot]||CFG.defaults[runtimeLevel][slot],slot);
       img.classList.toggle('is-selected',editorOpen&&selected===slot);
     });
 
@@ -145,11 +145,11 @@
     if(el.dataset.roomPreview==='true'){teddy.removeAttribute('data-activity');return;}
     if(!activity)return;
     const a=activities[activity.slot];if(!a)return;
-    const level=sourceFor(el,activity.slot),layout=state.layouts[level]||CFG.defaults[level];
+    const level=sourceFor(el,'background'),layout=state.layouts[level]||CFG.defaults[level];
     const b=layout[activity.slot]||CFG.defaults[level][activity.slot];
     if(b){
       const item=el.querySelector(`[data-room-master-object="${activity.slot}"]`);
-      const h=item?.naturalWidth?b.w*item.naturalHeight/item.naturalWidth*el.clientWidth/Math.max(1,el.clientHeight):b.w;
+      const h=b.h||(item?.naturalWidth?b.w*item.naturalHeight/item.naturalWidth*el.clientWidth/Math.max(1,el.clientHeight):b.w);
       const w=activity.slot==='armchair'?b.w*.78:18;
       const teddyHeight=w*1150/900*el.clientWidth/Math.max(1,el.clientHeight);
       let x=b.x+b.w*.5-w*.5,y=b.y+h*.84-teddyHeight*.9;
@@ -184,6 +184,7 @@
     el.style.left=x+'%';
     el.style.top=y+'%';
     el.style.width=w+'%';
+    if(slot!=='teddy'){el.style.height=Number.isFinite(b.h)?pct(b.h,3,95)+'%':'auto';el.style.objectPosition='center bottom';}
     el.style.zIndex=String(b.z||10);
     if(slot==='teddy'){
       el.style.right='auto';
@@ -308,7 +309,7 @@
   function toggleEditor(force){
     const next=typeof force==='boolean'?force:!editorOpen;
     if(next&&!editorOpen){
-      const stage=inferStage(room());
+      const stage=sourceFor(room(),'background');
       state.activeLevel=stage;
       SLOTS.forEach(slot=>{if(!CFG.levels[state.sources[slot]])state.sources[slot]=stage;});
     }
