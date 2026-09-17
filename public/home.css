@@ -645,8 +645,10 @@
     transform:none!important;
   }
   .room-live-layout.is-editing .renovation-room{
-    height:clamp(285px,44svh,380px)!important;
-    min-height:clamp(285px,44svh,380px)!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:16/7!important;
   }
 }
 
@@ -654,7 +656,7 @@
   .room-live-studio[data-workshop="true"]{padding:8px!important;gap:7px!important;border-radius:15px!important}
   .room-live-studio[data-workshop="true"] .room-new-decor-note{display:none!important}
   .room-live-layout.is-editing>.room-live-studio[data-workshop="true"]{height:clamp(245px,40svh,320px)!important;max-height:clamp(245px,40svh,320px)!important}
-  .room-live-layout.is-editing .renovation-room{height:clamp(255px,42svh,330px)!important;min-height:clamp(255px,42svh,330px)!important}
+  .room-live-layout.is-editing .renovation-room{width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:16/7!important}
   .room-workshop-jumps{padding:6px!important}
   .room-workshop-scroll{padding:7px!important}
   .room-workshop-card{grid-template-columns:minmax(0,1fr) 94px!important;padding:6px!important}
@@ -834,9 +836,10 @@
   .room-live-layout.is-editing.room-sheet-normal>.room-live-studio[data-workshop="true"]{height:clamp(310px,44svh,410px)!important}
   .room-live-layout.is-editing.room-sheet-expanded>.room-live-studio[data-workshop="true"]{height:clamp(390px,56svh,520px)!important}
 
-  .room-live-layout.is-editing.room-sheet-compact .renovation-room{height:clamp(330px,47svh,430px)!important;min-height:clamp(330px,47svh,430px)!important}
-  .room-live-layout.is-editing.room-sheet-normal .renovation-room{height:clamp(290px,42svh,390px)!important;min-height:clamp(290px,42svh,390px)!important}
-  .room-live-layout.is-editing.room-sheet-expanded .renovation-room{height:clamp(235px,34svh,320px)!important;min-height:clamp(235px,34svh,320px)!important}
+  /* The workshop must never change the room canvas geometry. Sheet size affects only the shop panel. */
+  .room-live-layout.is-editing.room-sheet-compact .renovation-room,
+  .room-live-layout.is-editing.room-sheet-normal .renovation-room,
+  .room-live-layout.is-editing.room-sheet-expanded .renovation-room{width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:16/7!important}
 
   .room-live-studio[data-workshop="true"] .room-live-head{
     min-height:38px!important;
@@ -960,3 +963,18 @@
 
 /* 12.23.9 — achievements live inside Museum */
 .achievement-list-head{display:flex;align-items:center;gap:14px;margin:0 0 14px}.achievement-list-head h2{margin:0 0 3px}.achievement-list{display:grid;grid-template-columns:1fr;gap:9px}.achievement-list .achievement-card{width:100%;grid-template-columns:52px minmax(0,1fr);min-height:76px}.achievement-list .achievement-card h3{white-space:normal}.achievement-list .achievement-card p{-webkit-line-clamp:2}.museum-achievement-preview{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}.museum-achievements .section-head>div{min-width:0}.museum-achievements .section-head small{display:block;color:var(--muted);margin-top:2px}@media(max-width:700px){.achievement-list-head{align-items:flex-start;flex-direction:column}.achievement-list-head .btn{width:auto}.achievement-list .achievement-card{grid-template-columns:46px minmax(0,1fr)}.museum-achievement-preview .achievement-card:nth-child(n+4){display:none}.museum-achievements .section-head{align-items:center}.museum-achievements .section-head .btn{white-space:nowrap}}
+
+
+/* 12.24.1 — one canonical Teddy-room canvas in static and workshop modes.
+   The shop may resize; the visual room never changes its coordinate system. */
+.room-live-layout .room-live-scene>.renovation-room.room-master-enabled,
+.room-live-layout.is-editing .room-live-scene>.renovation-room.room-master-enabled,
+.room-live-layout.is-editing.room-sheet-compact .room-live-scene>.renovation-room.room-master-enabled,
+.room-live-layout.is-editing.room-sheet-normal .room-live-scene>.renovation-room.room-master-enabled,
+.room-live-layout.is-editing.room-sheet-expanded .room-live-scene>.renovation-room.room-master-enabled{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:16/7!important;
+}

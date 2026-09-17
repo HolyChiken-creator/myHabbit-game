@@ -1,3 +1,9 @@
+## 12.24.1 — Unified Teddy room canvas
+- Fixed mobile workshop mode stretching the Teddy room into a different visual plan.
+- Static dashboard and customization preview now share the same canonical 16:7 room canvas and percentage coordinate system.
+- Compact / normal / expanded workshop states resize only the shop panel, never the room itself.
+- Teddy room purchases, upgrades, animations and owner master-layout behavior are otherwise unchanged.
+
 ## 12.24.0 — JSON login on a new device
 - Quick-login JSON is validated by the server before it is stored or opened.
 - New devices receive the fresh server state and then restart through the authenticated bootstrap, so live sync/presence start correctly.

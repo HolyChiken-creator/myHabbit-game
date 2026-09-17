@@ -137,3 +137,13 @@ assert.match(roomCss,/@keyframes teddy-magic-wave/);
 assert.match(roomCss,/@keyframes room-item-magic/);
 assert.match(roomCss,/@keyframes room-magic-spark/);
 console.log('PASS: Teddy wave + magic decor transform + live owner-console canonical desktop/mobile layout.');
+
+// 12.24.1 regression: opening/resizing the mobile workshop must not change the Teddy room canvas.
+const unifiedCanvasCss=readFileSync(new URL('../public/home.css',import.meta.url),'utf8');
+assert.match(unifiedCanvasCss,/12\.24\.1 — one canonical Teddy-room canvas/);
+assert.match(unifiedCanvasCss,/room-live-layout\.is-editing\.room-sheet-compact[\s\S]*?aspect-ratio:16\/7!important/);
+assert.match(unifiedCanvasCss,/room-live-layout\.is-editing\.room-sheet-normal[\s\S]*?aspect-ratio:16\/7!important/);
+assert.match(unifiedCanvasCss,/room-live-layout\.is-editing\.room-sheet-expanded[\s\S]*?aspect-ratio:16\/7!important/);
+assert.doesNotMatch(unifiedCanvasCss,/room-live-layout\.is-editing\.room-sheet-(?:compact|normal|expanded) \.renovation-room\{height:clamp/);
+assert.doesNotMatch(unifiedCanvasCss,/room-live-layout\.is-editing \.renovation-room\{height:clamp/);
+console.log('PASS: static and workshop Teddy-room views share the same canonical 16:7 canvas.');
